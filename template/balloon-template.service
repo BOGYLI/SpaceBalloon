@@ -1,0 +1,12 @@
+[Unit]
+Description=Space Balloon Template
+
+[Service]
+Type=simple
+ExecStart=~/SpaceBalloon/template/start.sh
+WorkingDirectory=~/SpaceBalloon
+User=maker
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
