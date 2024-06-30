@@ -1,0 +1,12 @@
+[Unit]
+Description=Space Balloon GPS
+
+[Service]
+Type=simple
+ExecStart=~/SpaceBalloon/gps/start.sh
+WorkingDirectory=~/SpaceBalloon
+User=maker
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

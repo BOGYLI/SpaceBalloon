@@ -9,6 +9,7 @@ import time
 import utils
 
 
+# Initialize logger
 logger = utils.init_logger("template")
 
 
