@@ -1,3 +1,13 @@
+# IDE
 .idea
 .vscode
+
+# Python
+.venv
 **/__pycache__
+
+# Data storage
+data
+
+# Configuration
+config.yml
