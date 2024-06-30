@@ -1,0 +1,15 @@
+# --------------------------------
+# Space balloon configuration file
+# --------------------------------
+
+# Sensor reading interval in seconds
+interval:
+  gps: 1
+  temp: 4
+
+# Sensor data and video storage paths
+paths:
+  sensor:
+  - ./data/sensor
+  video:
+  - ./data/video
