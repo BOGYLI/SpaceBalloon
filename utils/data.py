@@ -27,5 +27,7 @@ def write_csv(name: str, data: list) -> None:
     """
     
     for path in CONFIG["paths"]["sensor"]:
+        if not os.path.exists(f"{path}/{name}.csv"):
+            raise FileNotFoundError(f"CSV file {name}.csv not found! Please initialize it with reset.sh.")
         with open(f"{path}/{name}.csv", 'a') as file:
             file.write(f"{time.time():.2f},{','.join([str(value) for value in data])}\n")
