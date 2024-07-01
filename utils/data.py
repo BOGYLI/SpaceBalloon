@@ -15,7 +15,7 @@ def init_csv(name: str, columns: list[str]) -> None:
         if not os.path.exists(path):
             os.makedirs(path)
         with open(f"{path}/{name}.csv", 'w') as file:
-            file.write(f"timestamp,{",".join(columns)}\n")
+            file.write(f"timestamp,{','.join(columns)}\n")
 
 
 def write_csv(name: str, data: list) -> None:
@@ -28,4 +28,4 @@ def write_csv(name: str, data: list) -> None:
     
     for path in CONFIG["paths"]["sensor"]:
         with open(f"{path}/{name}.csv", 'a') as file:
-            file.write(f"{time.time():.2f},{",".join([str(value) for value in data])}\n")
+            file.write(f"{time.time():.2f},{','.join([str(value) for value in data])}\n")
