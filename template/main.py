@@ -5,7 +5,6 @@ CSV format:
 timestamp, ###
 """
 
-import time
 import utils
 
 
@@ -13,8 +12,10 @@ import utils
 logger = utils.init_logger("template")
 
 
+# Temporary demonstration #REMOVE
 def demo():
     import random
+    import time
     while True:
         utils.write_csv("template", [random.randint(0, 100)])
         time.sleep(1)
