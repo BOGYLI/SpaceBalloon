@@ -5,6 +5,7 @@ CSV format:
 timestamp, latitude, longitude, altitude
 """
 
+import time
 import utils
 import smbus2
 
@@ -40,6 +41,7 @@ def read_gps_data():
         return filtered_data
     except Exception as e:
         logger.warning(f"Error reading GPS data: {e}")
+        time.sleep(1)
         return None
 
 
@@ -51,6 +53,7 @@ def parse_nmea_sentence(data):
         return nmea_sentence
     except Exception as e:
         logger.warning(f"Error parsing NMEA sentence: {e}")
+        time.sleep(1)
         return None
 
 
