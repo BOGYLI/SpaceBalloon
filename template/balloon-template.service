@@ -3,9 +3,7 @@ Description=Space Balloon Template
 
 [Service]
 Type=simple
-ExecStart=~/SpaceBalloon/template/start.sh
-WorkingDirectory=~/SpaceBalloon
-User=maker
+ExecStart=/home/maker/SpaceBalloon/template/start.sh
 Restart=always
 
 [Install]
