@@ -1,6 +1,9 @@
 import yaml
 
 
+VERSION = 1
+
+
 def load_config() -> dict:
     """
     Load the configuration file
@@ -10,6 +13,10 @@ def load_config() -> dict:
 
     with open("config.yml", 'r') as file:
         config = yaml.safe_load(file)
+
+    if config["version"] != VERSION:
+        raise Exception("Configuration file version mismatch! Please remove config.yml, run setup.sh and adjust your settings.")
+
     return config
 
 

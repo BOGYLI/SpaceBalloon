@@ -2,6 +2,9 @@
 # Space balloon configuration file
 # --------------------------------
 
+# Configuration version (do not touch)
+version: 1
+
 # Sensor reading interval in seconds
 interval:
   gps: 1
