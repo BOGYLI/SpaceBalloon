@@ -1,15 +1,21 @@
 #!/bin/bash
 
-# Change directory
-cd ~/SpaceBalloon
+# Check if the script is run as root
+if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+    echo "Not running as root"
+    exit
+fi
+
+# Change directory to script directory
+cd "$(dirname "$0")"
 
 # Set PYTHONPATH
-export PYTHONPATH=~/SpaceBalloon
+export PYTHONPATH="$(dirname "$0")"
 
 # Activate the virtual environment
 source .venv/bin/activate
 
-# Run init.py for all directories that contain it
-for init in **/init.py; do
+# Run init.py for all directories that contain it (exclude template)
+for init in $(find . -name "init.py" ! -path "./template/*"); do
     python3 "$init"
 done

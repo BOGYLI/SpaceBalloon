@@ -1,7 +1,13 @@
 #!/bin/bash
 
-# Change directory
-cd ~/SpaceBalloon
+# Check if the script is run as root
+if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+    echo "Not running as root"
+    exit
+fi
+
+# Change directory to script directory
+cd "$(dirname "$0")"
 
 # Create a virtual environment if it doesn't exist
 if [ ! -d ".venv" ]; then
@@ -14,8 +20,10 @@ source .venv/bin/activate
 # Install the required packages
 pip3 install -r requirements.txt
 
-# Copy systemd service files from all directorys to /etc/systemd/system
-cp **/*.service /etc/systemd/system/
+# Copy systemd service files (exclude the template service file) from all directorys to /etc/systemd/system/
+for service in $(find . -name "balloon-*.service" ! -name "balloon-template.service"); do
+    cp "$service" /etc/systemd/system/
+done
 
 # Reload systemd
 systemctl daemon-reload
@@ -27,5 +35,5 @@ done
 
 # Create configuration file
 if [ ! -f "config.yml" ]; then
-    cp resources/config.yml.example config.yml
+    cp resources/templates/config.yml.example config.yml
 fi
