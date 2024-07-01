@@ -9,7 +9,14 @@ fi
 # Change directory to script directory
 cd "$(dirname "$0")"
 
+# Check for virtual environment
+if [ ! -d ".venv" ]; then
+    echo "Environment not initialized, please run setup.sh first"
+    exit
+fi
+
 # Stop the services
 for service in /etc/systemd/system/balloon-*.service; do
+    echo "Stopping service $(basename "$service")"
     systemctl stop "$(basename "$service")"
 done

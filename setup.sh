@@ -11,6 +11,7 @@ cd "$(dirname "$0")"
 
 # Create a virtual environment if it doesn't exist
 if [ ! -d ".venv" ]; then
+    echo "Creating virtual environment"
     python3 -m venv .venv
 fi
 
@@ -18,22 +19,27 @@ fi
 source .venv/bin/activate
 
 # Install the required packages
+echo "Installing required packages"
 pip3 install -r requirements.txt
 
 # Copy systemd service files (exclude the template service file) from all directorys to /etc/systemd/system/
 for service in $(find . -name "balloon-*.service" ! -name "balloon-template.service"); do
+    echo "Copying systemd service file $service to /etc/systemd/system/"
     cp "$service" /etc/systemd/system/
 done
 
 # Reload systemd
+echo "Reloading systemd"
 systemctl daemon-reload
 
 # Enable the services
 for service in /etc/systemd/system/balloon-*.service; do
+    echo "Enabling service $(basename "$service")"
     systemctl enable "$(basename "$service")"
 done
 
 # Create configuration file
 if [ ! -f "config.yml" ]; then
+    echo "Creating configuration file"
     cp resources/templates/config.yml.example config.yml
 fi
