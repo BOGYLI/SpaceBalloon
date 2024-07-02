@@ -9,6 +9,12 @@ https://spaceballoon.bodensee-gymnasium.de/
 ### YouTube
 https://www.youtube.com/@spaceballoonbogy
 
+### Modules
+- [webcam](/webcam/)
+- [gps](/gps/)
+
+Read more in the [WIKI](https://github.com/BOGYLI/SpaceBalloon/wiki)!
+
 \
 **© 2024 Bodensee-Gymnasium Lindau**\
 \

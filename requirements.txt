@@ -1,2 +1,3 @@
 pyyaml
 smbus2
+opencv-python
