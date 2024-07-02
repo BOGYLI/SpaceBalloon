@@ -24,10 +24,11 @@ def main():
         logger.error("Cannot open webcam")
         return
     
-    # Initialize the video writer
-    logger.debug(utils.new_video(WEBCAM))
+    # Initialize the video writers
+    storages = utils.new_video(WEBCAM)
+    logger.info(f"Saving video to {', '.join([storage['path'] for storage in storages])}")
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    #TODO
+    outputs = [cv2.VideoWriter(storage["path"], fourcc, 15.0, (storage["width"], storage["height"])) for storage in storages]
 
     # Read video from webcam
     while True:
@@ -40,15 +41,17 @@ def main():
             logger.error("Cannot read frame from webcam")
             break
 
-        # Display the frame
-        cv2.imshow(f"Webcam {WEBCAM}", frame)
-
-        # Break the loop
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
+        # Write the frame to the video writers
+        for output in outputs:
+            # TODO: Resize the frame
+            output.write(frame)
 
     # Release the webcam
     cap.release()
+
+    # Release the video writers
+    for output in outputs:
+        output.release()
 
     # Close all windows
     cv2.destroyAllWindows()

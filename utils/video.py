@@ -30,7 +30,7 @@ def new_video(webcam: int) -> list[dict[str, str | int]]:
         if not os.path.exists(f"{storage['path']}/cam{webcam}"):
             raise FileNotFoundError(f"Video directory cam{webcam} not found! Please initialize it with reset.sh.")
         storages.append({
-            "path": f"{storage['path']}/cam{webcam}/video_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp4",
+            "path": os.path.abspath(f"{storage['path']}/cam{webcam}/video_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp4"),
             "width": storage["width"],
             "height": storage["height"],
         })
