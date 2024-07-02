@@ -9,6 +9,11 @@ https://spaceballoon.bodensee-gymnasium.de/
 ### YouTube
 https://www.youtube.com/@spaceballoonbogy
 
+### Architecture
+![Architecture](docs/architecture.png "Architecture")
+
+Read more in the [WIKI](https://github.com/BOGYLI/SpaceBalloon/wiki)!
+
 ### Modules
 - [webcam](/webcam/)
 - [gps](/gps/)
