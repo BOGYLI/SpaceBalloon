@@ -18,15 +18,13 @@ if [ ! -d ".venv" ]; then
     exit
 fi
 
-# Ask for confirmation if data exists
-if [ -d "data" ]; then
-    echo "WARNING! You are about to delete all existing sensor data and video footage!"
-    echo "This action cannot be undone. It isn't recommended to automatically run this script."
-    read -p "Are you sure to continue? (y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit
-    fi
+# Ask for confirmation
+echo "WARNING! You are about to delete all existing sensor data and video footage!"
+echo "This action cannot be undone. It isn't recommended to automatically run this script."
+read -p "Are you sure to continue? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit
 fi
 
 # Activate the virtual environment

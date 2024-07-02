@@ -11,10 +11,10 @@ def init_csv(name: str, columns: list[str]) -> None:
     :param columns: List of column names
     """
     
-    for path in CONFIG["paths"]["sensor"]:
-        if not os.path.exists(path):
-            os.makedirs(path)
-        with open(f"{path}/{name}.csv", 'w') as file:
+    for storage in CONFIG["storage"]["sensor"].values():
+        if not os.path.exists(storage["path"]):
+            os.makedirs(storage["path"])
+        with open(f"{storage['path']}/{name}.csv", 'w') as file:
             file.write(f"timestamp,{','.join(columns)}\n")
 
 
@@ -26,8 +26,8 @@ def write_csv(name: str, data: list) -> None:
     :param data: List of data to write
     """
     
-    for path in CONFIG["paths"]["sensor"]:
-        if not os.path.exists(f"{path}/{name}.csv"):
+    for storage in CONFIG["storage"]["sensor"].values():
+        if not os.path.exists(f"{storage['path']}/{name}.csv"):
             raise FileNotFoundError(f"CSV file {name}.csv not found! Please initialize it with reset.sh.")
-        with open(f"{path}/{name}.csv", 'a') as file:
+        with open(f"{storage['path']}/{name}.csv", 'a') as file:
             file.write(f"{time.time():.2f},{','.join([str(value) for value in data])}\n")

@@ -3,16 +3,15 @@
 # --------------------------------
 
 # Configuration version (do not touch)
-version: 1
+version: 2
 
-# Sensor reading interval in seconds
-interval:
-  gps: 1
-  temp: 4
-
-# Sensor data and video storage paths
-paths:
+# Sensor data and video storage
+storage:
   sensor:
-  - ./data/sensor
+    default:
+      path: ./data/sensor
   video:
-  - ./data/video
+    default:
+      path: ./data/video
+      width: 854
+      height: 480

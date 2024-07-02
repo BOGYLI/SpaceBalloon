@@ -12,7 +12,7 @@ def init_logger(name: str) -> logging.Logger:
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)s] [%(name)s] <%(levelname)s> %(message)s')
+    formatter = logging.Formatter('[%(asctime)s] [%(name)s] <%(levelname)s> %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     stdout = logging.StreamHandler(sys.stdout)
     stdout.setFormatter(formatter)
     logger.addHandler(stdout)
