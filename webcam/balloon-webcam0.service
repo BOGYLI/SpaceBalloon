@@ -1,5 +1,5 @@
 [Unit]
-Description=Space Balloon Webcam 0
+Description=space balloon webcam 0
 
 [Service]
 Type=simple

@@ -1,5 +1,5 @@
 [Unit]
-Description=Space Balloon GPS
+Description=space balloon GPS
 
 [Service]
 Type=simple
