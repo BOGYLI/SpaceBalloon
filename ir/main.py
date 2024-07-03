@@ -17,7 +17,7 @@ logger = utils.init_logger("ir")
 
 def main():
 
-    i2c = board.I2C()  # uses board.SCL and board.SDApressure, temp, humidity
+    i2c = board.I2C()  # uses board.SCL and board.SDA
     sensor = AS726x_I2C(i2c)
 
     sensor.conversion_mode = sensor.MODE_2
