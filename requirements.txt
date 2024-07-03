@@ -2,3 +2,4 @@ pyyaml
 smbus2
 ffmpegcv
 adafruit-circuitpython-ms8607
+adafruit-circuitpython-as726x

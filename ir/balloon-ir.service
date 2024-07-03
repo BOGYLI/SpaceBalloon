@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon infrared
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/ir/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

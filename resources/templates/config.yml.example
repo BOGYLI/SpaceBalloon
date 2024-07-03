@@ -1,11 +1,15 @@
-# --------------------------------
-# Space balloon configuration file
-# --------------------------------
+# SPACE BALLOON CONFIGURATION
 
-# Configuration version (do not touch)
-version: 2
+# config version (do not touch)
+version: 3
 
-# Sensor data and video storage
+# sensor read interval (timeout in seconds)
+interval:
+  gps: 1
+  climate: 1
+  ir: 1
+
+# sensor data and video storage
 storage:
   sensor:
     default:
