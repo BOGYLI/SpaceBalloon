@@ -1,0 +1,10 @@
+[Unit]
+Description=Space Balloon Climate
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/climate/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

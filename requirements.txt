@@ -1,3 +1,4 @@
 pyyaml
 smbus2
-opencv-python
+ffmpegcv
+adafruit-circuitpython-ms8607
