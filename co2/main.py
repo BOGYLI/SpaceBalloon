@@ -18,7 +18,7 @@ logger = utils.init_logger("co2")
 def main():
 
     bus = smbus2.SMBus(utils.get_bus("co2"))
-    sgp30 = SGP30(bus)
+    sgp30 = SGP30(bus, smbus2.i2c_msg)
 
     sgp30.start_measurement(lambda: None)
 
