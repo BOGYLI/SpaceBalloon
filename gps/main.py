@@ -11,7 +11,7 @@ import smbus2
 
 
 # Define the I2C bus and address for the SAM-M8Q module
-I2C_BUS = 1
+I2C_BUS = utils.get_bus("gps")
 GPS_ADDRESS = 0x42
 
 # Initialize logger

@@ -32,8 +32,8 @@ CURR_DECL = -0.00669 # determine by yourself
 pi = 3.14159265359 # define pi value
 
 class compass():
-    def __init__(self, address=0x0d, mode=MODE_CONT, odr=ODR_10Hz, sens=SENS_2G, osr=OSR_512, d=CURR_DECL):
-        self.bus = smbus2.SMBus(1)
+    def __init__(self, bus, address=0x0d, mode=MODE_CONT, odr=ODR_10Hz, sens=SENS_2G, osr=OSR_512, d=CURR_DECL):
+        self.bus = smbus2.SMBus(bus)
         self.device_address = address # magnetometer device i2c address
         self._declination = d
         self.magnetometer_init(mode, odr, sens, osr)

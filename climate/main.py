@@ -29,7 +29,7 @@ def main():
         logger.info(f"Pressure: {pressure}hPa, Temperatur: {temp}°C, Humidity: {humidity}rH")
         utils.write_csv("climate", [pressure, temp, humidity])
 
-        time.sleep(1)
+        time.sleep(utils.get_interval("climate"))
 
 
 if __name__ == "__main__":

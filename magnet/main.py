@@ -16,7 +16,7 @@ logger = utils.init_logger("magnet")
 
 def main():
 
-    sensor = gy271.compass()
+    sensor = gy271.compass(utils.get_bus("magnet"))
 
     while True:
 
@@ -26,7 +26,7 @@ def main():
         logger.info(f"Temperature: {temp}°C, Heading: {angle}°")
         utils.write_csv("magnet", [temp, angle])
 
-        time.sleep(1)
+        time.sleep(utils.get_interval("magnet"))
 
 
 if __name__ == "__main__":

@@ -39,7 +39,7 @@ def main():
         logger.info(f"Temperature: {temp}°C, Violet: {violet:.1f}, Blue: {blue:.1f}, Green: {green:.1f}, Yellow: {yellow:.1f}, Orange: {orange:.1f}, Red: {red:.1f}")
         utils.write_csv("ir", [temp, violet, blue, green, yellow, orange, red])
 
-        time.sleep(1)
+        time.sleep(utils.get_interval("ir"))
 
 
 if __name__ == "__main__":
