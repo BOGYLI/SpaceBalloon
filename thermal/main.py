@@ -15,6 +15,16 @@ import adafruit_mlx90640
 logger = utils.init_logger("thermal")
 
 
+def get_frame(mlx):
+    frame = [0] * 768
+    try:
+        mlx.getFrame(frame)
+    except ValueError:
+        # these happen, no biggie - retry
+        return get_frame(mlx)
+    return frame
+
+
 def main():
 
     i2c = busio.I2C(board.SCL, board.SDA)
@@ -23,14 +33,9 @@ def main():
 
     mlx.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ
 
-    frame = [0] * 768
     while True:
 
-        try:
-            mlx.getFrame(frame)
-        except ValueError:
-            # these happen, no biggie - retry
-            continue
+        frame = get_frame(mlx)
 
         logger.info(f"Frame read")
         utils.write_csv("thermal", [str(temp) for temp in frame])
