@@ -10,7 +10,7 @@ https://spaceballoon.bodensee-gymnasium.de/
 https://www.youtube.com/@spaceballoonbogy
 
 ### Architecture
-![Architecture](docs/architecture.png "Architecture")
+![Architecture](docs/architecture-technological.png "Architecture")
 
 Read more in the [WIKI](https://github.com/BOGYLI/SpaceBalloon/wiki)!
 
