@@ -15,8 +15,14 @@ https://www.youtube.com/@spaceballoonbogy
 Read more in the [WIKI](https://github.com/BOGYLI/SpaceBalloon/wiki)!
 
 ### Modules
-- [webcam](/webcam/)
+- [climate](/climate/)
+- [co2](/co2/)
 - [gps](/gps/)
+- [magnet](/magnet/)
+- [spectral](/spectral/)
+- [system](/system/)
+- [thermal](/thermal/)
+- [webcam](/webcam/)
 
 Read more in the [WIKI](https://github.com/BOGYLI/SpaceBalloon/wiki)!
 
