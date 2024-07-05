@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon system
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/system/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

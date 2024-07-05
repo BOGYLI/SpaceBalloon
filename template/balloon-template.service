@@ -1,5 +1,5 @@
 [Unit]
-Description=Space Balloon Template
+Description=space balloon template
 
 [Service]
 Type=simple
