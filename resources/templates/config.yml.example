@@ -1,11 +1,22 @@
-# --------------------------------
-# Space balloon configuration file
-# --------------------------------
+# SPACE BALLOON CONFIGURATION
 
-# Configuration version (do not touch)
-version: 2
+# config version (do not touch)
+version: 4
 
-# Sensor data and video storage
+# sensor custom I2C bus
+bus:
+  gps: 4
+  co2: 5
+  magnet: 6
+
+# sensor read interval (timeout in seconds)
+interval:
+  magnet: 1
+  ir: 1
+  co2: 1
+  climate: 1
+
+# sensor data and video storage
 storage:
   sensor:
     default:

@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon thermal cam
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/thermal/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

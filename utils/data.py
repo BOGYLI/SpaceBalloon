@@ -31,3 +31,25 @@ def write_csv(name: str, data: list) -> None:
             raise FileNotFoundError(f"CSV file {name}.csv not found! Please initialize it with reset.sh.")
         with open(f"{storage['path']}/{name}.csv", 'a') as file:
             file.write(f"{time.time():.2f},{','.join([str(value) for value in data])}\n")
+
+
+def get_bus(name: str) -> int:
+    """
+    Get the I2C bus number for the given sensor name
+
+    :param name: Name of the sensor
+    :return: I2C bus number
+    """
+
+    return CONFIG["bus"][name]
+
+
+def get_interval(name: str) -> int:
+    """
+    Get the interval for the given sensor name
+
+    :param name: Name of the sensor
+    :return: Interval in seconds
+    """
+
+    return CONFIG["interval"][name]
