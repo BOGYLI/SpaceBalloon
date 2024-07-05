@@ -22,6 +22,14 @@ source .venv/bin/activate
 echo "Installing required packages"
 pip3 install -r requirements.txt
 
+# Remove old systemd service files
+for service in /etc/systemd/system/balloon-*.service; do
+    echo "Removing old service $(basename "$service")"
+    systemctl stop "$(basename "$service")"
+    systemctl disable "$(basename "$service")"
+    rm "$service"
+done
+
 # Copy systemd service files (exclude the template service file) from all directorys to /etc/systemd/system/
 for service in $(find . -name "balloon-*.service" ! -name "balloon-template.service"); do
     echo "Copying systemd service file $service to /etc/systemd/system/"
