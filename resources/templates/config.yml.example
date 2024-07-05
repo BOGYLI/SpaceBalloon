@@ -1,20 +1,20 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 5
+version: 6
 
 # sensor custom I2C bus
 bus:
-  gps: 4
   co2: 5
+  gps: 4
   magnet: 6
 
 # sensor read interval (timeout in seconds)
 interval:
-  magnet: 1
-  ir: 1
-  co2: 1
   climate: 1
+  co2: 1
+  magnet: 1
+  spectral: 1
   system: 1
 
 # sensor data and video storage

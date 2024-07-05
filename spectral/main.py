@@ -1,5 +1,5 @@
 """
-Read data from infrared sensor
+Read data from spectral sensor
 
 CSV format:
 timestamp, temp, violet, blue, green, yellow, orange, red
@@ -12,7 +12,7 @@ from adafruit_as726x import AS726x_I2C
 
 
 # Initialize logger
-logger = utils.init_logger("ir")
+logger = utils.init_logger("spectral")
 
 
 def main():
@@ -37,9 +37,9 @@ def main():
         red = sensor.red
 
         logger.info(f"Temperature: {temp}°C, Violet: {violet:.1f}, Blue: {blue:.1f}, Green: {green:.1f}, Yellow: {yellow:.1f}, Orange: {orange:.1f}, Red: {red:.1f}")
-        utils.write_csv("ir", [temp, violet, blue, green, yellow, orange, red])
+        utils.write_csv("spectral", [temp, violet, blue, green, yellow, orange, red])
 
-        time.sleep(utils.get_interval("ir"))
+        time.sleep(utils.get_interval("spectral"))
 
 
 if __name__ == "__main__":
