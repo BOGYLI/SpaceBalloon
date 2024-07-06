@@ -17,7 +17,11 @@ logger = utils.init_logger(f"webcam{WEBCAM}")
 def main():
 
     # Open webcam
-    cap = cv2.VideoCapture(WEBCAM)
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FPS, 30)
 
     # Check if the webcam is opened
     if not cap.isOpened():
@@ -27,8 +31,7 @@ def main():
     # Initialize the video writers
     storages = utils.new_video(WEBCAM)
     logger.info(f"Saving video to {', '.join([storage['path'] for storage in storages])}")
-    fourcc = cv2.VideoWriter_fourcc(*"DIVX")
-    outputs = [cv2.VideoWriter(storage["path"], fourcc, 15.0, (storage["height"], storage["width"])) for storage in storages]
+    outputs = [cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 15.0, (1920, 1080)) for storage in storages]
 
     try:
 
@@ -43,28 +46,26 @@ def main():
                 logger.error("Cannot read frame from webcam")
                 break
 
-            logger.debug(frame.shape)
 
             # Write the frame to the video writers
             for i, output in enumerate(outputs):
                 
                 # Resize the frame and write
-                resized = cv2.resize(frame, (storages[i]["width"], storages[i]["height"]))
-                logger.debug(resized.shape)
-                output.write(resized)
+                #resized = .resize(frame, (storages[i]["width"], storages[i]["height"]))
+                output.write(frame)
 
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt")
-        
+
+        for output in outputs:
+            output.release()
+
     # Release the webcam
     cap.release()
 
     # Release the video writers
     for output in outputs:
         output.release()
-
-    # Close all windows
-    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

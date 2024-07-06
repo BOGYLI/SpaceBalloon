@@ -2,7 +2,7 @@ pyyaml
 smbus2
 psutil
 gpiozero
-ffmpegcv
+opencv-python
 adafruit-circuitpython-ms8607
 adafruit-circuitpython-as726x
 adafruit-circuitpython-mlx90640
