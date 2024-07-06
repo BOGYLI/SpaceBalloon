@@ -27,7 +27,7 @@ def main():
         disk = [psutil.disk_usage(partition.mountpoint).percent for partition in psutil.disk_partitions()]
 
         logger.info(f"CPU: {cpu}%, Memory: {memory}%, Temp: {temp}°C, Sent: {sent} bytes, Received: {received} bytes, Disk: {disk}")
-        utils.write_csv("system", [cpu, memory, temp, sent, received, f"'{disk}'"])
+        utils.write_csv("system", [cpu, memory, temp, sent, received, *disk])
 
         time.sleep(utils.get_interval("system"))
 
