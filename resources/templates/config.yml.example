@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 6
+version: 7
 
 # sensor custom I2C bus
 bus:
@@ -17,13 +17,15 @@ interval:
   spectral: 1
   system: 1
 
+# all webcams with their index
+webcams:
+- 0
+
 # sensor data and video storage
 storage:
   sensor:
     default:
       path: ./data/sensor
   video:
-    default:
-      path: ./data/video
-      width: 854
-      height: 480
+    path: ./data/video
+    backups: []

@@ -4,6 +4,16 @@ import datetime
 from .config import CONFIG
 
 
+def connected_cameras() -> list[int]:
+    """
+    Get all connected cameras
+
+    :return: List of connected cameras
+    """
+
+    return CONFIG["webcams"]
+
+
 def init_video(webcam: int) -> None:
     """
     Initialize the video directory for the given webcam
@@ -11,27 +21,21 @@ def init_video(webcam: int) -> None:
     :param webcam: Webcam id
     """
     
-    for storage in CONFIG["storage"]["video"].values():
-        if os.path.exists(f"{storage['path']}/cam{webcam}"):
-            shutil.rmtree(f"{storage['path']}/cam{webcam}", ignore_errors=True)
-        os.makedirs(f"{storage['path']}/cam{webcam}")
+    for path in [CONFIG["storage"]["video"]["path"], *CONFIG["storage"]["video"]["backups"]]:
+        if os.path.exists(f"{path}/cam{webcam}"):
+            shutil.rmtree(f"{path}/cam{webcam}", ignore_errors=True)
+        os.makedirs(f"{path}/cam{webcam}")
 
 
-def new_video(webcam: int) -> list[dict[str, str | int]]:
+def new_video(webcam: int) -> str:
     """
-    Get a list of storage information for new video files for the given webcam
+    Get the path for a new video file for the given webcam
 
     :param webcam: Webcam id
-    :return: List of storage information
+    :return: Path to the new video file
     """
     
-    storages = []
-    for storage in CONFIG["storage"]["video"].values():
-        if not os.path.exists(f"{storage['path']}/cam{webcam}"):
-            raise FileNotFoundError(f"Video directory cam{webcam} not found! Please initialize it with reset.sh.")
-        storages.append({
-            "path": os.path.abspath(f"{storage['path']}/cam{webcam}/video_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp4"),
-            "width": storage["width"],
-            "height": storage["height"],
-        })
-    return storages
+    if not os.path.exists(f"{CONFIG['storage']['video']['path']}/cam{webcam}"):
+        raise FileNotFoundError(f"Video directory cam{webcam} not found! Please initialize it with reset.sh.")
+
+    return os.path.abspath(f"{CONFIG['storage']['video']['path']}/cam{webcam}/video_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp4")

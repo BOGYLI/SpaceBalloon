@@ -2,6 +2,7 @@
 Read video from webcam
 """
 
+import time
 import sys
 import cv2
 import utils
@@ -10,6 +11,11 @@ import utils
 # Webcam device
 WEBCAM = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
+# Video settings
+LENGTH = 300
+FPS = 15
+SIZE = (1920, 1080)
+
 # Initialize logger
 logger = utils.init_logger(f"webcam{WEBCAM}")
 
@@ -17,7 +23,7 @@ logger = utils.init_logger(f"webcam{WEBCAM}")
 def main():
 
     # Open webcam
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(WEBCAM, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
@@ -28,10 +34,13 @@ def main():
         logger.error("Cannot open webcam")
         return
     
-    # Initialize the video writers
-    storages = utils.new_video(WEBCAM)
-    logger.info(f"Saving video to {', '.join([storage['path'] for storage in storages])}")
-    outputs = [cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 15.0, (1920, 1080)) for storage in storages]
+    # Initialize the FFmpeg processes
+    path = utils.new_video(WEBCAM)
+    logger.info(f"Saving video to {path}")
+    output = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*'mp4v'), FPS, SIZE)
+
+    # Video start time
+    start_time = time.time()
 
     try:
 
@@ -46,26 +55,33 @@ def main():
                 logger.error("Cannot read frame from webcam")
                 break
 
+            # Write the frame to the video file
+            output.write(frame)
 
-            # Write the frame to the video writers
-            for i, output in enumerate(outputs):
+            # Check if the video length is reached
+            if time.time() - start_time > LENGTH:
                 
-                # Resize the frame and write
-                #resized = .resize(frame, (storages[i]["width"], storages[i]["height"]))
-                output.write(frame)
+                # Close the video file
+                output.release()
+
+                # Start a new video file
+                path = utils.new_video(WEBCAM)
+                logger.info(f"Saving video to {path}")
+                output = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*'mp4v'), FPS, SIZE)
+
+                # Update the start time
+                start_time = time.time()
 
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt")
 
-        for output in outputs:
-            output.release()
+        output.release()
 
     # Release the webcam
     cap.release()
 
     # Release the video writers
-    for output in outputs:
-        output.release()
+    output.release()
 
 
 if __name__ == "__main__":

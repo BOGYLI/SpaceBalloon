@@ -7,5 +7,5 @@ import utils
 
 if __name__ == "__main__":
 
-    for webcam in range(2):
+    for webcam in utils.connected_cameras():
         utils.init_video(webcam)
