@@ -20,7 +20,7 @@ source .venv/bin/activate
 
 # Install the required packages
 echo "Installing required packages"
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt --use-pep517
 
 # Remove old systemd service files
 for service in /etc/systemd/system/balloon-*.service; do
