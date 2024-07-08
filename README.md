@@ -15,6 +15,7 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 ### Modules
 - [climate](/climate/)
 - [co2](/co2/)
+- [datamanager](/datamanager/)
 - [gps](/gps/)
 - [magnet](/magnet/)
 - [spectral](/spectral/)

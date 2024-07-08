@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon datamanager
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/datamanager/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

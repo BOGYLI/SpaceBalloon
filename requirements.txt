@@ -1,6 +1,8 @@
 pyyaml
 smbus2
 psutil
+fastapi
+fastapi-utils[all]
 gpiozero
 opencv-python
 adafruit-circuitpython-ms8607

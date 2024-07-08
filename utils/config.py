@@ -1,4 +1,5 @@
 import yaml
+import os
 
 
 VERSION = 7
@@ -10,6 +11,9 @@ def load_config() -> dict:
     
     :return: Configuration dictionary
     """
+
+    if not os.path.exists("config.yml"):
+        raise FileNotFoundError("Configuration file not found! Please run setup.sh and adjust your settings.")
 
     with open("config.yml", 'r') as file:
         config = yaml.safe_load(file)
