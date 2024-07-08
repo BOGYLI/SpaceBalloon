@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 7
+version: 8
 
 # sensor custom I2C bus
 bus:
@@ -19,7 +19,11 @@ interval:
 
 # all webcams with their index
 webcams:
-- 0
+  0: 0
+  1: 2
+  2: 4
+  3: 6
+  4: 8
 
 # sensor data and video storage
 storage:

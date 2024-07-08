@@ -4,14 +4,24 @@ import datetime
 from .config import CONFIG
 
 
-def connected_cameras() -> list[int]:
+def camera_index(webcam: int) -> int:
     """
-    Get all connected cameras
+    Get the index of the given webcam in the list of configured cameras
 
-    :return: List of connected cameras
+    :return: Index of the webcam
     """
 
-    return CONFIG["webcams"]
+    return CONFIG["webcams"][str(webcam)]
+
+
+def all_cameras() -> list[int]:
+    """
+    Get the list of all configured cameras
+
+    :return: List of all configured cameras
+    """
+
+    return [int(cam) for cam in CONFIG["webcams"].keys()]
 
 
 def init_video(webcam: int) -> None:

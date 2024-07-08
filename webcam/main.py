@@ -23,7 +23,7 @@ logger = utils.init_logger(f"webcam{WEBCAM}")
 def main():
 
     # Open webcam
-    cap = cv2.VideoCapture(WEBCAM, cv2.CAP_V4L2)
+    cap = cv2.VideoCapture(utils.camera_index(WEBCAM), cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
@@ -86,6 +86,6 @@ def main():
 
 if __name__ == "__main__":
 
-    logger.info(f"Starting webcam {WEBCAM}...")
+    logger.info(f"Starting webcam {WEBCAM} ({utils.camera_index(WEBCAM)}) ...")
 
     main()
