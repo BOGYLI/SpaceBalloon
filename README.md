@@ -13,6 +13,7 @@ https://www.youtube.com/@spaceballoonbogy
 Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wiki)!
 
 ### Modules
+- [adc](/adc/)
 - [climate](/climate/)
 - [co2](/co2/)
 - [datamanager](/datamanager/)

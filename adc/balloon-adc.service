@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon adc
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/adc/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
