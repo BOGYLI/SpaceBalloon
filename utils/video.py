@@ -11,7 +11,7 @@ def camera_index(webcam: int) -> int:
     :return: Index of the webcam
     """
 
-    return CONFIG["webcams"][str(webcam)]
+    return CONFIG["webcams"][webcam]
 
 
 def all_cameras() -> list[int]:
@@ -21,7 +21,7 @@ def all_cameras() -> list[int]:
     :return: List of all configured cameras
     """
 
-    return [int(cam) for cam in CONFIG["webcams"].keys()]
+    return [cam for cam in CONFIG["webcams"].keys()]
 
 
 def init_video(webcam: int) -> None:
