@@ -3,6 +3,7 @@ smbus2
 psutil
 fastapi
 fastapi-utils[all]
+requests
 gpiozero
 opencv-python
 adafruit-circuitpython-ms8607

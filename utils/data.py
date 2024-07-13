@@ -1,5 +1,6 @@
 import os
 import time
+import requests
 from .config import CONFIG
 
 
@@ -31,6 +32,17 @@ def write_csv(name: str, data: list) -> None:
             raise FileNotFoundError(f"CSV file {name}.csv not found! Please initialize it with reset.sh.")
         with open(f"{storage['path']}/{name}.csv", 'a') as file:
             file.write(f"{time.time():.2f},{','.join([str(value) for value in data])}\n")
+
+
+def send_data(name: str, data: dict) -> None:
+    """
+    Send data to the data manager
+    
+    :param name: Name of the sensor
+    :param data: Dictionary of data
+    """
+
+    requests.post(f"http://localhost:8000/{name}", json=data)
 
 
 def get_bus(name: str) -> int:
