@@ -16,4 +16,4 @@ export PYTHONPATH="$(dirname "$0")"/..
 source .venv/bin/activate
 
 # Start python script
-python3 datamanager/main.py
+python3 adc/main.py

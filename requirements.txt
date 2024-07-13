@@ -5,6 +5,7 @@ fastapi
 fastapi-utils[all]
 requests
 gpiozero
+ADS1x15-ADC
 opencv-python
 adafruit-circuitpython-ms8607
 adafruit-circuitpython-as726x

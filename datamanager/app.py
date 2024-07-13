@@ -13,6 +13,11 @@ app = FastAPI(title="Data Manager", description="Collect all sensor data via a H
 
 
 # Define data models for the sensors
+class ADC(BaseModel):
+    uv: float
+    methane: float
+
+
 class Climate(BaseModel):
     pressure: float
     temp: float
@@ -55,6 +60,8 @@ class System(BaseModel):
 
 
 # Store current sensor data
+adc = ADC(uv=0, methane=0)
+adc_updated = time.time()
 climate = Climate(pressure=0, temp=0, humidity=0)
 climate_updated = time.time()
 co2 = CO2(co2=0, voc=0)
@@ -67,6 +74,14 @@ spectral = Spectral(temp=0, violet=0, blue=0, green=0, yellow=0, orange=0, red=0
 spectral_updated = time.time()
 system = System(cpu=0, memory=0, temp=0, sent=0, received=0, disk=[])
 system_updated = time.time()
+
+
+@app.post("/adc")
+def route_adc(data: ADC):
+    global adc, adc_updated
+    adc = data
+    adc_updated = time.time()
+    return {"status": "successfully updated data"}
 
 
 @app.post("/climate")
@@ -120,6 +135,7 @@ def route_system(data: System):
 @app.on_event("startup")
 @repeat_every(seconds=3)
 def transmit():
+    logger.info(adc)
     logger.info(climate)
     logger.info(co2)
     logger.info(gps)
