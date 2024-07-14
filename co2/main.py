@@ -28,6 +28,7 @@ def main():
 
         logger.info(f"CO2: {result.equivalent_co2}ppm, VOC: {result.total_voc}ppb")
         utils.write_csv("co2", [result.equivalent_co2, result.total_voc])
+        utils.send_data("co2", {"co2": result.equivalent_co2, "voc": result.total_voc}, logger)
 
         time.sleep(utils.get_interval("co2"))
 

@@ -28,6 +28,7 @@ def main():
 
         logger.info(f"Pressure: {pressure}hPa, Temperatur: {temp}°C, Humidity: {humidity}rH")
         utils.write_csv("climate", [pressure, temp, humidity])
+        utils.send_data("climate", {"pressure": pressure, "temp": temp, "humidity": humidity}, logger)
 
         time.sleep(utils.get_interval("climate"))
 

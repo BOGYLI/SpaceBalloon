@@ -39,6 +39,7 @@ def main():
 
         logger.info(f"Frame read")
         utils.write_csv("thermal", [str(temp) for temp in frame])
+        utils.send_data("thermal", {"pixels": frame}, logger)
 
 
 if __name__ == "__main__":

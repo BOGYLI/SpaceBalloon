@@ -25,6 +25,7 @@ def main():
 
         logger.info(f"Temperature: {temp}°C, Heading: {angle}°")
         utils.write_csv("magnet", [temp, angle])
+        utils.send_data("magnet", {"temp": temp, "heading": angle}, logger)
 
         time.sleep(utils.get_interval("magnet"))
 
