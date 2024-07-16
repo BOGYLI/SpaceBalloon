@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 9
+version: 10
 
 # sensor custom I2C bus
 bus:
@@ -27,11 +27,18 @@ webcams:
   3: 6
   4: 8
 
+# InfluxDB details
+influx:
+  url: "https://influx.balloon.nikogenia.de"
+  org: "makerspace"
+  bucket: "balloon"
+  token: ""
+
 # sensor data and video storage
 storage:
   sensor:
     default:
-      path: ./data/sensor
+      path: "./data/sensor"
   video:
-    path: ./data/video
+    path: "./data/video"
     backups: []

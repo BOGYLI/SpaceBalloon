@@ -126,6 +126,7 @@ def main():
             if lat is not None and lon is not None and alt is not None:
                 logger.info(f"Latitude: {lat}, Longitude: {lon}, Altitude: {alt}m")
                 utils.write_csv("gps", [lat, lon, alt])
+                utils.send_data("gps", {"latitude": lat, "longitude": lon, "altitude": alt}, logger)
 
 
 if __name__ == "__main__":

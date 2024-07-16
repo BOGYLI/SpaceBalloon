@@ -41,6 +41,7 @@ def main():
         logger.info(f"UV: {uv_intensity:.3f}mW/cm², Methane: {methane_ppm:.3f}ppm")
 
         utils.write_csv("adc", [uv_intensity, methane_ppm])
+        utils.send_data("adc", {"uv": uv_intensity, "methane": methane_ppm}, logger)
         time.sleep(utils.get_interval("adc"))
 
 

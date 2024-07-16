@@ -2,7 +2,7 @@ import yaml
 import os
 
 
-VERSION = 9
+VERSION = 10
 
 
 def load_config() -> dict:

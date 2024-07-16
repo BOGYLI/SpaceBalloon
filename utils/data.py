@@ -1,5 +1,7 @@
 import os
 import time
+import requests
+from logging import Logger
 from .config import CONFIG
 
 
@@ -33,6 +35,20 @@ def write_csv(name: str, data: list) -> None:
             file.write(f"{time.time():.2f},{','.join([str(value) for value in data])}\n")
 
 
+def send_data(name: str, data: dict, logger: Logger) -> None:
+    """
+    Send data to the data manager
+    
+    :param name: Name of the sensor
+    :param data: Dictionary of data
+    """
+
+    try:
+        requests.post(f"http://localhost:8000/{name}", json=data, timeout=0.5)
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send data to data manager: {e}")
+
+
 def get_bus(name: str) -> int:
     """
     Get the I2C bus number for the given sensor name
@@ -53,3 +69,43 @@ def get_interval(name: str) -> int:
     """
 
     return CONFIG["interval"][name]
+
+
+def get_influx_url() -> str:
+    """
+    Get the InfluxDB URL
+
+    :return: InfluxDB URL
+    """
+
+    return CONFIG["influx"]["url"]
+
+
+def get_influx_org() -> str:
+    """
+    Get the InfluxDB organization
+
+    :return: InfluxDB organization
+    """
+
+    return CONFIG["influx"]["org"]
+
+
+def get_influx_bucket() -> str:
+    """
+    Get the InfluxDB bucket
+
+    :return: InfluxDB bucket
+    """
+
+    return CONFIG["influx"]["bucket"]
+
+
+def get_influx_token() -> str:
+    """
+    Get the InfluxDB token
+
+    :return: InfluxDB token
+    """
+
+    return CONFIG["influx"]["token"]

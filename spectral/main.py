@@ -38,6 +38,7 @@ def main():
 
         logger.info(f"Temperature: {temp}°C, Violet: {violet:.1f}, Blue: {blue:.1f}, Green: {green:.1f}, Yellow: {yellow:.1f}, Orange: {orange:.1f}, Red: {red:.1f}")
         utils.write_csv("spectral", [temp, violet, blue, green, yellow, orange, red])
+        utils.send_data("spectral", {"temp": temp, "violet": violet, "blue": blue, "green": green, "yellow": yellow, "orange": orange, "red": red}, logger)
 
         time.sleep(utils.get_interval("spectral"))
 
