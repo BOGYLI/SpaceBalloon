@@ -12,5 +12,5 @@ adafruit-circuitpython-ms8607
 adafruit-circuitpython-as726x
 adafruit-circuitpython-mlx90640
 pimoroni-sgp30
-opencv-python
+opencv-python-headless
 psutil
