@@ -41,7 +41,6 @@ def read_gps_data():
         return filtered_data
     except Exception as e:
         logger.warning(f"Error reading GPS data: {e}")
-        time.sleep(1)
         return None
 
 
@@ -53,7 +52,6 @@ def parse_nmea_sentence(data):
         return nmea_sentence
     except Exception as e:
         logger.warning(f"Error parsing NMEA sentence: {e}")
-        time.sleep(1)
         return None
 
 
@@ -99,19 +97,23 @@ def extract_lat_lon_alt(nmea_sentence):
 
 def main():
 
+    last_time = time.time()
     buffer = ""
     while True:
+
+        # Sleep until 1 second has passed
+        if time.time() - last_time < 1:
+            time.sleep(1 - (time.time() - last_time))
+        last_time = time.time()
 
         # Read GPS data
         raw_data = read_gps_data()
         if not raw_data:
-            time.sleep(1)
             continue
 
         # Append new data to buffer
         nmea_sentence_part = parse_nmea_sentence(raw_data)
         if not nmea_sentence_part:
-            time.sleep(1)
             continue
 
         buffer += nmea_sentence_part
