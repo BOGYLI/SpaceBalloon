@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon backup
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/backup/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

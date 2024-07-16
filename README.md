@@ -14,6 +14,7 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 
 ### Modules
 - [adc](/adc/)
+- [backup](/backup/)
 - [climate](/climate/)
 - [co2](/co2/)
 - [datamanager](/datamanager/)

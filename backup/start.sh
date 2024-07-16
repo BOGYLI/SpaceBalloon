@@ -16,4 +16,4 @@ export PYTHONPATH="$(dirname "$0")"/..
 source .venv/bin/activate
 
 # Start python script
-python3 spectral/main.py
+python3 backup/main.py
