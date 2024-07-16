@@ -105,11 +105,13 @@ def main():
         # Read GPS data
         raw_data = read_gps_data()
         if not raw_data:
+            time.sleep(1)
             continue
 
         # Append new data to buffer
         nmea_sentence_part = parse_nmea_sentence(raw_data)
         if not nmea_sentence_part:
+            time.sleep(1)
             continue
 
         buffer += nmea_sentence_part
