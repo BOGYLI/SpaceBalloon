@@ -1,5 +1,3 @@
-import influxdb_client.client
-import influxdb_client.client.write_api
 import utils
 import time
 from fastapi import FastAPI
@@ -99,6 +97,11 @@ def route_climate(data: Climate):
     climate = data
     climate_updated = time.time()
     return {"status": "successfully updated data"}
+
+
+@app.get("/climate")
+def route_climate():
+    return climate
 
 
 @app.post("/co2")

@@ -1,0 +1,10 @@
+[Unit]
+Description=space balloon cammanager
+
+[Service]
+Type=simple
+ExecStart=/home/maker/SpaceBalloon/cammanager/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

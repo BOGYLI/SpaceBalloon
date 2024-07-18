@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 10
+version: 11
 
 # sensor custom I2C bus
 bus:
@@ -26,6 +26,14 @@ webcams:
   2: 4
   3: 6
   4: 8
+
+# webcam default configuration
+default:
+  live: 0
+  video0: 0
+  video1: 1
+  video2: 2
+  offline: 0
 
 # InfluxDB details
 influx:
