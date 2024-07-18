@@ -88,6 +88,8 @@ def update_mode():
 
 def main():
 
+    global video_mode, video_mode_changed, live_mode, live_mode_changed, running
+
     cap = None
     video = None
     ffmpeg = None
@@ -138,19 +140,22 @@ def main():
                     ffmpeg.terminate()
                     ffmpeg = None
 
-        if not video_mode and time.time() - last_photo > 20:
+        take_photo = not video_mode and time.time() - last_photo > 20
+
+        if take_photo:
             if cap is None:
                 cap = init_cam()
             if cap is None:
                 break
 
-        ret, frame = cap.read()
+        if cap is not None:
+            ret, frame = cap.read()
 
         if not ret:
             logger.error("Cannot read frame from webcam")
             break
 
-        if not video_mode and time.time() - last_photo > 20:
+        if take_photo:
             cv2.imwrite(utils.new_photo(WEBCAM), frame)
             last_photo = time.time()
             if not live_mode:

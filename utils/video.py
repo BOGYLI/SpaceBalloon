@@ -62,4 +62,4 @@ def new_photo(webcam: int) -> str:
     if not os.path.exists(f"{CONFIG['storage']['video']['path']}/cam{webcam}"):
         raise FileNotFoundError(f"Video directory cam{webcam} not found! Please initialize it with reset.sh.")
 
-    return os.path.abspath(f"{CONFIG['storage']['video']['path']}/cam{webcam}/photo_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp4")
+    return os.path.abspath(f"{CONFIG['storage']['video']['path']}/cam{webcam}/photo_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png")
