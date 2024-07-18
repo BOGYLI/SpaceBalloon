@@ -94,7 +94,7 @@ def main():
     video = None
     ffmpeg = None
 
-    mode_thread = th.Thread(target=update_mode)
+    mode_thread = th.Thread(target=update_mode, name="Mode Update", daemon=True)
     mode_thread.start()
 
     video_start_time = time.time()
@@ -104,7 +104,7 @@ def main():
     while running:
 
         if video_mode_changed:
-            _video_mode = video_mode
+            video_mode = _video_mode
             video_mode_changed = False
             if video_mode:
                 if cap is None:
@@ -124,7 +124,7 @@ def main():
                     video = None
 
         if live_mode_changed:
-            _live_mode = live_mode
+            live_mode = _live_mode
             live_mode_changed = False
             if live_mode:
                 if cap is None:
@@ -156,11 +156,14 @@ def main():
             break
 
         if take_photo:
-            cv2.imwrite(utils.new_photo(WEBCAM), frame)
+            path = utils.new_photo(WEBCAM)
+            logger.info(f"Saving photo to {path}")
+            cv2.imwrite(path, frame)
             last_photo = time.time()
             if not live_mode:
                 cap.release()
                 cap = None
+                time.sleep(0.2)
 
         if video_mode:
             video.write(frame)
