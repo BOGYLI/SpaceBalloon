@@ -188,7 +188,6 @@ def main():
             if not live_mode:
                 cap.release()
                 cap = None
-                time.sleep(0.2)
 
         if video_mode:
             video.write(frame)
@@ -198,8 +197,11 @@ def main():
                 video_start_time = time.time()
 
         if live_mode:
-            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
             ffmpeg.stdin.write(buffer.tobytes())
+
+        if not video_mode and not live_mode:
+            time.sleep(0.2)
 
     if cap is not None:
         cap.release()
