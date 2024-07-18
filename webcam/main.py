@@ -4,6 +4,7 @@ Read video from webcam
 
 import requests
 import threading as th
+import subprocess
 import time
 import sys
 import cv2
@@ -17,6 +18,20 @@ WEBCAM = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 LENGTH = 300
 FPS = 15
 SIZE = (1920, 1080)
+
+# FFmpeg command
+FFMPEG = [
+    'ffmpeg',
+    '-re',
+    '-f', 'image2pipe',
+    '-vcodec', 'mjpeg',
+    '-i', '-',
+    '-f', 'mpegts',
+    utils.CONFIG["stream"]["url"]
+    .replace("#PATH", f"cam{WEBCAM}")
+    .replace("#USERNAME", utils.CONFIG["stream"]["username"])
+    .replace("#PASSWORD", utils.CONFIG["stream"]["password"])
+]
 
 # Initialize logger
 logger = utils.init_logger(f"webcam{WEBCAM}")
@@ -55,6 +70,14 @@ def init_video():
     output = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*'mp4v'), FPS, SIZE)
 
     return output
+
+
+def init_ffmpeg():
+
+    # Initialize the FFmpeg process
+    ffmpeg = subprocess.Popen(FFMPEG, stdin=subprocess.PIPE)
+
+    return ffmpeg
 
 
 def update_mode():
@@ -131,16 +154,18 @@ def main():
                     cap = init_cam()
                 if cap is None:
                     break
-                ffmpeg = None # TODO
+                ffmpeg = init_ffmpeg()
             else:
                 if cap is not None and not video_mode:
                     cap.release()
                     cap = None
                 if ffmpeg is not None:
+                    ffmpeg.stdin.close()
+                    ffmpeg.wait(2)
                     ffmpeg.terminate()
                     ffmpeg = None
 
-        take_photo = not video_mode and time.time() - last_photo > 20
+        take_photo = not video_mode and time.time() - last_photo > utils.get_interval("photo")
 
         if take_photo:
             if cap is None:
@@ -173,13 +198,16 @@ def main():
                 video_start_time = time.time()
 
         if live_mode:
-            pass
+            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+            ffmpeg.stdin.write(buffer.tobytes())
 
     if cap is not None:
         cap.release()
     if video is not None:
         video.release()
     if ffmpeg is not None:
+        ffmpeg.stdin.close()
+        ffmpeg.wait(2)
         ffmpeg.terminate()
 
 

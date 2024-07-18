@@ -33,9 +33,11 @@ class RestartService(BaseModel):
 
 
 # Store current camera configuration
-live_cam = LiveCam(webcam=0) # TODO get from config
+live_cam = LiveCam(webcam=utils.CONFIG["default"]["live"])
 live_cam_updated = time.time()
-video_cam = VideoCam(webcam0=0, webcam1=1, webcam2=2)
+video_cam = VideoCam(webcam0=utils.CONFIG["default"]["video0"],
+                     webcam1=utils.CONFIG["default"]["video1"],
+                     webcam2=utils.CONFIG["default"]["video2"])
 video_cam_updated = time.time()
 
 

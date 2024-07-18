@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 11
+version: 12
 
 # sensor custom I2C bus
 bus:
@@ -10,7 +10,7 @@ bus:
   gps: 4
   magnet: 6
 
-# sensor read interval (timeout in seconds)
+# read interval (timeout in seconds)
 interval:
   adc: 1
   climate: 1
@@ -18,6 +18,7 @@ interval:
   magnet: 1
   spectral: 1
   system: 1
+  photo: 20
 
 # all webcams with their index
 webcams:
@@ -41,6 +42,12 @@ influx:
   org: "makerspace"
   bucket: "balloon"
   token: ""
+
+# Stream
+stream:
+  url: "srt://server.balloon.nikogenia.de:8890?streamid=publish:#PATH:#USERNAME:#PASSWORD&pkt_size=1316"
+  username: "maker"
+  password: ""
 
 # sensor data and video storage
 storage:
