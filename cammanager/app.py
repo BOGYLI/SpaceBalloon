@@ -1,6 +1,6 @@
 import utils
 import time
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
  
@@ -21,6 +21,15 @@ class VideoCam(BaseModel):
     webcam0: int
     webcam1: int
     webcam2: int
+
+
+class RestartSystem(BaseModel):
+    code: str
+
+
+class RestartService(BaseModel):
+    service: str
+    code: str
 
 
 # Store current camera configuration
@@ -62,6 +71,22 @@ def route_status():
         "live": live_cam,
         "video": video_cam,
     }
+
+
+@app.post("/restart/system")
+def route_restart_system(data: RestartSystem, response: Response):
+    if data.code != "2507":
+        response.status_code = 403
+        return {"status": "wrong code"}
+    return {"status": "restarting system"}
+
+
+@app.post("/restart/service")
+def route_restart_service(data: RestartService, response: Response):
+    if data.code != "2507":
+        response.status_code = 403
+        return {"status": "wrong code"}
+    return {"status": "restarting service " + data.service}
 
 
 @app.on_event("startup")

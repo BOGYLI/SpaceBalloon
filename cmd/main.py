@@ -44,6 +44,7 @@ def main():
         command = input("> ").strip()
 
         if command == "h":
+            print("")
             print("Help")
             print("----")
             print("")
@@ -88,6 +89,10 @@ def main():
                 camera2 = cameras[2] if len(cameras) > 2 else -1
             except ValueError:
                 print("Invalid camera selection")
+                print("")
+                continue
+            if camera0 == camera1 != -1 or camera0 == camera2 != -1 or camera1 == camera2 != -1:
+                print("Duplicate camera selection")
                 print("")
                 continue
             try:
