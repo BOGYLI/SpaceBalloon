@@ -26,6 +26,11 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [thermal](/thermal/)
 - [webcam](/webcam/)
 
+### Extras
+- [aprscollector](/aprscollector/)
+- [cmd](/cmd/)
+- [tests](/tests/)
+
 \
 **© 2024 Bodensee-Gymnasium Lindau**\
 \

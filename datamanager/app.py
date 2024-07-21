@@ -153,26 +153,21 @@ def route_thermal(data: Thermal):
 
 
 @app.on_event("startup")
-@repeat_every(seconds=3)
+@repeat_every(seconds=10)
 def debug():
 
-    logger.info(adc)
-    logger.info(climate)
-    logger.info(co2)
-    logger.info(gps)
-    logger.info(magnet)
-    logger.info(spectral)
-    logger.info(system)
+    logger.info(f"ADC ({time.time() - adc_updated:.1f} secs ago): {adc}")
+    logger.info(f"Climate ({time.time() - climate_updated:.1f} secs ago): {climate}")
+    logger.info(f"CO2 ({time.time() - co2_updated:.1f} secs ago): {co2}")
+    logger.info(f"GPS ({time.time() - gps_updated:.1f} secs ago): {gps}")
+    logger.info(f"Magnet ({time.time() - magnet_updated:.1f} secs ago): {magnet}")
+    logger.info(f"Spectral ({time.time() - spectral_updated:.1f} secs ago): {spectral}")
+    logger.info(f"System ({time.time() - system_updated:.1f} secs ago): {system}")
+    logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago)")
 
 
 @app.on_event("startup")
-@repeat_every(seconds=3)
-def aprs():
-    pass
-
-
-@app.on_event("startup")
-@repeat_every(seconds=3)
+@repeat_every(seconds=2)
 def influx():
 
     logger.debug("Connecting to InfluxDB")

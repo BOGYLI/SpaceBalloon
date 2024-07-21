@@ -31,10 +31,10 @@ webcams:
 # webcam default configuration
 default:
   live: 0
-  video0: 0
-  video1: 1
-  video2: 2
-  offline: 0
+  video0: 1
+  video1: -1
+  video2: -1
+  offline: 1
 
 # InfluxDB details
 influx:
