@@ -1,5 +1,5 @@
 [Unit]
-Description=space balloon thermal cam
+Description=space balloon thermal camera
 StartLimitIntervalSec=0
 
 [Service]

@@ -1,6 +1,8 @@
 import utils
 import time
-from fastapi import FastAPI, Response
+import os
+import subprocess
+from fastapi import FastAPI, Response, BackgroundTasks
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
  
@@ -39,6 +41,10 @@ video_cam = VideoCam(webcam0=utils.CONFIG["default"]["video0"],
                      webcam1=utils.CONFIG["default"]["video1"],
                      webcam2=utils.CONFIG["default"]["video2"])
 video_cam_updated = time.time()
+services_active = []
+services_failed = []
+services_inactive = []
+services_updated = time.time()
 
 
 @app.post("/live")
@@ -76,10 +82,12 @@ def route_status():
 
 
 @app.post("/restart/system")
-def route_restart_system(data: RestartSystem, response: Response):
+def route_restart_system(data: RestartSystem, response: Response, background_tasks: BackgroundTasks):
     if data.code != "2507":
         response.status_code = 403
         return {"status": "wrong code"}
+    print("Schedule system reboot")
+    background_tasks.add_task(restart_system)
     return {"status": "restarting system"}
 
 
@@ -88,12 +96,36 @@ def route_restart_service(data: RestartService, response: Response):
     if data.code != "2507":
         response.status_code = 403
         return {"status": "wrong code"}
-    return {"status": "restarting service " + data.service}
+    print(f"Restart service {data.service}")
+    os.system(f"systemctl restart {data.service}")
+    print(f"Restarted service {data.service}")
+    return {"status": "restarted service " + data.service}
+
+
+def restart_system():
+    time.sleep(5)
+    print("Rebooting system")
+    os.system("reboot")
 
 
 @app.on_event("startup")
-@repeat_every(seconds=3)
+@repeat_every(seconds=5)
 def debug():
 
     logger.info(live_cam)
     logger.info(video_cam)
+
+
+@app.on_event("startup")
+@repeat_every(seconds=3)
+def check():
+
+    global services_active, services_failed, services_inactive, services_updated
+
+    active = subprocess.run("systemctl list-units --type=service --state=active | grep 'balloon-.*\.service'")
+    failed = subprocess.run("systemctl list-units --type=service --state=failed | grep 'balloon-.*\.service'")
+    inactive = subprocess.run("systemctl list-units --type=service --state=inactive | grep 'balloon-.*\.service'")
+
+    print(active)
+    print(failed)
+    print(inactive)

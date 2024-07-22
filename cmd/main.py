@@ -51,7 +51,9 @@ def main():
             print("h: show help")
             print("q: quit")
             print("l[x]: livestream camera x")
+            print("l: stop camera livestream")
             print("v[xyz]: camera x, y, z to save video file")
+            print("v: stop saving video file")
             print("pb: go back a phase")
             print("pn: go to next phase")
             print("c[seconds]: set countdown to seconds")
@@ -63,6 +65,17 @@ def main():
 
         elif command == "q":
             running = False
+
+        elif command == "l":
+            try:
+                response = requests.post(url + "/live", json={"webcam": -1}, auth=(username, password), timeout=5)
+                if response.status_code == 200:
+                    print(f"Stopped livestream camera")
+                else:
+                    print(f"Failed to stop livestream camera: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to stop livestream camera: {e}")
+            print("")
 
         elif command.startswith("l"):
             try:
@@ -79,6 +92,17 @@ def main():
                     print(f"Failed to change livestream camera: {response.status_code}")
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change livestream camera: {e}")
+            print("")
+
+        elif command == "v":
+            try:
+                response = requests.post(url + "/video", json={"webcam0": -1, "webcam1": -1, "webcam2": -1}, auth=(username, password), timeout=5)
+                if response.status_code == 200:
+                    print(f"Stopped saving video file")
+                else:
+                    print(f"Failed to stop saving video file: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to stop saving video file: {e}")
             print("")
 
         elif command.startswith("v"):
@@ -128,12 +152,40 @@ def main():
             print("")
 
         elif command == "r system":
-            print("Reboot full Raspberry Pi system")
+            print("")
+            print("ATTENTION: THIS ACTION WILL REBOOT THE FULL RASPBERRY PI SYSTEM!")
+            print("Only do this under direct command of the flight director.")
+            print("Please enter confirmation code or cancel with enter:")
+            code = input("> ").strip()
+            try:
+                response = requests.post(url + "/restart/system", json={"code": code}, auth=(username, password), timeout=5)
+                if response.status_code == 200:
+                    print("Full raspberry pi system rebooting")
+                elif response.status_code == 403:
+                    print("Wrong confirmation code")
+                else:
+                    print(f"Failed to reboot system: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to reboot system: {e}")
             print("")
 
         elif command.startswith("r "):
             service = command[2:]
-            print("Restart systemd service " + service)
+            print("")
+            print(f"ATTENTION: THIS ACTION WILL RESTART THE SERVICE {service}!")
+            print("Only do this under direct command of the flight director.")
+            print("Please enter confirmation code or cancel with enter:")
+            code = input("> ").strip()
+            try:
+                response = requests.post(url + "/restart/service", json={"service": service, "code": code}, auth=(username, password), timeout=5)
+                if response.status_code == 200:
+                    print(f"Service {service} restarted")
+                elif response.status_code == 403:
+                    print("Wrong confirmation code")
+                else:
+                    print(f"Failed to restart service {service}: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to restart service {service}: {e}")
             print("")
 
         else:

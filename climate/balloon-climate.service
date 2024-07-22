@@ -1,5 +1,5 @@
 [Unit]
-Description=Space Balloon Climate
+Description=space balloon climate
 StartLimitIntervalSec=0
 
 [Service]

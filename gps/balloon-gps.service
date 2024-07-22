@@ -1,5 +1,5 @@
 [Unit]
-Description=space balloon GPS
+Description=space balloon gps
 StartLimitIntervalSec=0
 
 [Service]
