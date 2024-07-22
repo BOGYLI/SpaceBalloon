@@ -1,10 +1,12 @@
 [Unit]
 Description=space balloon magnetic field
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 ExecStart=/home/maker/SpaceBalloon/magnet/start.sh
 Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

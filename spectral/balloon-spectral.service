@@ -1,10 +1,12 @@
 [Unit]
 Description=space balloon spectral
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 ExecStart=/home/maker/SpaceBalloon/spectral/start.sh
 Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

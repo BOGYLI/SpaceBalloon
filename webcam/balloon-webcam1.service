@@ -1,10 +1,12 @@
 [Unit]
 Description=space balloon webcam 1
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 ExecStart=/home/maker/SpaceBalloon/webcam/start.sh 1
 Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

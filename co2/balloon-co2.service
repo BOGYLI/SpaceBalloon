@@ -1,10 +1,12 @@
 [Unit]
 Description=space balloon CO2
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 ExecStart=/home/maker/SpaceBalloon/co2/start.sh
 Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
