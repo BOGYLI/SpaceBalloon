@@ -79,6 +79,12 @@ def route_status():
     return {
         "live": live_cam,
         "video": video_cam,
+        "services": {
+            "active": services_active,
+            "activating": services_activating,
+            "failed": services_failed,
+            "inactive": services_inactive
+        }
     }
 
 
@@ -116,10 +122,10 @@ def debug():
     logger.info(f"Live cam ({time.time() - live_cam_updated:.1f} secs ago): {live_cam}")
     logger.info(f"Video cams ({time.time() - video_cam_updated:.1f} secs ago): {video_cam}")
     logger.info(f"Services ({time.time() - services_updated:.1f} secs ago):")
-    logger.info(f"  active: {services_active}")
-    logger.info(f"  activating: {services_activating}")
-    logger.info(f"  failed: {services_failed}")
-    logger.info(f"  inactive: {services_inactive}")
+    logger.info(f"  active: {', '.join(services_active)}")
+    logger.info(f"  activating: {', '.join(services_activating)}")
+    logger.info(f"  failed: {', '.join(services_failed)}")
+    logger.info(f"  inactive: {', '.join(services_inactive)}")
 
 
 @app.on_event("startup")

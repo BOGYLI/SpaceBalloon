@@ -34,6 +34,11 @@ def main():
                 status = response.json()
                 print(f"Live camera: {status["live"]["webcam"]}")
                 print(f"Video cameras: {status["video"]["webcam0"]}, {status["video"]["webcam1"]}, {status["video"]["webcam2"]}")
+                print("Services:")
+                print(f"  Active: {', '.join(status["services"]["active"])}")
+                print(f"  Activating: {', '.join(status["services"]["activating"])}")
+                print(f"  Failed: {', '.join(status["services"]["failed"])}")
+                print(f"  Inactive: {', '.join(status["services"]["inactive"])}")
             else:
                 print(f"Status request failed: {response.status_code}")
         except requests.exceptions.RequestException as e:
