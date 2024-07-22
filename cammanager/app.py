@@ -42,6 +42,7 @@ video_cam = VideoCam(webcam0=utils.CONFIG["default"]["video0"],
                      webcam2=utils.CONFIG["default"]["video2"])
 video_cam_updated = time.time()
 services_active = []
+services_activating = []
 services_failed = []
 services_inactive = []
 services_updated = time.time()
@@ -112,20 +113,40 @@ def restart_system():
 @repeat_every(seconds=5)
 def debug():
 
-    logger.info(live_cam)
-    logger.info(video_cam)
+    logger.info(f"Live cam ({time.time() - live_cam_updated:.1f} secs ago): {live_cam}")
+    logger.info(f"Video cams ({time.time() - video_cam_updated:.1f} secs ago): {video_cam}")
+    logger.info(f"Services ({time.time() - services_updated:.1f} secs ago):")
+    logger.info(f"  active: {services_active}")
+    logger.info(f"  activating: {services_activating}")
+    logger.info(f"  failed: {services_failed}")
+    logger.info(f"  inactive: {services_inactive}")
 
 
 @app.on_event("startup")
 @repeat_every(seconds=3)
-def check():
+def services():
 
-    global services_active, services_failed, services_inactive, services_updated
+    global services_active, services_activating, services_failed, services_inactive, services_updated
 
-    active = subprocess.run("systemctl list-units --type=service --state=active | grep 'balloon-.*\.service'")
-    failed = subprocess.run("systemctl list-units --type=service --state=failed | grep 'balloon-.*\.service'")
-    inactive = subprocess.run("systemctl list-units --type=service --state=inactive | grep 'balloon-.*\.service'")
+    try:
+        active = subprocess.check_output("systemctl list-units --type=service --state=active | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
+        services_active = [line.strip().split(" ")[0] for line in active.decode().splitlines() if line]
+    except subprocess.CalledProcessError:
+        pass
+    try:
+        activating = subprocess.check_output("systemctl list-units --type=service --state=activating | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
+        services_activating = [line.strip().split(" ")[0] for line in activating.decode().splitlines() if line]
+    except subprocess.CalledProcessError:
+        pass
+    try:
+        failed = subprocess.check_output("systemctl list-units --type=service --state=failed | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
+        services_failed = [line.strip().split(" ")[0] for line in failed.decode().splitlines() if line]
+    except subprocess.CalledProcessError:
+        pass
+    try:
+        inactive = subprocess.check_output("systemctl list-units --type=service --state=inactive | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
+        services_inactive = [line.strip().split(" ")[0] for line in inactive.decode().splitlines() if line]
+    except subprocess.CalledProcessError:
+        pass
 
-    print(active)
-    print(failed)
-    print(inactive)
+    services_updated = time.time()
