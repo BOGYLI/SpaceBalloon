@@ -29,6 +29,8 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 ### Extras
 - [aprscollector](/aprscollector/)
 - [cmd](/cmd/)
+- [spotcollector](/spotcollector/)
+- [streammanager](/streammanager/) WIP
 - [tests](/tests/)
 
 \
