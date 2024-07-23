@@ -92,7 +92,7 @@ def route_adc(data: ADC):
 
 
 @app.post("/climate")
-def route_climate(data: Climate):
+def route_climate_post(data: Climate):
     global climate, climate_updated
     climate = data
     climate_updated = time.time()
@@ -100,7 +100,7 @@ def route_climate(data: Climate):
 
 
 @app.get("/climate")
-def route_climate():
+def route_climate_get():
     return climate
 
 

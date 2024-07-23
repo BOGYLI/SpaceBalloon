@@ -4,6 +4,7 @@ import os
 import time
 
 
+# Configuration
 CALLSIGN = os.getenv('CALLSIGN') or "DN5WA-11"
 API_TOKEN = os.getenv('API_TOKEN')
 APRS_URL = f"https://api.aprs.fi/api/get?name={CALLSIGN}&what=loc&apikey={API_TOKEN}&format=json"
@@ -14,6 +15,10 @@ BUCKET = os.getenv('INFLUX_BUCKET') or "balloon"
 INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
 
 INTERVAL = os.getenv('INTERVAL') or 10
+
+if API_TOKEN is None or INFLUX_TOKEN is None:
+    print("Missing configuration via environment variables")
+    exit(1)
 
 
 def write_to_influx(data):
