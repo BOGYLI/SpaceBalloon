@@ -1,2 +1,4 @@
 requests
 influxdb-client
+fastapi
+fastapi-utils[all]

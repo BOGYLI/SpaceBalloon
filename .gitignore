@@ -11,3 +11,4 @@ data
 
 # Configuration
 config.yml
+streammanager/state.json
