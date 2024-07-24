@@ -24,7 +24,7 @@ if api_token is None or influxdb_token is None:
 
 # Initialize state
 STATE_VERSION = "1.0"
-STATE_FILE = "./state.json"
+STATE_FILE = "/config/state.json"
 state = {
     "version": STATE_VERSION,
     "phase": 0,

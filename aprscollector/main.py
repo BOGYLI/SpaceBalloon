@@ -27,8 +27,8 @@ def write_to_influx(data):
     with influxdb_client.InfluxDBClient(url=INFLUX_URL, org=ORG, token=INFLUX_TOKEN) as client:
 
         points = [
-            influxdb_client.Point("aprs_gps").time(int(data["time"]), "s").field("latitude", float(data["lat"])).field("longitude", float(data["lng"])).field("altitude", data["altitude"]),
-            influxdb_client.Point("aprs_data").time(int(data["time"]), "s").field("heading", data["course"]).field("speed", data["speed"])
+            influxdb_client.Point("aprs_gps").time(int(data["time"]), "s").field("latitude", float(data["lat"])).field("longitude", float(data["lng"])).field("altitude", int(float(data["altitude"]))),
+            influxdb_client.Point("aprs_data").time(int(data["time"]), "s").field("heading", int(data["course"])).field("speed", int(data["speed"]))
         ]
 
         write_api = client.write_api()
