@@ -103,6 +103,39 @@ def route_sensors(data: Token, response: Response):
     return result
 
 
+@app.get("/height")
+def route_height(data: Token, response: Response):
+
+    if data.token != api_token:
+        response.status_code = 403
+        return {"status": "invalid token"}
+
+    result = {
+        "phase": state["phase"],
+    }
+
+    print("Connecting to InfluxDB")
+    with influxdb_client.InfluxDBClient(url=influxdb_url, org=influxdb_org,
+                                        token=influxdb_token, timeout=2500) as client:
+        query = f'from(bucket: "{influxdb_bucket}") \
+                  |> range(start: -{value_timeout}) \
+                  |> filter(fn: (r) => r._measurement == "dm_gps") \
+                  |> sort(columns:["_time"], desc: true) \
+                  |> limit(n:2)'
+        tables = client.query_api().query(org=influxdb_org, query=query)
+        values = tables.to_values(columns=["_value", "_time"])
+        if len(values) >= 2:
+            last_altitude, last_time = values[0]
+            second_last_altitude, second_last_time = values[1]
+            time_difference = (last_time - second_last_time).total_seconds()
+            result["speed"] = (last_altitude - second_last_altitude) / time_difference
+        if values:
+            result["height"] = values[0][0]
+        print("Successfully read data from InfluxDB")
+
+    return result
+
+
 @app.get("/phase")
 def route_phase(data: Token, response: Response):
     if data.token != api_token:
