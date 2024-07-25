@@ -207,35 +207,37 @@ def debug():
 @app.on_event("startup")
 @repeat_every(seconds=5)
 def aprs():
+
+    for i in range(2):
     
-    # Replace '/dev/ttyUSB0' with the appropriate serial port for your device
-    logger.info("Open serial connection")
-    ser = serial.Serial('/dev/ttyUSB0', 115200)
+        # Replace '/dev/ttyUSB0' with the appropriate serial port for your device
+        logger.info("Open serial connection")
+        ser = serial.Serial('/dev/ttyUSB0', 115200)
 
-    # Ensure RTS and DTR are set low
-    ser.rts = False
-    ser.dtr = False
+        # Ensure RTS and DTR are set low
+        ser.rts = False
+        ser.dtr = False
 
-    # Construct an APRS packet
-    src = "DN5WA-11"
-    dest = "DN5WA-0"
-    path = "WIDE1-1,WIDE2-2"
-    aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
-    info = f"!{aprs_lat}/{aprs_lon}-{gps.altitude:.1f};{adc.uv:.1f};{adc.methane:.1f};{climate.pressure:.1f};{climate.temp:.1f};{climate.humidity:.1f};{co2.co2:.1f};{co2.voc:.1f};{magnet.temp:.1f};{magnet.heading:.1f};{spectral.temp:.1f};{spectral.violet:.1f};{spectral.blue:.1f};{spectral.green:.1f};{spectral.yellow:.1f};{spectral.orange:.1f};{spectral.red:.1f};{system.cpu:.1f};{system.memory:.1f};{system.temp:.1f};{system.sent:.1f};{system.received:.1f}"
-    for disk_name, disk_usage in system.disk.items():
-        info += f";{disk_name}:{disk_usage:.1f}"
-    aprs_packet = f"{src}>{dest},{path}:{info}".encode('ascii')
+        # Construct an APRS packet
+        src = "DN5WA-11"
+        dest = "DN5WA-0"
+        path = "WIDE1-1,WIDE2-2"
+        aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
+        info = f"!{aprs_lat}/{aprs_lon}-{gps.altitude:.1f};{adc.uv:.1f};{adc.methane:.1f};{climate.pressure:.1f};{climate.temp:.1f};{climate.humidity:.1f};{co2.co2:.1f};{co2.voc:.1f};{magnet.temp:.1f};{magnet.heading:.1f};{spectral.temp:.1f};{spectral.violet:.1f};{spectral.blue:.1f};{spectral.green:.1f};{spectral.yellow:.1f};{spectral.orange:.1f};{spectral.red:.1f};{system.cpu:.1f};{system.memory:.1f};{system.temp:.1f};{system.sent:.1f};{system.received:.1f}"
+        for disk_name, disk_usage in system.disk.items():
+            info += f";{disk_name}:{disk_usage:.1f}"
+        aprs_packet = f"{src}>{dest},{path}:{info}".encode('ascii')
 
-    # Construct a KISS frame
-    kiss_frame = construct_kiss_frame(aprs_packet)
+        # Construct a KISS frame
+        kiss_frame = construct_kiss_frame(aprs_packet)
 
-    # Send the KISS frame over the serial connection
-    logger.info("Write data to APRS")
-    ser.write(kiss_frame)
+        # Send the KISS frame over the serial connection
+        logger.info("Write data to APRS")
+        ser.write(kiss_frame)
 
-    logger.info(f"Sent APRS packet: {aprs_packet.decode('ascii')}")
+        logger.info(f"Sent APRS packet: {aprs_packet.decode('ascii')}")
 
-    ser.close()
+        ser.close()
 
 
 @app.on_event("startup")
