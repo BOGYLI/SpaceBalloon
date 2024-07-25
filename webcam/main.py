@@ -117,6 +117,8 @@ def main():
     video = None
     ffmpeg = None
 
+    time.sleep(WEBCAM * 4)
+
     mode_thread = th.Thread(target=update_mode, name="Mode Update", daemon=True)
     mode_thread.start()
 
