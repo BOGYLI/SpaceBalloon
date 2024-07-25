@@ -1,16 +1,24 @@
 import utils
 import time
+import serial
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
 import influxdb_client
- 
+
 
 # Initialize logger
 logger = utils.init_logger("datamanager")
 
 # Initialize FastAPI
 app = FastAPI(title="Data Manager", description="Collect all sensor data via a HTTP server and transmit it", version="1.0")
+
+# KISS protocol
+KISS_FEND = b'\xC0'
+KISS_FESC = b'\xDB'
+KISS_TFEND = b'\xDC'
+KISS_TFESC = b'\xDD'
+KISS_DATA_FRAME = b'\x00'
 
 
 # Define data models for the sensors
@@ -152,6 +160,20 @@ def route_thermal(data: Thermal):
     return {"status": "successfully updated data"}
 
 
+def kiss_escape(data):
+    """Escape special KISS characters in data."""
+    data = data.replace(KISS_FEND, KISS_FESC + KISS_TFEND)
+    data = data.replace(KISS_FESC, KISS_FESC + KISS_TFESC)
+    return data
+
+
+def construct_kiss_frame(aprs_packet):
+    """Construct a KISS frame for an APRS packet."""
+    kiss_frame = KISS_DATA_FRAME + aprs_packet
+    kiss_frame = kiss_escape(kiss_frame)
+    return KISS_FEND + kiss_frame + KISS_FEND
+
+
 @app.on_event("startup")
 @repeat_every(seconds=10)
 def debug():
@@ -164,6 +186,37 @@ def debug():
     logger.info(f"Spectral ({time.time() - spectral_updated:.1f} secs ago): {spectral}")
     logger.info(f"System ({time.time() - system_updated:.1f} secs ago): {system}")
     logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago)")
+    
+    
+@app.on_event("startup")
+@repeat_every(seconds=5)
+def aprs():
+    
+    # Replace '/dev/ttyUSB0' with the appropriate serial port for your device
+    logger.info("Open serial connection")
+    ser = serial.Serial('/dev/ttyUSB0', 115200)
+
+    # Ensure RTS and DTR are set low
+    ser.rts = False
+    ser.dtr = False
+
+    # Construct an APRS packet
+    src = "DN5WA-11"
+    dest = "APRS"
+    path = "WIDE1-1"
+    info = f"!4903.50N/07201.75W-{gps.altitude}"
+    aprs_packet = f"{src}>{dest},{path}:{info}".encode('ascii')
+
+    # Construct a KISS frame
+    kiss_frame = construct_kiss_frame(aprs_packet)
+
+    # Send the KISS frame over the serial connection
+    logger.info("Write data to APRS")
+    ser.write(kiss_frame)
+
+    logger.info(f"Sent APRS packet: {aprs_packet.decode('ascii')}")
+
+    ser.close()
 
 
 @app.on_event("startup")
