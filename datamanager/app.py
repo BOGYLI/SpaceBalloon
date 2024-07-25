@@ -221,7 +221,9 @@ def aprs():
     dest = "DN5WA-0"
     path = "WIDE1-1,WIDE2-2"
     aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
-    info = f"!{aprs_lat}/{aprs_lon}-{gps.altitude}"
+    info = f"!{aprs_lat}/{aprs_lon}-{gps.altitude:.1f};{adc.uv:.1f};{adc.methane:.1f};{climate.pressure:.1f};{climate.temp:.1f};{climate.humidity:.1f};{co2.co2:.1f};{co2.voc:.1f};{magnet.temp:.1f};{magnet.heading:.1f};{spectral.temp:.1f};{spectral.violet:.1f};{spectral.blue:.1f};{spectral.green:.1f};{spectral.yellow:.1f};{spectral.orange:.1f};{spectral.red:.1f};{system.cpu:.1f};{system.memory:.1f};{system.temp:.1f};{system.sent:.1f};{system.received:.1f}"
+    for disk_name, disk_usage in system.disk.items():
+        info += f";{disk_name}:{disk_usage:.1f}"
     aprs_packet = f"{src}>{dest},{path}:{info}".encode('ascii')
 
     # Construct a KISS frame
