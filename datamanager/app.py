@@ -174,6 +174,22 @@ def construct_kiss_frame(aprs_packet):
     return KISS_FEND + kiss_frame + KISS_FEND
 
 
+def convert_to_aprs_format(lat, lon):
+    # Convert latitude to APRS format
+    lat_deg = int(lat)
+    lat_min = (lat - lat_deg) * 60
+    lat_hemi = 'N' if lat >= 0 else 'S'
+    aprs_lat = f'{abs(lat_deg):02d}{lat_min:05.2f}{lat_hemi}'
+
+    # Convert longitude to APRS format
+    lon_deg = int(lon)
+    lon_min = (lon - lon_deg) * 60
+    lon_hemi = 'E' if lon >= 0 else 'W'
+    aprs_lon = f'{abs(lon_deg):03d}{lon_min:05.2f}{lon_hemi}'
+
+    return aprs_lat, aprs_lon
+
+
 @app.on_event("startup")
 @repeat_every(seconds=10)
 def debug():
@@ -202,9 +218,10 @@ def aprs():
 
     # Construct an APRS packet
     src = "DN5WA-11"
-    dest = "APRS"
-    path = "WIDE1-1"
-    info = f"!4903.50N/07201.75W-{gps.altitude}"
+    dest = "DN5WA-0"
+    path = "WIDE1-1,WIDE2-2"
+    aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
+    info = f"!{aprs_lat}/{aprs_lon}-{gps.altitude}"
     aprs_packet = f"{src}>{dest},{path}:{info}".encode('ascii')
 
     # Construct a KISS frame
