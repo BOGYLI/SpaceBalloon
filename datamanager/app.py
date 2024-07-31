@@ -249,22 +249,22 @@ def influx():
                                         token=utils.get_influx_token(), timeout=2500) as client:
 
         points = [
-            influxdb_client.Point("dm_adc").time(int(adc_updated), "s").field("uv", adc.uv).field("methane", adc.methane),
-            influxdb_client.Point("dm_climate").time(int(climate_updated), "s").field("pressure", climate.pressure).field("temp", climate.temp).field("humidity", climate.humidity),
-            influxdb_client.Point("dm_co2").time(int(co2_updated), "s").field("co2", co2.co2).field("voc", co2.voc),
-            influxdb_client.Point("dm_gps").time(int(gps_updated), "s").field("latitude", gps.latitude).field("longitude", gps.longitude).field("altitude", gps.altitude),
-            influxdb_client.Point("dm_magnet").time(int(magnet_updated), "s").field("temp", magnet.temp).field("heading", magnet.heading),
-            influxdb_client.Point("dm_spectral").time(int(spectral_updated), "s").field("temp", spectral.temp).field("violet", spectral.violet).field("blue", spectral.blue)
+            influxdb_client.Point("wifi_adc").time(int(adc_updated), "s").field("uv", adc.uv).field("methane", adc.methane),
+            influxdb_client.Point("wifi_climate").time(int(climate_updated), "s").field("pressure", climate.pressure).field("temp", climate.temp).field("humidity", climate.humidity),
+            influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("co2", co2.co2).field("voc", co2.voc),
+            influxdb_client.Point("wifi_gps").time(int(gps_updated), "s").field("latitude", gps.latitude).field("longitude", gps.longitude).field("altitude", gps.altitude),
+            influxdb_client.Point("wifi_magnet").time(int(magnet_updated), "s").field("temp", magnet.temp).field("heading", magnet.heading),
+            influxdb_client.Point("wifi_spectral").time(int(spectral_updated), "s").field("temp", spectral.temp).field("violet", spectral.violet).field("blue", spectral.blue)
             .field("green", spectral.green).field("yellow", spectral.yellow).field("orange", spectral.orange).field("red", spectral.red),
         ]
 
-        system_point = influxdb_client.Point("dm_system").time(int(system_updated), "s").field("cpu", system.cpu).field("memory", system.memory) \
+        system_point = influxdb_client.Point("wifi_system").time(int(system_updated), "s").field("cpu", system.cpu).field("memory", system.memory) \
             .field("temp", system.temp).field("sent", system.sent).field("received", system.received)
         for disk_name, disk_usage in system.disk.items():
             system_point.field(disk_name, disk_usage)
         points.append(system_point)
 
-        thermal_point = influxdb_client.Point("dm_thermal").time(int(thermal_updated), "s")
+        thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s")
         for i, pixel in enumerate(thermal.pixels):
             thermal_point.field(f"pixel_{i}", pixel)
         points.append(thermal_point)
