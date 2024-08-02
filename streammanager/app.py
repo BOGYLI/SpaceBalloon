@@ -23,7 +23,7 @@ if api_token is None or influxdb_token is None:
     exit(1)
 
 # Initialize state
-STATE_VERSION = "1.0"
+STATE_VERSION = "1.1"
 STATE_FILE = "/config/state.json"
 state = {
     "version": STATE_VERSION,
@@ -32,6 +32,7 @@ state = {
     "title": "",
     "subtitle": "",
     "sensors": False,
+    "source": "wifi"
 }
 if os.path.exists(STATE_FILE):
     with open(STATE_FILE, "r") as file:
@@ -63,6 +64,11 @@ class Title(BaseModel):
     subtitle: str
 
 
+class Source(BaseModel):
+    token: str
+    source: str
+
+
 @app.get("/sensors")
 def route_sensors():
 
@@ -81,7 +87,7 @@ def route_sensors():
                                    ("co2", "co2")]:
             query = f'from(bucket: "{influxdb_bucket}") \
                       |> range(start: -{value_timeout}) \
-                      |> filter(fn: (r) => r._measurement == "wifi_{measurement}") \
+                      |> filter(fn: (r) => r._measurement == "{state["source"]}_{measurement}") \
                       |> filter(fn: (r) => r._field == "{field}") \
                       |> last()'
             tables = client.query_api().query(org=influxdb_org, query=query)
@@ -104,7 +110,7 @@ def route_height():
                                         token=influxdb_token, timeout=2500) as client:
         query = f'from(bucket: "{influxdb_bucket}") \
                   |> range(start: -{value_timeout}) \
-                  |> filter(fn: (r) => r._measurement == "wifi_gps") \
+                  |> filter(fn: (r) => r._measurement == "{state["source"]}_gps") \
                   |> sort(columns:["_time"], desc: true) \
                   |> limit(n:2)'
         tables = client.query_api().query(org=influxdb_org, query=query)
@@ -193,6 +199,17 @@ def route_title_post(data: Title, response: Response):
     print(f"Changed title to {data.title} and subtitle to {data.subtitle}")
     save_state()
     return {"status": "successfully changed title"}
+
+
+@app.post("/source")
+def route_source(data: Source, response: Response):
+    if data.token != api_token:
+        response.status_code = 403
+        return {"status": "invalid token"}
+    state["source"] = data.source
+    print(f"Changed source to {data.source}")
+    save_state()
+    return {"status": "successfully changed source"}
 
 
 def save_state():

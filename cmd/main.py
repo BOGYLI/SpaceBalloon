@@ -69,6 +69,8 @@ def main():
             print("c [month];[day];[hour];[minute];[second]: set countdown to date and time")
             print("t [title];[subtitle]: set title and subtitle popup")
             print("t: hide title and subtitle popup")
+            print("aprs: change source to APRS")
+            print("wifi: change source to WiFi")
             print("r system: reboot full raspberry pi system")
             print("r [service]: restart a systemd service")
             print("")
@@ -233,6 +235,28 @@ def main():
                     print(f"Failed to hide title and subtitle popup: {response.status_code}")
             except requests.exceptions.RequestException as e:
                 print(f"Failed to hide title and subtitle popup: {e}")
+            print("")
+
+        elif command == "aprs":
+            try:
+                response = requests.post(url_sm + "/source", json={"token": password, "source": "aprs"}, timeout=2)
+                if response.status_code == 200:
+                    print("Changed source to APRS")
+                else:
+                    print(f"Failed to change source to APRS: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to change source to APRS: {e}")
+            print("")
+
+        elif command == "wifi":
+            try:
+                response = requests.post(url_sm + "/source", json={"token": password, "source": "wifi"}, timeout=2)
+                if response.status_code == 200:
+                    print("Changed source to WiFi")
+                else:
+                    print(f"Failed to change source to WiFi: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to change source to WiFi: {e}")
             print("")
 
         elif command == "r system":
