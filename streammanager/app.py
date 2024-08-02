@@ -35,17 +35,11 @@ state = {
 }
 if os.path.exists(STATE_FILE):
     with open(STATE_FILE, "r") as file:
-        state = json.load(file)
-        if state["version"] != STATE_VERSION:
-            print("State file version mismatch, creating new state file")
-            state = {
-                "version": STATE_VERSION,
-                "phase": 0,
-                "countdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
-                "title": "",
-                "subtitle": "",
-                "sensors": False,
-            }
+        file_state = json.load(file)
+        if file_state["version"] == STATE_VERSION:
+            state = file_state
+        else:
+            print("State file version mismatch, using new state")
     print("Loaded state from file")
 else:
     with open(STATE_FILE, "w") as file:
@@ -70,11 +64,7 @@ class Title(BaseModel):
 
 
 @app.get("/sensors")
-def route_sensors(data: Token, response: Response):
-
-    if data.token != api_token:
-        response.status_code = 403
-        return {"status": "invalid token"}
+def route_sensors():
 
     if not state["sensors"]:
         return {}
@@ -88,11 +78,10 @@ def route_sensors(data: Token, response: Response):
                                    ("pressure", "climate"),
                                    ("humidity", "climate"),
                                    ("uv", "adc"),
-                                   ("methane", "adc"),
                                    ("co2", "co2")]:
             query = f'from(bucket: "{influxdb_bucket}") \
                       |> range(start: -{value_timeout}) \
-                      |> filter(fn: (r) => r._measurement == "dm_{measurement}") \
+                      |> filter(fn: (r) => r._measurement == "wifi_{measurement}") \
                       |> filter(fn: (r) => r._field == "{field}") \
                       |> last()'
             tables = client.query_api().query(org=influxdb_org, query=query)
@@ -104,11 +93,7 @@ def route_sensors(data: Token, response: Response):
 
 
 @app.get("/height")
-def route_height(data: Token, response: Response):
-
-    if data.token != api_token:
-        response.status_code = 403
-        return {"status": "invalid token"}
+def route_height():
 
     result = {
         "phase": state["phase"],
@@ -119,7 +104,7 @@ def route_height(data: Token, response: Response):
                                         token=influxdb_token, timeout=2500) as client:
         query = f'from(bucket: "{influxdb_bucket}") \
                   |> range(start: -{value_timeout}) \
-                  |> filter(fn: (r) => r._measurement == "dm_gps") \
+                  |> filter(fn: (r) => r._measurement == "wifi_gps") \
                   |> sort(columns:["_time"], desc: true) \
                   |> limit(n:2)'
         tables = client.query_api().query(org=influxdb_org, query=query)
@@ -137,26 +122,17 @@ def route_height(data: Token, response: Response):
 
 
 @app.get("/phase")
-def route_phase(data: Token, response: Response):
-    if data.token != api_token:
-        response.status_code = 403
-        return {"status": "invalid token"}
+def route_phase():
     return {"phase": state["phase"]}
 
 
 @app.get("/countdown")
-def route_countdown_get(data: Token, response: Response):
-    if data.token != api_token:
-        response.status_code = 403
-        return {"status": "invalid token"}
+def route_countdown_get():
     return {"time": state["countdown"]}
 
 
 @app.get("/title")
-def route_title_get(data: Token, response: Response):
-    if data.token != api_token:
-        response.status_code = 403
-        return {"status": "invalid token"}
+def route_title_get():
     return {"title": state["title"], "subtitle": state["subtitle"]}
 
 
