@@ -5,7 +5,7 @@ version: 12
 
 # sensor custom I2C bus
 bus:
-  adc: 1
+  adc: 7
   co2: 5
   gps: 4
   magnet: 6
