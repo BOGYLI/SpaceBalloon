@@ -9,6 +9,9 @@ https://spaceballoon.bodensee-gymnasium.de/
 ### YouTube
 https://www.youtube.com/@spaceballoonbogy
 
+### TikTok
+https://www.tiktok.com/@spaceballoonbogy
+
 ### Wiki
 Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wiki)!
 
@@ -32,6 +35,14 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [spotcollector](/spotcollector/)
 - [streammanager](/streammanager/) WIP
 - [tests](/tests/)
+
+### Sponsors
+- [Rütgers Stiftung](https://ruetgers-stiftung.de/)
+- [Liebherr](https://www.liebherr.com/)
+- [Sparkasse](https://www.sparkasse.de/)
+- [Lindauer DORNIER](https://www.lindauerdornier.com/de)
+- [Thomann](https://thomann.biz/)
+- [Vögeli Kälte- und Klimatechnik](https://voegeli-thomas-kuehl-u-klimatechnik.weblocator.de/)
 
 \
 **© 2024 Bodensee-Gymnasium Lindau**\
