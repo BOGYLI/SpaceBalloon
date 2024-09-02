@@ -15,6 +15,7 @@ class VideoCapture(th.Thread):
         self.lock = th.Lock()
         self.running = True
         self.standby = True
+        self.active_time = 0
 
     def run(self):
 

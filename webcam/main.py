@@ -21,6 +21,7 @@ running = True
 # Timer
 last_photo = 0
 video_start_time = time.time()
+video_frames = 0
 
 
 def update_mode():
@@ -62,7 +63,7 @@ def take_photo(frame):
 
 def main():
 
-    global video_mode, live_mode, running
+    global video_mode, live_mode, running, video_start_time, video_frames, last_photo
 
     capture = VideoCapture()
     capture.start()
@@ -97,30 +98,50 @@ def main():
                     video.release()
                     video = None
 
-        capture.standby = not video_mode and not live_mode
+        new_standby = not video_mode and not live_mode
+        if capture.standby != new_standby:
+            capture.standby = new_standby
+            if not capture.standby:
+                capture.active_time = time.time()
 
         take_photo = time.time() - last_photo > utils.get_interval("photo_delay")
 
         if take_photo or video_mode or live_mode:
             grabbed, frame = capture.read()
             if not grabbed:
-                logger.error("Cannot read frame from webcam")
-                running = False
-                break
+                if time.time() - capture.active_time > 6 or take_photo:
+                    logger.error("Cannot read frame from webcam")
+                    running = False
+                    break
+                time.sleep(0.1)
+                continue
             
         if take_photo:
             th.Thread(target=update_mode, name="Photo Write", daemon=True).start()
 
+        if live_mode:
+            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+            ffmpeg.stdin.write(buffer.tobytes())
+
         if video_mode and not live_mode:
+
             video.write(frame)
+
+            video_frames += 1
+            elapsed_time = time.time() - video_start_time
+            sleep_time = video_frames * (1 / VIDEO_FPS) - elapsed_time
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+
             if time.time() - video_start_time > VIDEO_LENGTH:
                 video.release()
                 video = init_video()
                 video_start_time = time.time()
 
-        if live_mode:
-            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
-            ffmpeg.stdin.write(buffer.tobytes())
+        if not capture.running:
+            logger.error("Video capture thread stopped, exiting")
+            running = False
+            break
 
         if not video_mode and not live_mode:
             time.sleep(0.2)
