@@ -29,11 +29,13 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [thermal](/thermal/)
 - [webcam](/webcam/)
 
-### Extras
+### Containers
 - [aprscollector](/aprscollector/)
-- [cmd](/cmd/)
 - [spotcollector](/spotcollector/)
-- [streammanager](/streammanager/) WIP
+- [streammanager](/streammanager/)
+
+### Extras
+- [cmd](/cmd/)
 - [tests](/tests/)
 
 ### Sponsors

@@ -18,7 +18,8 @@ interval:
   magnet: 1
   spectral: 1
   system: 1
-  photo: 20
+  photo_offset: 4
+  photo_delay: 20
 
 # all webcams with their index
 webcams:
