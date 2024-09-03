@@ -62,7 +62,7 @@ def save_photo(frame):
 
     path = utils.new_photo(WEBCAM)
     logger.info(f"Saving photo to {path}")
-    cv2.imwrite(path, frame)
+    cv2.imwrite(path, frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
 
     logger.info("Photo saved")
 
@@ -132,8 +132,19 @@ def main():
             th.Thread(target=save_photo, name="Photo Write", daemon=True).start()
 
         if live_mode:
-            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
-            ffmpeg.stdin.write(buffer.tobytes())
+            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+            try:
+                ffmpeg.stdin.write(buffer.tobytes())
+            except OSError as e:
+                logger.error(f"Failed to write frame to ffmpeg: {e}")
+                if live_mode:
+                    logger.info("Restarting live stream ...")
+                    if ffmpeg is not None:
+                        ffmpeg.stdin.close()
+                        ffmpeg.wait(2)
+                        ffmpeg.terminate()
+                    ffmpeg = init_ffmpeg()
+                    
 
         if video_mode and not live_mode:
 
