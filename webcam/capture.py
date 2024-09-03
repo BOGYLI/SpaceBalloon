@@ -50,24 +50,20 @@ class VideoCapture(th.Thread):
 
     def read(self):
 
-        if self.standby:
-
+        if not self.standby:
             with self.lock:
-            
-                if self.cap is None:
-                    self.cap = init_cam()
-                    if self.cap is None:
-                        return False, None
+                return self.grabbed, self.frame
 
-                grabbed, frame = self.cap.read()
-                with self.lock:
-                    self.grabbed = grabbed
-                    self.frame = frame
-                            
-                self.cap.release()
-                self.cap = None
+        cap = init_cam()
+        if cap is None:
+            return False, None
 
-                return grabbed, frame
+        grabbed, frame = cap.read()
+        self.grabbed = grabbed
+        self.frame = frame
+                    
+        cap.release()
+        cap = None
 
-        with self.lock:
-            return self.grabbed, self.frame
+        return grabbed, frame
+
