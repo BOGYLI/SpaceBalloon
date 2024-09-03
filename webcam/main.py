@@ -56,14 +56,13 @@ def update_mode():
         time.sleep(1)
 
 
-def take_photo(frame):
+def save_photo(frame):
 
     global last_photo
 
     path = utils.new_photo(WEBCAM)
     logger.info(f"Saving photo to {path}")
     cv2.imwrite(path, frame)
-    last_photo = time.time()
 
     logger.info("Photo saved")
 
@@ -129,7 +128,8 @@ def main():
             
         if take_photo:
             logger.info("Schedule photo taking ...")
-            th.Thread(target=update_mode, name="Photo Write", daemon=True).start()
+            last_photo = time.time()
+            th.Thread(target=save_photo, name="Photo Write", daemon=True).start()
 
         if live_mode:
             _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
