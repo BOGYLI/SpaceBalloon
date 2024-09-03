@@ -109,7 +109,7 @@ def main():
         if take_photo or video_mode or live_mode:
             grabbed, frame = capture.read()
             if not grabbed:
-                if time.time() - capture.active_time > 6 or take_photo:
+                if time.time() - capture.active_time > 6 or (take_photo and capture.standby):
                     logger.error("Cannot read frame from webcam")
                     running = False
                     break
