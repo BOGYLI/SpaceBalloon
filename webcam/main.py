@@ -23,6 +23,11 @@ last_photo = 0
 video_start_time = time.time()
 video_frames = 0
 
+# Components
+capture = VideoCapture()
+video = None
+ffmpeg = None
+
 
 def update_mode():
     
@@ -60,15 +65,16 @@ def take_photo(frame):
     cv2.imwrite(path, frame)
     last_photo = time.time()
 
+    logger.info("Photo saved")
+
 
 def main():
 
-    global video_mode, live_mode, running, video_start_time, video_frames, last_photo
+    global video_mode, live_mode, running, video_start_time, video_frames, last_photo, capture, video, ffmpeg
 
-    capture = VideoCapture()
     capture.start()
-    video = None
-    ffmpeg = None
+
+    live_mode_changed = False
 
     time.sleep(WEBCAM * utils.get_interval("photo_offset"))
 
@@ -79,22 +85,27 @@ def main():
         
         if live_mode != live_mode_new:
             live_mode = live_mode_new
+            live_mode_changed = True
             if live_mode:
+                logger.info("Starting live stream ...")
                 ffmpeg = init_ffmpeg()
             else:
+                logger.info("Stopping live stream ...")
                 if ffmpeg is not None:
                     ffmpeg.stdin.close()
                     ffmpeg.wait(2)
                     ffmpeg.terminate()
                     ffmpeg = None
 
-        if video_mode != video_mode_new:
+        if video_mode != video_mode_new or live_mode_changed:
             video_mode = video_mode_new
-            if video_mode:
+            if video_mode and not live_mode:
+                logger.info("Starting video recording ...")
                 video = init_video()
                 video_start_time = time.time()
             else:
                 if video is not None:
+                    logger.info("Stopping video recording ...")
                     video.release()
                     video = None
 
@@ -117,6 +128,7 @@ def main():
                 continue
             
         if take_photo:
+            logger.info("Schedule photo taking ...")
             th.Thread(target=update_mode, name="Photo Write", daemon=True).start()
 
         if live_mode:
@@ -150,9 +162,11 @@ def main():
     capture.join(2)
 
     if video is not None:
+        logger.info("Releasing video ...")
         video.release()
 
     if ffmpeg is not None:
+        logger.info("Closing ffmpeg ...")
         ffmpeg.stdin.close()
         ffmpeg.wait(2)
         ffmpeg.terminate()

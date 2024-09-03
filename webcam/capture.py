@@ -24,12 +24,14 @@ class VideoCapture(th.Thread):
 
                 if self.standby:
                     if self.cap is not None:
+                        logger.info("Standby mode")
                         self.cap.release()
                         self.cap = None
                     time.sleep(0.1)
                     continue
 
                 if self.cap is None:
+                    logger.info("Active mode")
                     self.cap = init_cam()
                     if self.cap is None:
                         self.running = False
