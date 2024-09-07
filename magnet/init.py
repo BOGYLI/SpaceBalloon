@@ -7,4 +7,4 @@ import utils
 
 if __name__ == "__main__":
 
-    utils.init_csv("magnet", ["temp", "heading"])
+    utils.init_csv("magnet", ["temp", "heading", "x", "y", "z"])

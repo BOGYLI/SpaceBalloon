@@ -37,6 +37,7 @@ class compass():
         self.device_address = address # magnetometer device i2c address
         self._declination = d
         self.magnetometer_init(mode, odr, sens, osr)
+        self.x, self.y, self.z = 0, 0, 0
         sleep(2)
 
     def soft_reset(self):
@@ -75,11 +76,11 @@ class compass():
 
     def get_bearing(self):
         # Read Accelerometer raw value
-        x = self.__read_raw_data(X_axis_H)
-        z = self.__read_raw_data(Z_axis_H)
-        y = self.__read_raw_data(Y_axis_H)
+        self.x = self.__read_raw_data(X_axis_H)
+        self.z = self.__read_raw_data(Z_axis_H)
+        self.y = self.__read_raw_data(Y_axis_H)
         
-        heading = math.atan2(y, x) + self._declination
+        heading = math.atan2(self.y, self.x) + self._declination
         
         # due to declination check for >360 degree
         if(heading > 2.0 * pi):
