@@ -97,14 +97,11 @@ def extract_lat_lon_alt(nmea_sentence):
 
 def main():
 
-    last_time = time.time()
     buffer = ""
     while True:
 
-        # Sleep until 1 second has passed
-        if time.time() - last_time < 1:
-            time.sleep(1 - (time.time() - last_time))
-        last_time = time.time()
+        # Sleep 30 ms to avoid high CPU usage
+        time.sleep(0.03)
 
         # Read GPS data
         raw_data = read_gps_data()
@@ -126,7 +123,7 @@ def main():
             # Extract and print latitude, longitude, and altitude
             lat, lon, alt = extract_lat_lon_alt(sentence)
             if lat is not None and lon is not None and alt is not None:
-                logger.info(f"Latitude: {lat}, Longitude: {lon}, Altitude: {alt}m")
+                logger.info(f"Latitude: {lat:.7f}, Longitude: {lon:.7f}, Altitude: {alt:.3f}m")
                 utils.write_csv("gps", [lat, lon, alt])
                 utils.send_data("gps", {"latitude": lat, "longitude": lon, "altitude": alt}, logger)
 

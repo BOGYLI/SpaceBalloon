@@ -36,10 +36,10 @@ def main():
         pressure_pa = pressure_hpa * 100
 
         # Calculate altitude
-        altitude = calculate_altitude(pressure_pa, temperature=temp + 273.15)  # Convert temp to Kelvin
+        altitude = calculate_altitude(pressure_pa)
 
         # Log the sensor data and calculated altitude
-        logger.info(f"Pressure: {pressure_hpa}hPa, Temperature: {temp}°C, Humidity: {humidity}rH, Estimated Altitude: {altitude}m")
+        logger.info(f"Pressure: {pressure_hpa:.3f}hPa, Temperature: {temp:.3f}°C, Humidity: {humidity:.3f}rH, Estimated Altitude: {altitude:.3f}m")
 
         # Write data to CSV file
         utils.write_csv("climate", [pressure_hpa, temp, humidity, altitude])
