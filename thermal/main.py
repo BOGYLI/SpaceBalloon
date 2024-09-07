@@ -37,8 +37,13 @@ def main():
 
         frame = get_frame(mlx)
 
-        logger.info(f"Frame read")
-        utils.write_csv("thermal", [str(temp) for temp in frame])
+        min_temp = min(frame)
+        max_temp = max(frame)
+        avg_temp = sum(frame) / len(frame)
+        median_temp = sorted(frame)[len(frame) // 2]
+
+        logger.info(f"Min: {min_temp:.3f}°C, Max: {max_temp:.3f}°C, Avg: {avg_temp:.3f}°C, Median: {median_temp:.3f}°C")
+        utils.write_csv("thermal", [min_temp, max_temp, avg_temp, median_temp, f"{temp:.3f}" for temp in frame])
         utils.send_data("thermal", {"pixels": frame}, logger)
 
 

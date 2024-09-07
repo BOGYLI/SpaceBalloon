@@ -73,6 +73,10 @@ class System(BaseModel):
 
 
 class Thermal(BaseModel):
+    min: float
+    max: float
+    avg: float
+    median: float
     pixels: list[float]
 
 
@@ -91,7 +95,7 @@ spectral = Spectral(temp=0, violet=0, blue=0, green=0, yellow=0, orange=0, red=0
 spectral_updated = 0
 system = System(cpu=0, memory=0, temp=0, sent=0, received=0, disk={})
 system_updated = 0
-thermal = Thermal(pixels=[])
+thermal = Thermal(min=0, max=0, avg=0, median=0, pixels=[])
 thermal_updated = 0
 
 
@@ -205,7 +209,7 @@ def debug():
     logger.info(f"Magnet ({time.time() - magnet_updated:.1f} secs ago): {magnet}")
     logger.info(f"Spectral ({time.time() - spectral_updated:.1f} secs ago): {spectral}")
     logger.info(f"System ({time.time() - system_updated:.1f} secs ago): {system}")
-    logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago)")
+    logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago): {thermal.min}, {thermal.max}, {thermal.avg}, {thermal.median}")
     
     
 @app.on_event("startup")
@@ -285,7 +289,8 @@ def influx():
             points.append(system_point)
 
         if thermal_updated != 0:
-            thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s")
+            thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s").field("min", thermal.min).field("max", thermal.max) \
+                .field("avg", thermal.avg).field("median", thermal.median)
             for i, pixel in enumerate(thermal.pixels):
                 thermal_point.field(f"pixel_{i}", pixel)
             points.append(thermal_point)
