@@ -44,7 +44,7 @@ def main():
 
         logger.info(f"Min: {min_temp:.3f}°C, Max: {max_temp:.3f}°C, Avg: {avg_temp:.3f}°C, Median: {median_temp:.3f}°C")
         utils.write_csv("thermal", [min_temp, max_temp, avg_temp, median_temp, *[f"{temp:.3f}" for temp in frame]])
-        utils.send_data("thermal", {"pixels": frame}, logger)
+        utils.send_data("thermal", {"min": min_temp, "max": max_temp, "avg": avg_temp, "median": median_temp, "pixels": frame}, logger)
 
 
 if __name__ == "__main__":

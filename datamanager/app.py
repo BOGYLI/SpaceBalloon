@@ -209,7 +209,7 @@ def debug():
     logger.info(f"Magnet ({time.time() - magnet_updated:.1f} secs ago): {magnet}")
     logger.info(f"Spectral ({time.time() - spectral_updated:.1f} secs ago): {spectral}")
     logger.info(f"System ({time.time() - system_updated:.1f} secs ago): {system}")
-    logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago): {thermal.min}, {thermal.max}, {thermal.avg}, {thermal.median}")
+    logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago): min={thermal.min}, max={thermal.max}, avg={thermal.avg}, median={thermal.median}")
     
     
 @app.on_event("startup")
