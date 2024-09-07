@@ -48,6 +48,9 @@ class GPS(BaseModel):
 class Magnet(BaseModel):
     temp: float
     heading: float
+    x: float
+    y: float
+    z: float
 
 
 class Spectral(BaseModel):
@@ -75,21 +78,21 @@ class Thermal(BaseModel):
 
 # Store current sensor data
 adc = ADC(uv=0, methane=0)
-adc_updated = time.time()
+adc_updated = 0
 climate = Climate(pressure=0, temp=0, humidity=0, altitude=0)
-climate_updated = time.time()
+climate_updated = 0
 co2 = CO2(co2=0, voc=0)
-co2_updated = time.time()
+co2_updated = 0
 gps = GPS(latitude=0, longitude=0, altitude=0)
-gps_updated = time.time()
-magnet = Magnet(temp=0, heading=0)
-magnet_updated = time.time()
+gps_updated = 0
+magnet = Magnet(temp=0, heading=0, x=0, y=0, z=0)
+magnet_updated = 0
 spectral = Spectral(temp=0, violet=0, blue=0, green=0, yellow=0, orange=0, red=0)
-spectral_updated = time.time()
+spectral_updated = 0
 system = System(cpu=0, memory=0, temp=0, sent=0, received=0, disk={})
-system_updated = time.time()
+system_updated = 0
 thermal = Thermal(pixels=[])
-thermal_updated = time.time()
+thermal_updated = 0
 
 
 @app.post("/adc")
@@ -206,7 +209,7 @@ def debug():
     
     
 @app.on_event("startup")
-@repeat_every(seconds=5)
+@repeat_every(seconds=10)
 def aprs():
 
     for i in range(2):
@@ -249,31 +252,51 @@ def influx():
     with influxdb_client.InfluxDBClient(url=utils.get_influx_url(), org=utils.get_influx_org(),
                                         token=utils.get_influx_token(), timeout=2500) as client:
 
-        points = [
-            influxdb_client.Point("wifi_adc").time(int(adc_updated), "s").field("uv", adc.uv).field("methane", adc.methane),
-            influxdb_client.Point("wifi_climate").time(int(climate_updated), "s").field("pressure", climate.pressure).field("temp", climate.temp)
-            .field("humidity", climate.humidity).field("altitude", climate.altitude),
-            influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("co2", co2.co2).field("voc", co2.voc),
-            influxdb_client.Point("wifi_gps").time(int(gps_updated), "s").field("latitude", gps.latitude).field("longitude", gps.longitude).field("altitude", gps.altitude),
-            influxdb_client.Point("wifi_magnet").time(int(magnet_updated), "s").field("temp", magnet.temp).field("heading", magnet.heading),
-            influxdb_client.Point("wifi_spectral").time(int(spectral_updated), "s").field("temp", spectral.temp).field("violet", spectral.violet).field("blue", spectral.blue)
-            .field("green", spectral.green).field("yellow", spectral.yellow).field("orange", spectral.orange).field("red", spectral.red),
-        ]
+        points = []
+        
+        if adc_updated != 0:
+            points.append(influxdb_client.Point("wifi_adc").time(int(adc_updated), "s").field("uv", adc.uv).field("methane", adc.methane))
+        
+        if climate_updated != 0:
+            points.append(influxdb_client.Point("wifi_climate").time(int(climate_updated), "s").field("pressure", climate.pressure)
+                          .field("temp", climate.temp).field("humidity", climate.humidity).field("altitude", climate.altitude))
+        
+        if co2_updated != 0:
+            points.append(influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("co2", co2.co2).field("voc", co2.voc))
+        
+        if gps_updated != 0:
+            points.append(influxdb_client.Point("wifi_gps").time(int(gps_updated), "s").field("latitude", gps.latitude)
+                          .field("longitude", gps.longitude).field("altitude", gps.altitude))
+        
+        if magnet_updated != 0:
+            points.append(influxdb_client.Point("wifi_magnet").time(int(magnet_updated), "s").field("temp", magnet.temp).field("heading", magnet.heading)
+                          .field("x", magnet.x).field("y", magnet.y).field("z", magnet.z))
+            
+        if spectral_updated != 0:
+            points.append(influxdb_client.Point("wifi_spectral").time(int(spectral_updated), "s").field("temp", spectral.temp)
+                          .field("violet", spectral.violet).field("blue", spectral.blue).field("green", spectral.green)
+                          .field("yellow", spectral.yellow).field("orange", spectral.orange).field("red", spectral.red))
+        
+        if system_updated != 0:
+            system_point = influxdb_client.Point("wifi_system").time(int(system_updated), "s").field("cpu", system.cpu).field("memory", system.memory) \
+                .field("temp", system.temp).field("sent", system.sent).field("received", system.received)
+            for disk_name, disk_usage in system.disk.items():
+                system_point.field(disk_name, disk_usage)
+            points.append(system_point)
 
-        system_point = influxdb_client.Point("wifi_system").time(int(system_updated), "s").field("cpu", system.cpu).field("memory", system.memory) \
-            .field("temp", system.temp).field("sent", system.sent).field("received", system.received)
-        for disk_name, disk_usage in system.disk.items():
-            system_point.field(disk_name, disk_usage)
-        points.append(system_point)
+        if thermal_updated != 0:
+            thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s")
+            for i, pixel in enumerate(thermal.pixels):
+                thermal_point.field(f"pixel_{i}", pixel)
+            points.append(thermal_point)
 
-        thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s")
-        for i, pixel in enumerate(thermal.pixels):
-            thermal_point.field(f"pixel_{i}", pixel)
-        points.append(thermal_point)
+        if points:
 
-        write_api = client.write_api()
-        for point in points:
-            write_api.write(bucket=utils.get_influx_bucket(), record=point)
-        write_api.close()
+            logger.info("Sending data to InfluxDB")
 
-        logger.info("Successfully sent data to InfluxDB")
+            write_api = client.write_api()
+            for point in points:
+                write_api.write(bucket=utils.get_influx_bucket(), record=point)
+            write_api.close()
+
+            logger.info("Successfully sent data to InfluxDB")
