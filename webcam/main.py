@@ -129,7 +129,7 @@ def main():
         if take_photo:
             logger.info("Schedule photo taking ...")
             last_photo = time.time()
-            th.Thread(target=save_photo, name="Photo Write", daemon=True).start()
+            th.Thread(target=save_photo, args=(frame,), name="Photo Write", daemon=True).start()
 
         if live_mode:
             _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
