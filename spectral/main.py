@@ -39,7 +39,7 @@ def main():
         orange = sensor.orange / 1000
         red = sensor.red / 1000
 
-        logger.info(f"Temperature: {temp:3f}°C, Violet: {violet:.3f}mW/cm², Blue: {blue:.3f}mW/cm², Green: {green:.3f}mW/cm², Yellow: {yellow:.3f}mW/cm², Orange: {orange:.3f}mW/cm², Red: {red:.3f}mW/cm²")
+        logger.info(f"Temperature: {temp}°C, Violet: {violet:.3f}mW/cm², Blue: {blue:.3f}mW/cm², Green: {green:.3f}mW/cm², Yellow: {yellow:.3f}mW/cm², Orange: {orange:.3f}mW/cm², Red: {red:.3f}mW/cm²")
         utils.write_csv("spectral", [temp, violet, blue, green, yellow, orange, red])
         utils.send_data("spectral", {"temp": temp, "violet": violet, "blue": blue, "green": green, "yellow": yellow, "orange": orange, "red": red}, logger)
 
