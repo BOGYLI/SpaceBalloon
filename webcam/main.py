@@ -64,6 +64,11 @@ def save_photo(frame):
     logger.info(f"Saving photo to {path}")
     cv2.imwrite(path, frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
 
+    path = utils.new_photo_small(WEBCAM)
+    logger.info(f"Saving small photo to {path}")
+    resized = cv2.resize(frame, (480, 270), interpolation=cv2.INTER_AREA)
+    cv2.imwrite(path, resized, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
+
     logger.info("Photo saved")
 
 
@@ -107,6 +112,7 @@ def main():
                     logger.info("Stopping video recording ...")
                     video.release()
                     video = None
+            live_mode_changed = False
 
         new_standby = not video_mode and not live_mode
         if capture.standby != new_standby:
@@ -132,7 +138,7 @@ def main():
             th.Thread(target=save_photo, args=(frame,), name="Photo Write", daemon=True).start()
 
         if live_mode:
-            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+            _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
             try:
                 ffmpeg.stdin.write(buffer.tobytes())
             except OSError as e:
