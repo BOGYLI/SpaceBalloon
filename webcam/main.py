@@ -20,8 +20,8 @@ running = True
 
 # Timer
 last_photo = 0
-video_start_time = time.time()
-video_frames = 0
+start_time = time.time()
+frames = 0
 
 # Components
 capture = VideoCapture()
@@ -62,12 +62,12 @@ def save_photo(frame):
 
     path = utils.new_photo(WEBCAM)
     logger.info(f"Saving photo to {path}")
-    cv2.imwrite(path, frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+    cv2.imwrite(path, frame, [int(cv2.IMWRITE_JPEG_QUALITY), PHOTO_QUALITY])
 
     path = utils.new_photo_small(WEBCAM)
     logger.info(f"Saving small photo to {path}")
-    resized = cv2.resize(frame, (768, 432), interpolation=cv2.INTER_AREA)
-    cv2.imwrite(path, resized, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+    resized = cv2.resize(frame, PHOTO_SMALL_SIZE, interpolation=cv2.INTER_AREA)
+    cv2.imwrite(path, resized, [int(cv2.IMWRITE_JPEG_QUALITY), PHOTO_SMALL_QUALITY])
 
     logger.info("Photo saved")
 
@@ -93,6 +93,8 @@ def main():
             if live_mode:
                 logger.info("Starting live stream ...")
                 ffmpeg = init_ffmpeg()
+                start_time = time.time()
+                frames = 0
             else:
                 logger.info("Stopping live stream ...")
                 if ffmpeg is not None:
@@ -106,7 +108,8 @@ def main():
             if video_mode and not live_mode:
                 logger.info("Starting video recording ...")
                 video = init_video()
-                video_start_time = time.time()
+                start_time = time.time()
+                frames = 0
             else:
                 if video is not None:
                     logger.info("Stopping video recording ...")
@@ -138,8 +141,8 @@ def main():
             th.Thread(target=save_photo, args=(frame,), name="Photo Write", daemon=True).start()
 
         if live_mode:
-            resized = cv2.resize(frame, (768, 432), interpolation=cv2.INTER_NEAREST)
-            _, buffer = cv2.imencode('.jpg', resized, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+            resized = cv2.resize(frame, LIVE_SIZE, interpolation=cv2.INTER_NEAREST)
+            _, buffer = cv2.imencode('.jpg', resized, [int(cv2.IMWRITE_JPEG_QUALITY), LIVE_QUALITY])
             try:
                 ffmpeg.stdin.write(buffer.tobytes())
             except OSError as e:
@@ -150,30 +153,31 @@ def main():
                         ffmpeg.stdin.close()
                         ffmpeg.wait(2)
                         ffmpeg.terminate()
+                    time.sleep(2)
                     ffmpeg = init_ffmpeg()
-                    
+                    start_time = time.time()
+                    frames = 0
 
         if video_mode and not live_mode:
-
             video.write(frame)
-
-            video_frames += 1
-            elapsed_time = time.time() - video_start_time
-            sleep_time = video_frames * (1 / VIDEO_FPS) - elapsed_time
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-
-            if time.time() - video_start_time > VIDEO_LENGTH:
+            if time.time() - start_time > VIDEO_LENGTH:
                 video.release()
                 video = init_video()
-                video_start_time = time.time()
-
+                start_time = time.time()
+                frames = 0
+        
         if not capture.running:
             logger.error("Video capture thread stopped, exiting")
             running = False
             break
 
-        if not video_mode and not live_mode:
+        if video_mode or live_mode:
+            frames += 1
+            elapsed_time = time.time() - start_time
+            sleep_time = frames * (1 / (LIVE_FPS if live_mode else VIDEO_FPS)) - elapsed_time
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+        else:
             time.sleep(0.2)
 
     capture.running = False
