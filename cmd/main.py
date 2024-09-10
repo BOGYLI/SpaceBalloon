@@ -17,10 +17,18 @@ def main():
     print("Login")
     print("-----")
     print("")
-    url_raspi = input("Raspi URL (empty for default): ").strip() or "https://raspi.balloon.nikogenia.de"
-    url_sm = input("Stream Manager URL (empty for default): ").strip() or "https://sm.balloon.nikogenia.de"
-    username = input("Username: ").strip()
-    password = getpass.getpass("Password: ").strip()
+    url_raspi = input("Raspi URL (empty for default, 'offline' for offline operation): ").strip() or "https://raspi.balloon.nikogenia.de"
+    if url_raspi.lower() == "offline":
+        url_raspi = "http://192.168.25.4"
+    url_sm = input("Stream manager URL (empty for default): ").strip() or "https://sm.balloon.nikogenia.de"
+    username_raspi = input("Raspi username (empty for default): ").strip() or "root"
+    password_raspi = getpass.getpass("Raspi password: ").strip()
+    token_sm = getpass.getpass("Stream manager token (empty to use the raspi password): ").strip() or password_raspi
+    print("")
+
+    print("Configuration:")
+    print(f"Raspi URL: {url_raspi} (username: {username_raspi}, password: {'*' * len(password_raspi)})")
+    print(f"Stream manager URL: {url_sm} (token: {'*' * len(token_sm)})")
     print("")
 
     running = True
@@ -32,7 +40,7 @@ def main():
         print("")
 
         try:
-            response = requests.get(url_raspi + "/status", timeout=3, auth=(username, password))
+            response = requests.get(url_raspi + "/status", timeout=3, auth=(username_raspi, password_raspi))
             if response.status_code == 200:
                 status = response.json()
                 print(f"Live camera: {status["live"]["webcam"]}")
@@ -43,9 +51,9 @@ def main():
                 print(f"  Failed: {', '.join(status["services"]["failed"])}")
                 print(f"  Inactive: {', '.join(status["services"]["inactive"])}")
             else:
-                print(f"Status request failed: {response.status_code}")
+                print(f"Raspi status request failed: {response.status_code}")
         except requests.exceptions.RequestException as e:
-            print(f"Status request failed: {e}")
+            print(f"Raspi status request failed: {e}")
         print("")
 
         print("Enter command (h for help):")
@@ -80,7 +88,7 @@ def main():
 
         elif command == "l":
             try:
-                response = requests.post(url_raspi + "/live", json={"webcam": -1}, auth=(username, password), timeout=5)
+                response = requests.post(url_raspi + "/live", json={"webcam": -1}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
                     print(f"Stopped livestream camera")
                 else:
@@ -97,7 +105,7 @@ def main():
                 print("")
                 continue
             try:
-                response = requests.post(url_raspi + "/live", json={"webcam": camera}, auth=(username, password), timeout=5)
+                response = requests.post(url_raspi + "/live", json={"webcam": camera}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
                     print(f"Changed to livestream camera {camera}")
                 else:
@@ -108,7 +116,7 @@ def main():
 
         elif command == "v":
             try:
-                response = requests.post(url_raspi + "/video", json={"webcam0": -1, "webcam1": -1, "webcam2": -1}, auth=(username, password), timeout=5)
+                response = requests.post(url_raspi + "/video", json={"webcam0": -1, "webcam1": -1, "webcam2": -1}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
                     print(f"Stopped saving video file")
                 else:
@@ -132,7 +140,7 @@ def main():
                 print("")
                 continue
             try:
-                response = requests.post(url_raspi + "/video", json={"webcam0": camera0, "webcam1": camera1, "webcam2": camera2}, auth=(username, password), timeout=5)
+                response = requests.post(url_raspi + "/video", json={"webcam0": camera0, "webcam1": camera1, "webcam2": camera2}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
                     print(f"Changed to video cameras {camera0}, {camera1}, {camera2}")
                 else:
@@ -143,7 +151,7 @@ def main():
 
         elif command == "pb":
             try:
-                response = requests.post(url_sm + "/phase/back", json={"token": password}, timeout=2)
+                response = requests.post(url_sm + "/phase/back", json={"token": token_sm}, timeout=2)
                 if response.status_code == 200:
                     print(f"Changed to previous phase")
                 else:
@@ -154,7 +162,7 @@ def main():
 
         elif command == "pn":
             try:
-                response = requests.post(url_sm + "/phase/next", json={"token": password}, timeout=2)
+                response = requests.post(url_sm + "/phase/next", json={"token": token_sm}, timeout=2)
                 if response.status_code == 200:
                     print(f"Changed to next phase")
                 else:
@@ -165,7 +173,7 @@ def main():
 
         elif command == "s":
             try:
-                response = requests.post(url_sm + "/sensors/toggle", json={"token": password}, timeout=2)
+                response = requests.post(url_sm + "/sensors/toggle", json={"token": token_sm}, timeout=2)
                 if response.status_code == 200:
                     print(f"Toggled sensor display")
                 else:
@@ -183,7 +191,7 @@ def main():
                 print("")
                 continue
             try:
-                response = requests.post(url_sm + "/countdown", json={"token": password, "time": countdown}, timeout=2)
+                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
                 if response.status_code == 200:
                     print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
                 else:
@@ -205,7 +213,7 @@ def main():
                 print("")
                 continue
             try:
-                response = requests.post(url_sm + "/countdown", json={"token": password, "time": countdown}, timeout=2)
+                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
                 if response.status_code == 200:
                     print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
                 else:
@@ -216,7 +224,7 @@ def main():
 
         elif command == "t":
             try:
-                response = requests.post(url_sm + "/title", json={"token": password, "title": "", "subtitle": ""}, timeout=2)
+                response = requests.post(url_sm + "/title", json={"token": token_sm, "title": "", "subtitle": ""}, timeout=2)
                 if response.status_code == 200:
                     print("Hide title and subtitle popup")
                 else:
@@ -228,7 +236,7 @@ def main():
         elif command.startswith("t "):
             title, subtitle = command[2:].split(";")
             try:
-                response = requests.post(url_sm + "/title", json={"token": password, "title": title, "subtitle": subtitle}, timeout=2)
+                response = requests.post(url_sm + "/title", json={"token": token_sm, "title": title, "subtitle": subtitle}, timeout=2)
                 if response.status_code == 200:
                     print("Set title to " + title + " and subtitle to " + subtitle)
                 else:
@@ -239,7 +247,7 @@ def main():
 
         elif command == "aprs":
             try:
-                response = requests.post(url_sm + "/source", json={"token": password, "source": "aprs"}, timeout=2)
+                response = requests.post(url_sm + "/source", json={"token": token_sm, "source": "aprs"}, timeout=2)
                 if response.status_code == 200:
                     print("Changed source to APRS")
                 else:
@@ -250,7 +258,7 @@ def main():
 
         elif command == "wifi":
             try:
-                response = requests.post(url_sm + "/source", json={"token": password, "source": "wifi"}, timeout=2)
+                response = requests.post(url_sm + "/source", json={"token": token_sm, "source": "wifi"}, timeout=2)
                 if response.status_code == 200:
                     print("Changed source to WiFi")
                 else:
@@ -266,7 +274,7 @@ def main():
             print("Please enter confirmation code or cancel with enter:")
             code = input("> ").strip()
             try:
-                response = requests.post(url_raspi + "/restart/system", json={"code": code}, auth=(username, password), timeout=5)
+                response = requests.post(url_raspi + "/restart/system", json={"code": code}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
                     print("Full raspberry pi system rebooting")
                 elif response.status_code == 403:
@@ -285,7 +293,7 @@ def main():
             print("Please enter confirmation code or cancel with enter:")
             code = input("> ").strip()
             try:
-                response = requests.post(url_raspi + "/restart/service", json={"service": service, "code": code}, auth=(username, password), timeout=5)
+                response = requests.post(url_raspi + "/restart/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
                     print(f"Service {service} restarted")
                 elif response.status_code == 403:
