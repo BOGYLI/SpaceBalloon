@@ -16,27 +16,34 @@ https://www.tiktok.com/@spaceballoonbogy
 Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wiki)!
 
 ### Modules
-- [adc](/adc/)
-- [backup](/backup/)
-- [cammanager](/cammanager/)
-- [climate](/climate/)
-- [co2](/co2/)
-- [datamanager](/datamanager/)
-- [gps](/gps/)
-- [magnet](/magnet/)
-- [spectral](/spectral/)
-- [system](/system/)
-- [thermal](/thermal/)
-- [webcam](/webcam/)
+- [adc](/adc/) responsible for the UV and methane sensors
+- [backup](/backup/) copying files
+- [cammanager](/cammanager/) coordinating camera operation and system status
+- [climate](/climate/) sensor measuring temperature, humidity and pressure (+ estimated altitude)
+- [co2](/co2/) sensor for CO2 and VOC
+- [datamanager](/datamanager/) collecting all sensor data and sending it via APRS and WiFi
+- [gps](/gps/) sensor tracking location and altitude
+- [magnet](/magnet/) sensor monitoring some magnetic activity
+- [spectral](/spectral/) sensor checking the intensity of different IR wavelengths
+- [system](/system/) monitoring system metrics
+- [thermal](/thermal/) camera capturing thermal images of the interior
+- [webcam](/webcam/) implementing camera photos, videos and livestreaming
 
 ### Containers
-- [aprscollector](/aprscollector/)
-- [spotcollector](/spotcollector/)
-- [streammanager](/streammanager/)
+- [thermalrenderer](/thermalrenderer/) fetching pixel data from InfluxDB and rendering a thermal image to storage box
+- [spotcollector](/spotcollector/) reading the newest GPS data from the SPOT API and sending it to InfluxDB
+- [streammanager](/streammanager/) API controlling the state of the stream and communicating with Streamelements
 
 ### Extras
-- [cmd](/cmd/)
-- [tests](/tests/)
+- [cmd](/cmd/) is the Mission Control Console
+- [aprsreceiver](/aprsreceiver/) running on the APRS ground antenna station to receive data and save it to InfluxDB
+- [utils](/utils/) are python modules with handy utilities to be imported
+- [tests](/tests/) contains various tests throughout the development
+- [resources](/resources/) hosts repository related files like images and the default configuration
+- [docs](/docs/) stores documentation related stuff
+- [template](/template/) is a example for a module to be run on board
+- [grafana](/grafana/) holds all dashboard configurations for Grafana
+- all scripts in the root directory are useful to manage the repository instance on board
 
 ### Sponsors
 - [Rütgers Stiftung](https://ruetgers-stiftung.de/)
