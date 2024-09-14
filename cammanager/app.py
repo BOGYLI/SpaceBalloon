@@ -116,7 +116,7 @@ def restart_system():
 
 
 @app.on_event("startup")
-@repeat_every(seconds=5)
+@repeat_every(seconds=utils.get_interval("cm_debug"))
 def debug():
 
     logger.info(f"Live cam ({time.time() - live_cam_updated:.1f} secs ago): {live_cam}")
@@ -129,7 +129,7 @@ def debug():
 
 
 @app.on_event("startup")
-@repeat_every(seconds=3)
+@repeat_every(seconds=utils.get_interval("cm_services"))
 def services():
 
     global services_active, services_activating, services_failed, services_inactive, services_updated

@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 12
+version: 13
 
 # sensor custom I2C bus
 bus:
@@ -10,7 +10,7 @@ bus:
   gps: 4
   magnet: 6
 
-# read interval (timeout in seconds)
+# various intervals (timeout in seconds)
 interval:
   adc: 1
   climate: 1
@@ -20,6 +20,11 @@ interval:
   system: 1
   photo_offset: 4
   photo_delay: 20
+  dm_debug: 10
+  dm_aprs: 30
+  dm_influx: 3
+  cm_debug: 5
+  cm_services: 3
 
 # all webcams with their index
 webcams:
@@ -44,11 +49,17 @@ influx:
   bucket: "balloon"
   token: ""
 
-# Stream
+# Stream details
 stream:
   url: "srt://server.balloon.nikogenia.de:8890?streamid=publish:#PATH:#USERNAME:#PASSWORD&pkt_size=1316"
   username: "maker"
   password: ""
+
+# APRS details
+aprs:
+  src: "DN5WA-11"
+  dst: "APRS"
+  path: "WIDE1-1,WIDE2-2"
 
 # sensor data and video storage
 storage:

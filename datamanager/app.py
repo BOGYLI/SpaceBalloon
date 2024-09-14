@@ -199,7 +199,7 @@ def convert_to_aprs_format(lat, lon):
 
 
 @app.on_event("startup")
-@repeat_every(seconds=10)
+@repeat_every(seconds=utils.get_interval("dm_debug"))
 def debug():
 
     logger.info(f"ADC ({time.time() - adc_updated:.1f} secs ago): {adc}")
@@ -213,7 +213,7 @@ def debug():
     
     
 @app.on_event("startup")
-@repeat_every(seconds=10)
+@repeat_every(seconds=utils.get_interval("dm_aprs"))
 def aprs():
 
     for i in range(2):
@@ -249,7 +249,7 @@ def aprs():
 
 
 @app.on_event("startup")
-@repeat_every(seconds=2)
+@repeat_every(seconds=utils.get_interval("dm_influx"))
 def influx():
 
     logger.debug("Connecting to InfluxDB")
