@@ -109,3 +109,33 @@ def get_influx_token() -> str:
     """
 
     return CONFIG["influx"]["token"]
+
+
+def get_aprs_src() -> str:
+    """
+    Get the APRS source callsign
+
+    :return: APRS source callsign
+    """
+
+    return CONFIG["aprs"]["src"]
+
+
+def get_aprs_dst() -> str:
+    """
+    Get the APRS destination callsign
+
+    :return: APRS destination callsign
+    """
+
+    return CONFIG["aprs"]["dst"]
+
+
+def get_aprs_path() -> str:
+    """
+    Get the APRS path
+
+    :return: APRS path
+    """
+
+    return CONFIG["aprs"]["path"]

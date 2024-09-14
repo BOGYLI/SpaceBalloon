@@ -1,6 +1,8 @@
 import utils
 import time
 import serial
+import struct
+import base64
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
@@ -216,6 +218,46 @@ def debug():
 @repeat_every(seconds=utils.get_interval("dm_aprs"))
 def aprs():
 
+    # Compress values to bytes
+    gps_altitude = struct.pack('H', min(max(int(gps.altitude), 0), 65535))  # 2 bytes, 0-65535
+    adc_uv = struct.pack('H', min(max(int(adc.uv * 1000), 0), 65535))  # 2 bytes, 0-65535
+    adc_methane = struct.pack('H', min(max(int(adc.methane), 0), 65535))  # 2 bytes, 0-65535
+    climate_pressure = struct.pack('H', min(max(int(climate.pressure), 0), 65535))  # 2 bytes, 0-65535
+    climate_temp = struct.pack('b', min(max(int(climate.temp), -128), 127))  # 1 byte, -128-127
+    climate_humidity = struct.pack('B', min(max(int(climate.humidity), 0), 255))  # 1 byte, 0-255
+    climate_altitude = struct.pack('H', min(max(int(climate.altitude), 0), 65535))  # 2 bytes, 0-65535
+    co2_co2 = struct.pack('H', min(max(int(co2.co2), 0), 65535))  # 2 bytes, 0-65535
+    co2_voc = struct.pack('H', min(max(int(co2.voc), 0), 65535))  # 2 bytes, 0-65535
+    magnet_heading = struct.pack('H', min(max(int(magnet.heading), 0), 65535))  # 2 bytes, 0-65535
+    system_cpu = struct.pack('B', min(max(int(system.cpu), 0), 255))  # 1 byte, 0-255
+    system_memory = struct.pack('B', min(max(int(system.memory), 0), 255))  # 1 byte, 0-255
+    system_temp = struct.pack('b', min(max(int(system.temp), -128), 127))  # 1 byte, -128-127
+    thermal_min = struct.pack('b', min(max(int(thermal.min), -128), 127))  # 1 byte, -128-127
+    thermal_max = struct.pack('b', min(max(int(thermal.max), -128), 127))  # 1 byte, -128-127
+    thermal_avg = struct.pack('b', min(max(int(thermal.avg), -128), 127))  # 1 byte, -128-127
+    thermal_median = struct.pack('b', min(max(int(thermal.median), -128), 127))  # 1 byte, -128-127
+
+    # Concatenate all data (total 25 bytes)
+    data = gps_altitude + adc_uv + adc_methane + climate_pressure + climate_temp + climate_humidity + \
+        climate_altitude + co2_co2 + co2_voc + magnet_heading + system_cpu + system_memory + system_temp + \
+        thermal_min + thermal_max + thermal_avg + thermal_median
+
+    # Base64 encode the data
+    aprs_comment = base64.b64encode(data, altchars=b'+-').decode('ascii')
+    
+    # Construct an APRS packet
+    aprs_src = utils.get_aprs_src()
+    aprs_dest = utils.get_aprs_dst()
+    aprs_path = utils.get_aprs_path()
+    aprs_type = "!"
+    aprs_table = "/"
+    aprs_symbol = "O"
+    aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
+    aprs_packet = f"{aprs_src}>{aprs_dest},{aprs_path}:{aprs_type}{aprs_lat}{aprs_table}{aprs_lon}{aprs_symbol}{aprs_comment}".encode('ascii')
+
+    # Construct a KISS frame
+    kiss_frame = construct_kiss_frame(aprs_packet)
+
     for i in range(2):
     
         # Replace '/dev/ttyUSB0' with the appropriate serial port for your device
@@ -225,19 +267,6 @@ def aprs():
         # Ensure RTS and DTR are set low
         ser.rts = False
         ser.dtr = False
-
-        # Construct an APRS packet
-        src = "DN5WA-11"
-        dest = "DN5WA-0"
-        path = "WIDE1-1,WIDE2-2"
-        aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
-        info = f"!{aprs_lat}/{aprs_lon}-{gps.altitude:.1f};{adc.uv:.1f};{adc.methane:.1f};{climate.pressure:.1f};{climate.temp:.1f};{climate.humidity:.1f};{climate.altitude:.1f};{co2.co2:.1f};{co2.voc:.1f};{magnet.temp:.1f};{magnet.heading:.1f};{spectral.temp:.1f};{spectral.violet:.1f};{spectral.blue:.1f};{spectral.green:.1f};{spectral.yellow:.1f};{spectral.orange:.1f};{spectral.red:.1f};{system.cpu:.1f};{system.memory:.1f};{system.temp:.1f};{system.sent:.1f};{system.received:.1f}"
-        for disk_name, disk_usage in system.disk.items():
-            info += f";{disk_name}:{disk_usage:.1f}"
-        aprs_packet = f"{src}>{dest},{path}:{info}".encode('ascii')
-
-        # Construct a KISS frame
-        kiss_frame = construct_kiss_frame(aprs_packet)
 
         # Send the KISS frame over the serial connection
         logger.info("Write data to APRS")
