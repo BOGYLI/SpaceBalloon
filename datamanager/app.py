@@ -293,9 +293,7 @@ def influx():
 
         if thermal_updated != 0:
             thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s").field("min", thermal.min).field("max", thermal.max) \
-                .field("avg", thermal.avg).field("median", thermal.median)
-            for i, pixel in enumerate(thermal.pixels):
-                thermal_point.field(f"pixel_{i}", pixel)
+                .field("avg", thermal.avg).field("median", thermal.median).field("pixels", ",".join([int(x) for x in thermal.pixels]))
             points.append(thermal_point)
 
         if points:
