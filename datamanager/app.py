@@ -69,7 +69,7 @@ class System(BaseModel):
     temp: float
     sent: float
     received: float
-    disk: dict[str, float]
+    disk: list[float]
 
 
 class Thermal(BaseModel):
@@ -93,7 +93,7 @@ magnet = Magnet(temp=0, heading=0, x=0, y=0, z=0)
 magnet_updated = 0
 spectral = Spectral(temp=0, violet=0, blue=0, green=0, yellow=0, orange=0, red=0)
 spectral_updated = 0
-system = System(cpu=0, memory=0, temp=0, sent=0, received=0, disk={})
+system = System(cpu=0, memory=0, temp=0, sent=0, received=0, disk=[])
 system_updated = 0
 thermal = Thermal(min=0, max=0, avg=0, median=0, pixels=[])
 thermal_updated = 0
@@ -284,8 +284,11 @@ def influx():
         if system_updated != 0:
             system_point = influxdb_client.Point("wifi_system").time(int(system_updated), "s").field("cpu", system.cpu).field("memory", system.memory) \
                 .field("temp", system.temp).field("sent", system.sent).field("received", system.received)
-            for disk_name, disk_usage in system.disk.items():
-                system_point.field(disk_name, disk_usage)
+            for i, value in enumerate(system.disk):
+                if i % 2 == 0:
+                    system_point.field(f"disk{i//2}_total", value)
+                else:
+                    system_point.field(f"disk{i//2}_used", value)
             points.append(system_point)
 
         if thermal_updated != 0:
