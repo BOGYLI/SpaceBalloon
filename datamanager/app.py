@@ -243,7 +243,7 @@ def aprs():
         thermal_min + thermal_max + thermal_avg + thermal_median
 
     # Base64 encode the data
-    aprs_comment = base64.b64encode(data, altchars=b'+-').decode('ascii')
+    aprs_comment = base64.b64encode(data).decode()
     
     # Construct an APRS packet
     aprs_src = utils.get_aprs_src()

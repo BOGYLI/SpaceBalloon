@@ -61,7 +61,7 @@ aprs:
   dst: "APRS"
   path: "WIDE1-1,WIDE2-2"
 
-# sensor data and video storage
+# sensor data, video and remote photo storage
 storage:
   sensor:
     default:
@@ -69,3 +69,4 @@ storage:
   video:
     path: "./data/video"
     backups: []
+  remote: "hetzner:System/photo"

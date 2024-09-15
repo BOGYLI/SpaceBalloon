@@ -4,6 +4,7 @@ Read video from webcam
 
 import requests
 import threading as th
+import subprocess as sp
 import time
 import cv2
 import utils
@@ -64,10 +65,17 @@ def save_photo(frame):
     logger.info(f"Saving photo to {path}")
     cv2.imwrite(path, frame, [int(cv2.IMWRITE_JPEG_QUALITY), PHOTO_QUALITY])
 
-    path = utils.new_photo_small(WEBCAM)
+    path_small = utils.new_photo_small(WEBCAM)
     logger.info(f"Saving small photo to {path}")
     resized = cv2.resize(frame, PHOTO_SMALL_SIZE, interpolation=cv2.INTER_AREA)
-    cv2.imwrite(path, resized, [int(cv2.IMWRITE_JPEG_QUALITY), PHOTO_SMALL_QUALITY])
+    cv2.imwrite(path_small, resized, [int(cv2.IMWRITE_JPEG_QUALITY), PHOTO_SMALL_QUALITY])
+
+    try:
+        logger.info("Uploading photo ...")
+        sp.run(["rclone", "mkdir", utils.photo_remote(WEBCAM)], check=True)
+        sp.run(["rclone", "copy", path_small, utils.photo_remote(WEBCAM)], check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to upload small photo: {e}")
 
     logger.info("Photo saved")
 

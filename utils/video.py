@@ -77,3 +77,14 @@ def new_photo_small(webcam: int) -> str:
         raise FileNotFoundError(f"Video directory cam{webcam} not found! Please initialize it with reset.sh.")
 
     return os.path.abspath(f"{CONFIG['storage']['video']['path']}/cam{webcam}/photo_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}-small.jpg")
+
+
+def photo_remote(webcam: int) -> (str):
+    """
+    Get the path for remote photo files for the given webcam
+
+    :param webcam: Webcam id
+    :return: Path to the remote photo directory
+    """
+    
+    return f"{CONFIG['storage']['remote']}/cam{webcam}"
