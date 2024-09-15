@@ -17,7 +17,6 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 
 ### Modules
 - [adc](/adc/) responsible for the UV and methane sensors
-- [backup](/backup/) copying files
 - [cammanager](/cammanager/) coordinating camera operation and system status
 - [climate](/climate/) sensor measuring temperature, humidity and pressure (+ estimated altitude)
 - [co2](/co2/) sensor for CO2 and VOC
@@ -43,7 +42,10 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [docs](/docs/) stores documentation related stuff
 - [template](/template/) is a example for a module to be run on board
 - [grafana](/grafana/) holds all dashboard configurations for Grafana
-- all scripts in the root directory are useful to manage the repository instance on board
+- [setup.sh](/setup.sh) setups the repository environment on board
+- [reset.sh](/reset.sh) clears all data and initialize new storage directories
+- [startall.sh](/startall.sh), [stopall.sh](/stopall.sh), [restartall.sh](/restartall.sh) change module service execution state respectively
+- [backup.sh](/backup.sh) is a guided script to backup all data to an USB stick
 
 ### Sponsors
 - [Rütgers Stiftung](https://ruetgers-stiftung.de/)
