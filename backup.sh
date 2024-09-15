@@ -45,7 +45,7 @@ mount "$usb_stick" /mnt/balloon
 # Backup the data directory with rclone
 echo "Backing up the data directory"
 mkdir /mnt/balloon/data
-rclone copy data /mnt/balloon/data
+rclone copy -P data /mnt/balloon/data
 
 # Unmount the USB stick
 echo "Unmounting the USB stick"
