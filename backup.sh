@@ -42,10 +42,15 @@ echo "Mounting the USB stick"
 mkdir -p /mnt/balloon
 mount "$usb_stick" /mnt/balloon
 
-# Backup the data directory with rclone
-echo "Backing up the data directory"
-mkdir /mnt/balloon/data
-rclone copy -P data /mnt/balloon/data
+# Backup the sensor data directory with rclone
+echo "Backing up the sensor data directory"
+mkdir -p /mnt/balloon/data/sensor
+rclone copy -P data/sensor /mnt/balloon/data/sensor
+
+# Backup the video data directory with rclone
+echo "Backing up the video data directory"
+mkdir -p /mnt/balloon/data/video
+rclone copy -P --ignore-existing data/video /mnt/balloon/data/video
 
 # Unmount the USB stick
 echo "Unmounting the USB stick"

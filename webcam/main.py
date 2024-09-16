@@ -82,7 +82,7 @@ def save_photo(frame):
 
 def main():
 
-    global video_mode, live_mode, running, video_start_time, video_frames, last_photo, capture, video, ffmpeg
+    global video_mode, live_mode, running, last_photo, capture, video, ffmpeg
 
     capture.start()
 
@@ -107,7 +107,10 @@ def main():
                 logger.info("Stopping live stream ...")
                 if ffmpeg is not None:
                     ffmpeg.stdin.close()
-                    ffmpeg.wait(2)
+                    try:
+                        ffmpeg.wait(2)
+                    except sp.TimeoutExpired:
+                        logger.warning("Did not stop within 2 seconds, terminating ...")
                     ffmpeg.terminate()
                     ffmpeg = None
 
@@ -159,7 +162,10 @@ def main():
                     logger.info("Restarting live stream ...")
                     if ffmpeg is not None:
                         ffmpeg.stdin.close()
-                        ffmpeg.wait(2)
+                        try:
+                            ffmpeg.wait(2)
+                        except sp.TimeoutExpired:
+                            logger.warning("Did not stop within 2 seconds, terminating ...")
                         ffmpeg.terminate()
                     time.sleep(2)
                     ffmpeg = init_ffmpeg()
@@ -198,7 +204,10 @@ def main():
     if ffmpeg is not None:
         logger.info("Closing ffmpeg ...")
         ffmpeg.stdin.close()
-        ffmpeg.wait(2)
+        try:
+            ffmpeg.wait(2)
+        except sp.TimeoutExpired:
+            logger.warning("Did not stop within 2 seconds, terminating ...")
         ffmpeg.terminate()
 
 
