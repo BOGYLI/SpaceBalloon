@@ -46,6 +46,7 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [reset.sh](/reset.sh) clears all data and initialize new storage directories
 - [startall.sh](/startall.sh), [stopall.sh](/stopall.sh), [restartall.sh](/restartall.sh) change module service execution state respectively
 - [backup.sh](/backup.sh) is a guided script to backup all data to an USB stick
+- [logall.sh](/logall.sh) shows the logs of all module services one after another
 
 ### Sponsors
 - [Rütgers Stiftung](https://ruetgers-stiftung.de/)
