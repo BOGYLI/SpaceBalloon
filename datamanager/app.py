@@ -281,7 +281,7 @@ def aprs():
 @repeat_every(seconds=utils.get_interval("dm_influx"))
 def influx():
 
-    logger.debug("Connecting to InfluxDB")
+    logger.info("Connecting to InfluxDB")
     with influxdb_client.InfluxDBClient(url=utils.get_influx_url(), org=utils.get_influx_org(),
                                         token=utils.get_influx_token(), timeout=2500) as client:
 
@@ -322,7 +322,7 @@ def influx():
 
         if thermal_updated != 0:
             thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s").field("min", thermal.min).field("max", thermal.max) \
-                .field("avg", thermal.avg).field("median", thermal.median).field("pixels", ",".join([int(x) for x in thermal.pixels]))
+                .field("avg", thermal.avg).field("median", thermal.median).field("pixels", ",".join([str(int(x)) for x in thermal.pixels]))
             points.append(thermal_point)
 
         if points:

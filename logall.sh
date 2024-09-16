@@ -15,12 +15,19 @@ if [ ! -d ".venv" ] || [ ! -d "data" ]; then
     exit
 fi
 
-# Show logs of the services
+# Ask for update mode
+echo "Do you want the logs to update? (y/n)"
+read -r update
 
+# Show logs of the services
 for service in datamanager cammanager adc climate co2 gps magnet spectral system thermal \
         webcam0 webcam1 webcam2 webcam3 webcam4; do
     echo "Showing logs of $service service"
-    splog $service
+    if [ "$update" == "y" ]; then
+        sudo journalctl -o cat -f -u balloon-$service.service
+    else
+        sudo journalctl -o cat -e -u balloon-$service.service
+    fi
 done
 
 echo "Module service log check completed"

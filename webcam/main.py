@@ -71,7 +71,7 @@ def save_photo(frame):
     cv2.imwrite(path_small, resized, [int(cv2.IMWRITE_JPEG_QUALITY), PHOTO_SMALL_QUALITY])
 
     try:
-        logger.info("Uploading photo ...")
+        logger.info(f"Uploading photo to {utils.photo_remote(WEBCAM)}")
         sp.run(["rclone", "mkdir", utils.photo_remote(WEBCAM)], check=True)
         sp.run(["rclone", "copy", path_small, utils.photo_remote(WEBCAM)], check=True)
     except subprocess.CalledProcessError as e:
