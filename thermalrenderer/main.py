@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import influxdb_client
 import os
 import time
-import subprocess
 
 
 # Configuration
