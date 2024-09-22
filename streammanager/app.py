@@ -1,8 +1,8 @@
-import time
 import datetime
 import json
 import os
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
 import influxdb_client
@@ -11,28 +11,36 @@ import influxdb_client
 # Initialize FastAPI
 app = FastAPI(title="Stream Manager", description="Manage streamoverlay state", version="1.0")
 
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Configuration
 api_token = os.getenv('API_TOKEN')
 influxdb_token = os.getenv('INFLUXDB_TOKEN')
 influxdb_org = os.getenv('INFLUXDB_ORG') or "makerspace"
 influxdb_bucket = os.getenv('INFLUXDB_BUCKET') or "balloon"
 influxdb_url = os.getenv('INFUXDB_URL') or "https://influx.balloon.nikogenia.de"
-value_timeout = os.getenv('VALUE_TIMEOUT') or "90d"
 if api_token is None or influxdb_token is None:
     print("Missing configuration via environment variables")
     exit(1)
 
 # Initialize state
-STATE_VERSION = "1.1"
+STATE_VERSION = "1.2"
 STATE_FILE = "/config/state.json"
 state = {
     "version": STATE_VERSION,
     "phase": 0,
-    "countdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
+    "countdown": datetime.time(2024, 7, 25, 9, 30, 0).timestamp(),
     "title": "",
     "subtitle": "",
     "sensors": False,
-    "source": "wifi"
+    "source": ["wifi", "gps"]
 }
 if os.path.exists(STATE_FILE):
     with open(STATE_FILE, "r") as file:
@@ -66,7 +74,7 @@ class Title(BaseModel):
 
 class Source(BaseModel):
     token: str
-    source: str
+    source: list[str, str]
 
 
 @app.get("/sensors")
@@ -81,13 +89,14 @@ def route_sensors():
     with influxdb_client.InfluxDBClient(url=influxdb_url, org=influxdb_org,
                                         token=influxdb_token, timeout=2500) as client:
         for field, measurement in [("temp", "climate"),
+                                   ("avg", "thermal"),
                                    ("pressure", "climate"),
                                    ("humidity", "climate"),
                                    ("uv", "adc"),
                                    ("co2", "co2")]:
             query = f'from(bucket: "{influxdb_bucket}") \
-                      |> range(start: -{value_timeout}) \
-                      |> filter(fn: (r) => r._measurement == "{state["source"]}_{measurement}") \
+                      |> range(start: -1y) \
+                      |> filter(fn: (r) => r._measurement == "{state["source"][0]}_{measurement}") \
                       |> filter(fn: (r) => r._field == "{field}") \
                       |> last()'
             tables = client.query_api().query(org=influxdb_org, query=query)
@@ -109,8 +118,9 @@ def route_height():
     with influxdb_client.InfluxDBClient(url=influxdb_url, org=influxdb_org,
                                         token=influxdb_token, timeout=2500) as client:
         query = f'from(bucket: "{influxdb_bucket}") \
-                  |> range(start: -{value_timeout}) \
-                  |> filter(fn: (r) => r._measurement == "{state["source"]}_gps") \
+                  |> range(start: -1y) \
+                  |> filter(fn: (r) => r._measurement == "{state["source"][0]}_{state["source"][1]}") \
+                  |> filter(fn: (r) => r._field == "altitude") \
                   |> sort(columns:["_time"], desc: true) \
                   |> limit(n:2)'
         tables = client.query_api().query(org=influxdb_org, query=query)
@@ -161,6 +171,9 @@ def route_phase_next(data: Token, response: Response):
     if data.token != api_token:
         response.status_code = 403
         return {"status": "invalid token"}
+    if state["phase"] >= 4:
+        response.status_code = 400
+        return {"status": "already at last phase"}
     state["phase"] += 1
     print(f"Changed phase next to {state['phase']}")
     save_state()
