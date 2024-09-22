@@ -37,11 +37,13 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [cmd](/cmd/) is the Mission Control Console
 - [aprsreceiver](/aprsreceiver/) running on the APRS ground antenna station to receive data and save it to InfluxDB
 - [utils](/utils/) are python modules with handy utilities to be imported
-- [tests](/tests/) contains various tests throughout the development
-- [resources](/resources/) hosts repository related files like images and the default configuration
-- [docs](/docs/) stores documentation related stuff
-- [template](/template/) is a example for a module to be run on board
-- [grafana](/grafana/) holds all dashboard configurations for Grafana
+- [resources](/resources/)
+  - [diagrams](/resources/diagrams/) documentation diagram related stuff
+  - [grafana](/resources/grafana/) holds all dashboard configurations for Grafana
+  - [images](/resources/images/) hosts various images for the repository and documentation
+  - [streamelements](/resources/streamelements/) holds all configurations for Stream Elements
+  - [tests](/resources/tests/) contains various tests throughout the development
+  - [templates](/resources/templates/) are the default configuration and example module
 - [setup.sh](/setup.sh) setups the repository environment on board
 - [reset.sh](/reset.sh) clears all data and initialize new storage directories
 - [startall.sh](/startall.sh), [stopall.sh](/stopall.sh), [restartall.sh](/restartall.sh) change module service execution state respectively
