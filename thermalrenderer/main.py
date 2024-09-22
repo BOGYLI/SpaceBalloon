@@ -20,37 +20,14 @@ ORG = os.getenv('INFLUX_ORG') or "makerspace"
 BUCKET = os.getenv('INFLUX_BUCKET') or "balloon"
 INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
 
-STREAM_URL = os.getenv('STREAM_URL') or "srt://server.balloon.nikogenia.de:8890?streamid=publish:#PATH:#USERNAME:#PASSWORD"
-STREAM_USER = os.getenv('STREAM_USER') or "maker"
-STREAM_PASSWORD = os.getenv('STREAM_PASSWORD')
-
 INTERVAL = os.getenv('INTERVAL') or 5
 
 TEMP_MIN = os.getenv('TEMP_MIN') or 5
 TEMP_MAX = os.getenv('TEMP_MAX') or 85
 
-if STORAGE_PASSWORD is None or INFLUX_TOKEN is None or STREAM_PASSWORD is None:
+if STORAGE_PASSWORD is None or INFLUX_TOKEN is None:
     print("Missing configuration via environment variables")
     exit(1)
-
-
-# FFmpeg command
-FFMPEG = [
-    'ffmpeg',
-    '-re',
-    '-loop', '1',
-    '-i', 'latest.png',
-    '-vf', 'fps=30,scale=640:480',
-    '-f', 'mpegts',
-    '-vcodec', 'h264',
-    '-bf', '0',
-    '-update', '1',
-    '-an',
-    STREAM_URL
-    .replace("#PATH", f"thermal")
-    .replace("#USERNAME", STREAM_USER)
-    .replace("#PASSWORD", STREAM_PASSWORD)
-]
 
 
 def list_files(sftp):
@@ -110,6 +87,7 @@ def upload_image(sftp, image, timestamp):
     image.save("latest.png")
 
     # Upload the image
+    sftp.put("latest.png", "latest.png")
     sftp.put("latest.png", f"{timestamp.strftime('%Y-%m-%d-%H-%M-%S')}.png")
 
 
@@ -147,17 +125,8 @@ def main():
     ssh_client = None
     sftp = None
 
-    # Stream
-    print("Starting stream")
-    stream = subprocess.Popen(FFMPEG)
-
     # Main loop
     while True:
-
-        # Check for stream process
-        if stream.poll() is not None:
-            print("Stream process exited, restarting")
-            stream = subprocess.Popen(FFMPEG)
 
         # List files
         if time.time() - ignore_update > 60:
