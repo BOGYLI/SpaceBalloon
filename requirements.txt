@@ -3,6 +3,7 @@ pyyaml
 requests
 fastapi
 fastapi-utils[all]
+uvicorn
 influxdb-client
 
 smbus2
