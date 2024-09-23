@@ -35,6 +35,14 @@ function renderHeight() {
 
     heightElement.innerHTML = height.toFixed(0);
     speedElement.innerHTML = speed.toFixed(1);
+  
+    speedElement = document.getElementById('speed');
+    if (height < 800) {
+      	speedElement.style.display = 'none';
+    }
+  	else {
+      	speedElement.style.display = 'block';
+    }
 
     risingElement = document.getElementById('rising');
     fallingElement = document.getElementById('falling');
@@ -51,8 +59,9 @@ function renderHeight() {
     posElement = document.getElementById('pos');
 
     ratio = 220 / 10000;
+    diagramHeight = (ratio * (height < 33000 ? height : 33000)).toFixed(0);
 
-    posElement.style.top = 917 - (ratio * height).toFixed(0) + 'px';
+    posElement.style.top = 917 - 144 - 45 - diagramHeight + 'px';
 
 }
 
