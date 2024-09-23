@@ -20,7 +20,7 @@ live_mode_new = False
 running = True
 
 # Timer
-last_photo = 0
+next_photo = 0
 start_time = time.time()
 frames = 0
 
@@ -82,16 +82,18 @@ def save_photo(frame):
 
 def main():
 
-    global video_mode, live_mode, running, last_photo, capture, video, ffmpeg
+    global video_mode, live_mode, running, next_photo, capture, video, ffmpeg
 
     capture.start()
 
     live_mode_changed = False
 
-    time.sleep(WEBCAM * utils.get_interval("photo_offset"))
-
     mode_thread = th.Thread(target=update_mode, name="Mode Update", daemon=True)
     mode_thread.start()
+
+    now = int(time.time())
+    offset = utils.get_interval("photo_offset") * WEBCAM
+    next_photo = now - (now % utils.get_interval("photo_delay")) + offset
 
     while running:
         
@@ -134,7 +136,13 @@ def main():
             if not capture.standby:
                 capture.active_time = time.time()
 
-        take_photo = time.time() - last_photo > utils.get_interval("photo_delay")
+        take_photo = time.time() >= next_photo
+
+        if take_photo:
+            next_photo += utils.get_interval("photo_delay")
+            while time.time() >= next_photo:
+                logger.warning("Photo delay too short, can't keep up, skipping")
+                next_photo += utils.get_interval("photo_delay")
 
         if take_photo or video_mode or live_mode:
             grabbed, frame = capture.read()
@@ -147,8 +155,7 @@ def main():
                 continue
             
         if take_photo:
-            logger.info("Schedule photo taking ...")
-            last_photo = time.time()
+            logger.info("Schedule photo taking")
             th.Thread(target=save_photo, args=(frame,), name="Photo Write", daemon=True).start()
 
         if live_mode:
