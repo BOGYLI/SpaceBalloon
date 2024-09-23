@@ -31,7 +31,7 @@ fi
 source .venv/bin/activate
 
 # Run init.py for all directories that contain it (exclude template)
-for init in $(find . -name "init.py" ! -path "resources/templates/module/*"); do
+for init in $(find . -name "init.py" ! -path "./resources/templates/*"); do
     echo "Running $init"
     python3 "$init"
 done
