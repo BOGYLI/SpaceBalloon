@@ -6,7 +6,7 @@
   	align-items: center;
 }
 .main-container > *:not(:first-child) {
-  	margin-left: 40px;
+  	margin-left: 30px;
 }
 .main-container > div {
   	white-space: nowrap;
@@ -17,6 +17,6 @@ body {
 
 * {
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 28px;
+    font-size: 26px;
     overflow: hidden;
 }

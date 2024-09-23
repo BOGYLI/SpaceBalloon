@@ -14,12 +14,12 @@ function fetchPhase() {
             isFetching = false;
             console.log('Fetched phase:', data);
             renderPhase();
-            setTimeout(fetchPhase, 1000);
+            setTimeout(fetchPhase, 2000);
         })
         .catch(error => {
             console.error('Error fetching phase:', error);
             isFetching = false;
-            setTimeout(fetchPhase, 1000);
+            setTimeout(fetchPhase, 2000);
         });
 
 }
@@ -32,9 +32,11 @@ function renderPhase() {
         
         if (i == phase) {
             phaseElement.style.color = '#FFFFFF';
+            phaseElement.style.fontWeight = 500;
         }
         else {
             phaseElement.style.color = '#C0C0C0';
+            phaseElement.style.fontWeight = 400;
         }
 
     }

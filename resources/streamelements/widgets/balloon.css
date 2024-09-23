@@ -1,0 +1,28 @@
+.main-container {
+  	width: 100%;
+  	height: 100%;
+  	position: absolute;
+    color: #FFFFFF;
+}
+#pos {
+  	position: relative;
+    display: flex;
+  	flex-direction: column;
+    align-items: center;
+}
+body {
+  	margin: 0px;
+}
+#height, #height * {
+  	font-weight: 500;
+}
+#speed, #speed * {
+  	font-weight: 300;
+  	font-size: 18px;
+}
+
+* {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 28px;
+    overflow: hidden;
+}
