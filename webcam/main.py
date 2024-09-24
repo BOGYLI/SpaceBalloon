@@ -74,6 +74,8 @@ def save_photo(frame):
         logger.info(f"Uploading photo to {utils.photo_remote(WEBCAM)}")
         sp.run(["rclone", "mkdir", utils.photo_remote(WEBCAM)], check=True)
         sp.run(["rclone", "copy", path_small, utils.photo_remote(WEBCAM)], check=True)
+        sp.run(["rclone", "copy", f"{utils.photo_remote(WEBCAM)}/{path_small.split("/")[-1]}",
+                f"{utils.photo_remote(WEBCAM)}/latest.png"], check=True)
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to upload small photo: {e}")
 

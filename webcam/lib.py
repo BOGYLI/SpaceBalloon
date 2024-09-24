@@ -36,7 +36,7 @@ PHOTO_QUALITY = 90
 PHOTO_SMALL_WIDTH = 768
 PHOTO_SMALL_HEIGHT = 432
 PHOTO_SMALL_SIZE = (PHOTO_SMALL_WIDTH, PHOTO_SMALL_HEIGHT)
-PHOTO_SMALL_QUALITY = 70
+PHOTO_SMALL_QUALITY = 60
 
 # FFmpeg command
 FFMPEG = [
@@ -47,6 +47,7 @@ FFMPEG = [
     '-i', '-',
     '-f', 'mpegts',
     '-vcodec', 'h264',
+    '-bf', '0',
     utils.CONFIG["stream"]["url"]
     .replace("#PATH", f"cam{WEBCAM}")
     .replace("#USERNAME", utils.CONFIG["stream"]["username"])
