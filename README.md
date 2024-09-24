@@ -34,7 +34,7 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [streammanager](/streammanager/) API controlling the state of the stream and communicating with Streamelements
 
 ### Extras
-- [cmd](/cmd/) is the Mission Control Console
+- [console](/console/) is the Mission Control Console
 - [aprsreceiver](/aprsreceiver/) running on the APRS ground antenna station to receive data and save it to InfluxDB
 - [utils](/utils/) are python modules with handy utilities to be imported
 - [resources](/resources/)

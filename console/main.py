@@ -2,13 +2,37 @@
 Mission control console
 """
 
+import sys
 import requests
 import datetime
 import time
 import getpass
 
 
+PHASES = ["Countdown", "Troposphäre", "Stratosphäre", "Sinkflug", "Rescue"]
+
+
+def strip_service_name(name):
+    return name.removeprefix("balloon-").removesuffix(".service")
+
+
+def strip_service_names(names):
+    return [strip_service_name(name) for name in names]
+
+
+def convert_camera_name(number):
+    if number == -1:
+        return "off"
+    return f"cam{number}"
+
+
 def main():
+
+    url_raspi = "https://raspi.balloon.nikogenia.de"
+    url_sm = "https://sm.balloon.nikogenia.de"
+    username_raspi = "root"
+    password_raspi = ""
+    token_sm = ""
     
     print("Space Balloon Mission Control Console")
     print("=====================================")
@@ -17,19 +41,27 @@ def main():
     print("Login")
     print("-----")
     print("")
-    url_raspi = input("Raspi URL (empty for default, 'offline' for offline operation): ").strip() or "https://raspi.balloon.nikogenia.de"
-    if url_raspi.lower() == "offline":
-        url_raspi = "http://192.168.25.4"
-    url_sm = input("Stream manager URL (empty for default): ").strip() or "https://sm.balloon.nikogenia.de"
-    username_raspi = input("Raspi username (empty for default): ").strip() or "root"
-    password_raspi = getpass.getpass("Raspi password: ").strip()
-    token_sm = getpass.getpass("Stream manager token (empty to use the raspi password): ").strip() or password_raspi
+    if "-c" in sys.argv or "--custom" in sys.argv:
+        url_raspi = input("Raspi URL (empty for default, 'offline' for offline operation): ").strip() or url_raspi
+        if url_raspi.lower() == "offline":
+            url_raspi = "http://192.168.25.4"
+        url_sm = input("Stream manager URL (empty for default): ").strip() or url_sm
+        username_raspi = input("Raspi username (empty for default): ").strip() or username_raspi
+        password_raspi = getpass.getpass("Raspi password: ").strip()
+        token_sm = getpass.getpass("Stream manager token (empty to use the raspi password): ").strip() or password_raspi
+    else:
+        password_raspi = token_sm = getpass.getpass("Password: ").strip()
+    if not password_raspi or not token_sm:
+        print("Empty password or token detected, exiting")
+        return
     print("")
 
     print("Configuration:")
     print(f"Raspi URL: {url_raspi} (username: {username_raspi}, password: {'*' * len(password_raspi)})")
     print(f"Stream manager URL: {url_sm} (token: {'*' * len(token_sm)})")
     print("")
+
+    aprs_fallback = False
 
     running = True
 
@@ -43,17 +75,39 @@ def main():
             response = requests.get(url_raspi + "/status", timeout=3, auth=(username_raspi, password_raspi))
             if response.status_code == 200:
                 status = response.json()
-                print(f"Live camera: {status["live"]["webcam"]}")
-                print(f"Video cameras: {status["video"]["webcam0"]}, {status["video"]["webcam1"]}, {status["video"]["webcam2"]}")
+                print(f"Live camera: {convert_camera_name(status["live"]["webcam"])}")
+                print(f"Video cameras: {convert_camera_name(status["video"]["webcam0"])}, " +
+                      f"{convert_camera_name(status["video"]["webcam1"])}, " +
+                      f"{convert_camera_name(status["video"]["webcam2"])}")
                 print("Services:")
-                print(f"  Active: {', '.join(status["services"]["active"])}")
-                print(f"  Activating: {', '.join(status["services"]["activating"])}")
-                print(f"  Failed: {', '.join(status["services"]["failed"])}")
-                print(f"  Inactive: {', '.join(status["services"]["inactive"])}")
+                print(f"  Active: {', '.join(strip_service_names(status["services"]["active"])) or "-"}")
+                print(f"  Activating: {', '.join(strip_service_names(status["services"]["activating"])) or "-"}")
+                print(f"  Failed: {', '.join(strip_service_names(status["services"]["failed"])) or "-"}")
+                print(f"  Inactive: {', '.join(strip_service_names(status["services"]["inactive"])) or "-"}")
             else:
                 print(f"Raspi status request failed: {response.status_code}")
+                aprs_fallback = True
         except requests.exceptions.RequestException as e:
             print(f"Raspi status request failed: {e}")
+            aprs_fallback = True
+        print("")
+
+        try:
+            response = requests.get(url_sm + "/status", timeout=3)
+            if response.status_code == 200:
+                status = response.json()
+                print(f"Phase: {PHASES[status["phase"]]} ({status['phase']})")
+                print(f"Title: {'off' if not status['title'] else status['title']}")
+                print(f"Subtitle: {'off' if not status['subtitle'] else status['subtitle']}")
+                print(f"Sensor display: {'on' if status['sensors'] else 'off'}")
+                print(f"Display source: {status['source'][0]}")
+                print(f"Altitude display: {status['source'][1]}")
+                print(f"Countdown: {status['countdown'] - time.time():.0f} seconds")
+                print(f"           {datetime.datetime.fromtimestamp(status['countdown']).strftime('%m/%d %H:%M:%S')}")
+            else:
+                print(f"Stream Manager status request failed: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"Stream Manager status request failed: {e}")
         print("")
 
         print("Enter command (h for help):")
