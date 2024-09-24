@@ -1,15 +1,26 @@
 import datetime
 import json
+import requests
 import os
-from fastapi import FastAPI, Response
+from io import BytesIO
+from fastapi import FastAPI, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_utils.tasks import repeat_every
+from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import influxdb_client
 
 
 # Initialize FastAPI
 app = FastAPI(title="Stream Manager", description="Manage streamoverlay state", version="1.0")
+
+# Static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Templates
+templates = Jinja2Templates(directory="templates")
 
 # CORS
 app.add_middleware(
@@ -21,22 +32,31 @@ app.add_middleware(
 )
 
 # Configuration
+
 api_token = os.getenv('API_TOKEN')
+
 influxdb_token = os.getenv('INFLUXDB_TOKEN')
 influxdb_org = os.getenv('INFLUXDB_ORG') or "makerspace"
 influxdb_bucket = os.getenv('INFLUXDB_BUCKET') or "balloon"
 influxdb_url = os.getenv('INFUXDB_URL') or "https://influx.balloon.nikogenia.de"
-if api_token is None or influxdb_token is None:
+
+storage_url = os.getenv('STORAGE_URL') or "u421785.your-storagebox.de"
+storage_user = os.getenv('STORAGE_USER') or "u421785"
+storage_password = os.getenv('STORAGE_PASSWORD')
+storage_path = os.getenv('STORAGE_PATH') or "System"
+
+if api_token is None or influxdb_token is None or storage_password is None:
     print("Missing configuration via environment variables")
     exit(1)
 
 # Initialize state
 STATE_VERSION = "1.2"
 STATE_FILE = "/config/state.json"
+STATE_FILE = "state.json"
 state = {
     "version": STATE_VERSION,
     "phase": 0,
-    "countdown": datetime.time(2024, 7, 25, 9, 30, 0).timestamp(),
+    "countdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
     "title": "",
     "subtitle": "",
     "sensors": False,
@@ -74,7 +94,7 @@ class Title(BaseModel):
 
 class Source(BaseModel):
     token: str
-    source: list[str, str]
+    source: list[str]
 
 
 @app.get("/sensors")
@@ -152,6 +172,11 @@ def route_title_get():
     return {"title": state["title"], "subtitle": state["subtitle"]}
 
 
+@app.get("/status")
+def route_status():
+    return state
+
+
 @app.post("/phase/back")
 def route_phase_back(data: Token, response: Response):
     if data.token != api_token:
@@ -219,10 +244,41 @@ def route_source(data: Source, response: Response):
     if data.token != api_token:
         response.status_code = 403
         return {"status": "invalid token"}
+    if len(data.source) != 2:
+        response.status_code = 400
+        return {"status": "source expects two elements"}
     state["source"] = data.source
     print(f"Changed source to {data.source}")
     save_state()
     return {"status": "successfully changed source"}
+
+
+@app.get("/image/{streamid}")
+def route_image(request: Request, streamid: str):
+    base_url = str(request.url).replace(request.url.path, "")
+    return templates.TemplateResponse(request, "image.html", {"streamid": streamid, "sm_url": base_url})
+
+
+@app.get("/img/{streamid}")
+def route_img(streamid: str, response: Response):
+
+    path = f"{storage_path}/photo/{streamid}/latest.jpg"
+    if streamid == "thermal":
+        path = f"{storage_path}/thermal/latest.png"
+
+    url = f"https://{storage_user}:{storage_password}@{storage_url}/{path}"
+
+    try:
+        rqs = requests.get(url, timeout=3)
+        if rqs.status_code != 200:
+            response.status_code = 404
+            return "Image not found! Please check stream id or verify the image is available."
+    except requests.exceptions.RequestException as e:
+        response.status_code = 404
+        return "Image not found! Please check stream id or verify the image is available."
+
+    image_stream = BytesIO(rqs.content)
+    return StreamingResponse(image_stream, media_type="image/png")
 
 
 def save_state():

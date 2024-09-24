@@ -3,3 +3,4 @@ influxdb-client
 fastapi
 fastapi-utils[all]
 uvicorn
+jinja2

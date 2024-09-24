@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>{{ streamid }} - Space Balloon Image Stream</title>
+        <link rel="stylesheet" type="text/css" href="/static/image.css">
+    </head>
+    <body>
+        <img id="image" />
+        <div id="error" style="display: none;">
+            <h1>Image Stream Error</h1>
+            <p>There was an error loading the image stream. This could likely have 2 reasons:</p>
+            <ol>
+                <li>The stream ID is invalid.</li>
+                <li>The stream has no images available.</li>
+            </ol>
+        </div>
+        <script src="/static/image.js"></script>
+        <script>
+            document.getElementById('image').src = "{{ sm_url }}/img/{{ streamid }}"
+        </script>
+    </body>
+</html>
