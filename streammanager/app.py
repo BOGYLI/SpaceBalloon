@@ -50,7 +50,7 @@ if api_token is None or influxdb_token is None or storage_password is None:
     exit(1)
 
 # Initialize state
-STATE_VERSION = "1.2"
+STATE_VERSION = "1.3"
 STATE_FILE = "/config/state.json"
 STATE_FILE = "state.json"
 state = {
@@ -60,7 +60,10 @@ state = {
     "title": "",
     "subtitle": "",
     "sensors": False,
-    "source": ["wifi", "gps"]
+    "source": {
+        "connection": "wifi",
+        "height": "gps"
+    }
 }
 if os.path.exists(STATE_FILE):
     with open(STATE_FILE, "r") as file:
@@ -94,7 +97,8 @@ class Title(BaseModel):
 
 class Source(BaseModel):
     token: str
-    source: list[str]
+    connection: str
+    height: str
 
 
 @app.get("/sensors")
@@ -116,7 +120,7 @@ def route_sensors():
                                    ("co2", "co2")]:
             query = f'from(bucket: "{influxdb_bucket}") \
                       |> range(start: -1y) \
-                      |> filter(fn: (r) => r._measurement == "{state["source"][0]}_{measurement}") \
+                      |> filter(fn: (r) => r._measurement == "{state["source"]["connection"]}_{measurement}") \
                       |> filter(fn: (r) => r._field == "{field}") \
                       |> last()'
             tables = client.query_api().query(org=influxdb_org, query=query)
@@ -139,7 +143,7 @@ def route_height():
                                         token=influxdb_token, timeout=2500) as client:
         query = f'from(bucket: "{influxdb_bucket}") \
                   |> range(start: -1y) \
-                  |> filter(fn: (r) => r._measurement == "{state["source"][0]}_{state["source"][1]}") \
+                  |> filter(fn: (r) => r._measurement == "{state["source"]["connection"]}_{state["source"]["height"]}") \
                   |> filter(fn: (r) => r._field == "altitude") \
                   |> sort(columns:["_time"], desc: true) \
                   |> limit(n:2)'
@@ -244,13 +248,26 @@ def route_source(data: Source, response: Response):
     if data.token != api_token:
         response.status_code = 403
         return {"status": "invalid token"}
-    if len(data.source) != 2:
+    updated = []
+    if data.connection:
+        if data.connection not in ["wifi", "aprs"]:
+            response.status_code = 400
+            return {"status": "connection must be wifi or aprs"}
+        state["source"]["connection"] = data.connection
+        print(f"Changed connection source to {data.connection}")
+        updated.append("connection")
+    if data.height:
+        if data.height not in ["gps", "climate"]:
+            response.status_code = 400
+            return {"status": "height must be gps or climate"}
+        state["source"]["height"] = data.height
+        print(f"Changed height source to {data.height}")
+        updated.append("height")
+    if not updated:
         response.status_code = 400
-        return {"status": "source expects two elements"}
-    state["source"] = data.source
-    print(f"Changed source to {data.source}")
+        return {"status": "nothing to update"}
     save_state()
-    return {"status": "successfully changed source"}
+    return {"status": f"successfully changed source {', '.join(updated)}"}
 
 
 @app.get("/image/{streamid}")

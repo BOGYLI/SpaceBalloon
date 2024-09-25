@@ -29,7 +29,7 @@ class RestartSystem(BaseModel):
     code: str
 
 
-class RestartService(BaseModel):
+class ManageService(BaseModel):
     service: str
     code: str
 
@@ -99,7 +99,7 @@ def route_restart_system(data: RestartSystem, response: Response, background_tas
 
 
 @app.post("/restart/service")
-def route_restart_service(data: RestartService, response: Response):
+def route_restart_service(data: ManageService, response: Response):
     if data.code != "2507":
         response.status_code = 403
         return {"status": "wrong code"}
@@ -107,6 +107,28 @@ def route_restart_service(data: RestartService, response: Response):
     os.system(f"systemctl restart {data.service}")
     print(f"Restarted service {data.service}")
     return {"status": "restarted service " + data.service}
+
+
+@app.post("/start/service")
+def route_start_service(data: ManageService, response: Response):
+    if data.code != "2507":
+        response.status_code = 403
+        return {"status": "wrong code"}
+    print(f"Start service {data.service}")
+    os.system(f"systemctl start {data.service}")
+    print(f"Started service {data.service}")
+    return {"status": "started service " + data.service}
+
+
+@app.post("/stop/service")
+def route_stop_service(data: ManageService, response: Response):
+    if data.code != "2507":
+        response.status_code = 403
+        return {"status": "wrong code"}
+    print(f"Stop service {data.service}")
+    os.system(f"systemctl stop {data.service}")
+    print(f"Stopped service {data.service}")
+    return {"status": "stopped service " + data.service}
 
 
 def restart_system():
