@@ -29,9 +29,9 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [webcam](/webcam/) implementing camera photos, videos and livestreaming
 
 ### Containers
-- [thermalrenderer](/thermalrenderer/) fetching pixel data from InfluxDB and rendering a thermal image to storage box
-- [spotcollector](/spotcollector/) reading the newest GPS data from the SPOT API and sending it to InfluxDB
-- [streammanager](/streammanager/) API controlling the state of the stream and communicating with Streamelements
+- [thermalrenderer](/thermalrenderer/) fetching pixel data from InfluxDB and rendering a thermal image to storage box ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-thermalrenderer))
+- [spotcollector](/spotcollector/) reading the newest GPS data from the SPOT API and sending it to InfluxDB ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-spotcollector))
+- [streammanager](/streammanager/) API controlling the state of the stream and communicating with Streamelements ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-streammanager))
 
 ### Extras
 - [console](/console/) is the Mission Control Console
