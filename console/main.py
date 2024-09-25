@@ -33,6 +33,13 @@ def convert_camera_name(number):
     return f"cam{number}"
 
 
+def status_message(response):
+    try:
+        print(f'Status Message | "{response.json()["status"]}"')
+    except (requests.JSONDecodeError, KeyError):
+        pass
+
+
 def status():
 
     aprs_fallback = False
@@ -168,6 +175,7 @@ def main():
                     print(f"Stopped livestream camera")
                 else:
                     print(f"Failed to stop livestream camera: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to stop livestream camera: {e}")
             print("")
@@ -185,6 +193,7 @@ def main():
                     print(f"Changed to livestream camera {camera}")
                 else:
                     print(f"Failed to change livestream camera: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change livestream camera: {e}")
             print("")
@@ -196,6 +205,7 @@ def main():
                     print(f"Stopped saving video file")
                 else:
                     print(f"Failed to stop saving video file: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to stop saving video file: {e}")
             print("")
@@ -220,6 +230,7 @@ def main():
                     print(f"Changed to video cameras {camera0}, {camera1}, {camera2}")
                 else:
                     print(f"Failed to change video cameras: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change video cameras: {e}")
             print("")
@@ -231,6 +242,7 @@ def main():
                     print(f"Changed to previous phase")
                 else:
                     print(f"Failed to change phase: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change phase: {e}")
             print("")
@@ -242,6 +254,7 @@ def main():
                     print(f"Changed to next phase")
                 else:
                     print(f"Failed to change phase: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change phase: {e}")
             print("")
@@ -253,6 +266,7 @@ def main():
                     print(f"Toggled sensor display")
                 else:
                     print(f"Failed to toggle sensor display: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to toggle sensor display: {e}")
             print("")
@@ -265,6 +279,7 @@ def main():
                     print(f"Changed source connection to {mode}")
                 else:
                     print(f"Failed to change source connection: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change source connection: {e}")
             print("")
@@ -277,6 +292,7 @@ def main():
                     print(f"Changed source height to {mode}")
                 else:
                     print(f"Failed to change source height: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to change source connection: {e}")
             print("")
@@ -288,6 +304,7 @@ def main():
                     print("Hide title and subtitle popup")
                 else:
                     print(f"Failed to hide title and subtitle popup: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to hide title and subtitle popup: {e}")
             print("")
@@ -317,6 +334,7 @@ def main():
                     print(f"Set title to {title} and subtitle to {subtitle}")
                 else:
                     print(f"Failed to set title and subtitle popup: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to set title and subtitle popup: {e}")
             print("")
@@ -329,6 +347,7 @@ def main():
                     print(f"Set title to {title} and subtitle to {subtitle}")
                 else:
                     print(f"Failed to set title and subtitle popup: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to set title and subtitle popup: {e}")
             print("")
@@ -347,6 +366,7 @@ def main():
                     print("Wrong confirmation code")
                 else:
                     print(f"Failed to reboot system: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to reboot system: {e}")
             print("")
@@ -366,6 +386,7 @@ def main():
                     print("Wrong confirmation code")
                 else:
                     print(f"Failed to restart service {service}: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to restart service {service}: {e}")
             print("")
@@ -385,6 +406,7 @@ def main():
                     print("Wrong confirmation code")
                 else:
                     print(f"Failed to start service {service}: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to start service {service}: {e}")
             print("")
@@ -404,6 +426,7 @@ def main():
                     print("Wrong confirmation code")
                 else:
                     print(f"Failed to stop service {service}: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to stop service {service}: {e}")
             print("")
@@ -422,6 +445,7 @@ def main():
                     print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
                 else:
                     print(f"Failed to set countdown: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to set countdown: {e}")
             print("")
@@ -444,6 +468,7 @@ def main():
                     print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
                 else:
                     print(f"Failed to set countdown: {response.status_code}")
+                status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to set countdown: {e}")
             print("")
