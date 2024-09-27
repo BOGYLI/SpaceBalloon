@@ -50,13 +50,14 @@ if api_token is None or influxdb_token is None or storage_password is None:
     exit(1)
 
 # Initialize state
-STATE_VERSION = "1.3"
+STATE_VERSION = "1.4"
 STATE_FILE = "/config/state.json"
 STATE_FILE = "state.json"
 state = {
     "version": STATE_VERSION,
     "phase": 0,
     "countdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
+    "streamcountdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
     "title": "",
     "subtitle": "",
     "sensors": False,
@@ -171,6 +172,11 @@ def route_countdown_get():
     return {"time": state["countdown"]}
 
 
+@app.get("/stream/countdown")
+def route_stream_countdown_get():
+    return {"time": state["streamcountdown"]}
+
+
 @app.get("/title")
 def route_title_get():
     return {"title": state["title"], "subtitle": state["subtitle"]}
@@ -229,6 +235,17 @@ def route_countdown_post(data: Countdown, response: Response):
     print(f"Changed countdown to {datetime.datetime.fromtimestamp(data.time)} ({data.time})")
     save_state()
     return {"status": "successfully changed countdown"}
+
+
+@app.post("/stream/countdown")
+def route_stream_countdown_post(data: Countdown, response: Response):
+    if data.token != api_token:
+        response.status_code = 403
+        return {"status": "invalid token"}
+    state["streamcountdown"] = data.time
+    print(f"Changed stream countdown to {datetime.datetime.fromtimestamp(data.time)} ({data.time})")
+    save_state()
+    return {"status": "successfully changed stream countdown"}
 
 
 @app.post("/title")
