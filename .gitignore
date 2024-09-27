@@ -13,3 +13,6 @@ thermalrenderer/latest.png
 # Configuration
 config.yml
 streammanager/state.json
+
+# TODO
+TODO.md

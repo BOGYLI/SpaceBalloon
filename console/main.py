@@ -81,6 +81,8 @@ def status():
             print(f"Source height: {status['source']['height']}")
             print(f"Countdown: {status['countdown'] - time.time():.0f} seconds")
             print(f"           {datetime.datetime.fromtimestamp(status['countdown']).strftime('%m/%d %H:%M:%S')}")
+            print(f"Stream Countdown: {status['streamcountdown'] - time.time():.0f} seconds")
+            print(f"                  {datetime.datetime.fromtimestamp(status['streamcountdown']).strftime('%m/%d %H:%M:%S')}")
         else:
             print(f"Stream Manager status request failed: {response.status_code}")
     except requests.exceptions.RequestException as e:
@@ -477,7 +479,7 @@ def main():
 
         elif command.startswith("cs "):
             try:
-                month, day, hour, minute, second = [int(n) for n in command[2:].split(";")]
+                month, day, hour, minute, second = [int(n) for n in command[3:].split(";")]
                 countdown = datetime.datetime(2024, month, day, hour, minute, second).timestamp()
             except ValueError:
                 print("Invalid date and time")
@@ -496,7 +498,7 @@ def main():
 
         elif command.startswith("cs"):
             try:
-                countdown = float(time.time() + int(command[1:]))
+                countdown = float(time.time() + int(command[2:]))
                 month = datetime.datetime.fromtimestamp(countdown).month
                 day = datetime.datetime.fromtimestamp(countdown).day
                 hour = datetime.datetime.fromtimestamp(countdown).hour
