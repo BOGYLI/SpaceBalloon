@@ -311,7 +311,7 @@ def main():
 
         elif command == "ts":
             print("")
-            with open("title.txt", "r") as f:
+            with open("title.txt", "r", encoding="utf-8") as f:
                 lines = f.read().strip().splitlines()
                 titles = [line.split(";") for line in lines]
             print("Select title and subtitle popup:")
