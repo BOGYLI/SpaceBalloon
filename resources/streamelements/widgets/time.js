@@ -42,6 +42,13 @@ function renderCountdown() {
         descriptionElement.innerText = "Flugzeit";
         timeElement.innerText = "T+" + secondsToTime(Math.floor(currentTime - countdown));
     }
+    
+    if (countdown - currentTime < 15 && countdown - currentTime > 0) {
+        timeElement.classList.add('big-time');
+    }
+    else {
+        timeElement.classList.remove('big-time');
+    }
 
     isRendering = false;
     setTimeout(renderCountdown, 100);
