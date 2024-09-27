@@ -435,48 +435,6 @@ def main():
                 print(f"Failed to stop service {service}: {e}")
             print("")
 
-        elif command.startswith("c "):
-            try:
-                month, day, hour, minute, second = [int(n) for n in command[2:].split(";")]
-                countdown = datetime.datetime(2024, month, day, hour, minute, second).timestamp()
-            except ValueError:
-                print("Invalid date and time")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                else:
-                    print(f"Failed to set countdown: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set countdown: {e}")
-            print("")
-
-        elif command.startswith("c"):
-            try:
-                countdown = float(time.time() + int(command[1:]))
-                month = datetime.datetime.fromtimestamp(countdown).month
-                day = datetime.datetime.fromtimestamp(countdown).day
-                hour = datetime.datetime.fromtimestamp(countdown).hour
-                minute = datetime.datetime.fromtimestamp(countdown).minute
-                second = datetime.datetime.fromtimestamp(countdown).second
-            except ValueError:
-                print("Invalid second count")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                else:
-                    print(f"Failed to set countdown: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set countdown: {e}")
-            print("")
-
         elif command.startswith("cs "):
             try:
                 month, day, hour, minute, second = [int(n) for n in command[3:].split(";")]
@@ -517,6 +475,48 @@ def main():
                 status_message(response)
             except requests.exceptions.RequestException as e:
                 print(f"Failed to set stream countdown: {e}")
+            print("")
+
+        elif command.startswith("c "):
+            try:
+                month, day, hour, minute, second = [int(n) for n in command[2:].split(";")]
+                countdown = datetime.datetime(2024, month, day, hour, minute, second).timestamp()
+            except ValueError:
+                print("Invalid date and time")
+                print("")
+                continue
+            try:
+                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
+                if response.status_code == 200:
+                    print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+                else:
+                    print(f"Failed to set countdown: {response.status_code}")
+                status_message(response)
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to set countdown: {e}")
+            print("")
+
+        elif command.startswith("c"):
+            try:
+                countdown = float(time.time() + int(command[1:]))
+                month = datetime.datetime.fromtimestamp(countdown).month
+                day = datetime.datetime.fromtimestamp(countdown).day
+                hour = datetime.datetime.fromtimestamp(countdown).hour
+                minute = datetime.datetime.fromtimestamp(countdown).minute
+                second = datetime.datetime.fromtimestamp(countdown).second
+            except ValueError:
+                print("Invalid second count")
+                print("")
+                continue
+            try:
+                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
+                if response.status_code == 200:
+                    print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+                else:
+                    print(f"Failed to set countdown: {response.status_code}")
+                status_message(response)
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to set countdown: {e}")
             print("")
 
         else:
