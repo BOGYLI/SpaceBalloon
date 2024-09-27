@@ -1,11 +1,37 @@
 .main-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  color: #FFFFFF;
+}
+#background {
+  width: 100%;
+  height: 100%;
+  background-color: #00000066;
+  transition: background-color 1.2s;
+}
+#title {
+  padding-left: 50px;
+  z-index: 5;
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.8s;
+}
+#sensor {
+  z-index: 10;
+  position: absolute;
+  top: 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: #00000066;
-  color: #FFFFFF;
+  transition: opacity 0.8s;
 }
 body {
   margin: 0px;
@@ -19,6 +45,15 @@ body {
 }
 .description {
   font-size: 24px;
+  font-weight: 300;
+  padding-bottom: 10px;
+}
+#title-text {
+  font-weight: 600;
+  padding-bottom: 2px;
+}
+#subtitle-text {
+  font-size: 26px;
   font-weight: 300;
   padding-bottom: 10px;
 }
