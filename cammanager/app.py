@@ -1,6 +1,7 @@
 import utils
 import time
 import os
+import requests
 import subprocess
 from fastapi import FastAPI, Response, BackgroundTasks
 from fastapi_utils.tasks import repeat_every
@@ -41,6 +42,9 @@ video_cam = VideoCam(webcam0=utils.CONFIG["default"]["video0"],
                      webcam1=utils.CONFIG["default"]["video1"],
                      webcam2=utils.CONFIG["default"]["video2"])
 video_cam_updated = time.time()
+offline_cam = utils.CONFIG["default"]["offline"]
+offline_pressure = utils.CONFIG["default"]["offline_pressure"]
+offline_altitude = utils.CONFIG["default"]["offline_altitude"]
 services_active = []
 services_activating = []
 services_failed = []
@@ -148,6 +152,33 @@ def debug():
     logger.info(f"  activating: {', '.join(services_activating)}")
     logger.info(f"  failed: {', '.join(services_failed)}")
     logger.info(f"  inactive: {', '.join(services_inactive)}")
+
+
+@app.on_event("startup")
+@repeat_every(seconds=utils.get_interval("cm_offline"))
+def offline():
+
+    global video_cam, video_cam_updated
+
+    try:
+        response = requests.get(f"http://127.0.0.1:8000/climate")
+        data = response.json()
+        if "pressure" in data:
+            pressure = data["pressure"]
+        response = requests.get(f"http://127.0.0.1:8000/gps")
+        if "altitude" in data:
+            altitude = data["altitude"]
+    except requests.exceptions.RequestException:
+        logger.warning("Failed to fetch current climate and GPS data")
+        return
+
+    logger.info(f"Pressure: {pressure:.1f} hPa / {offline_pressure} hPa")
+    logger.info(f"Altitude: {altitude:.1f} m / {offline_altitude} m")
+
+    if (pressure < offline_pressure or altitude > offline_altitude) and video_cam.webcam2 != offline_cam:
+        video_cam.webcam2 = offline_cam
+        video_cam_updated = time.time()
+        logger.warning(f"Switched to offline camera {offline_cam} due to low pressure or high altitude")
 
 
 @app.on_event("startup")

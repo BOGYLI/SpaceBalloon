@@ -4,11 +4,11 @@ import datetime
 from .config import CONFIG
 
 
-def camera_index(webcam: int) -> int:
+def camera_port(webcam: int) -> str:
     """
-    Get the index of the given webcam in the list of configured cameras
+    Get the USB port ID of the given webcam in the list of configured cameras
 
-    :return: Index of the webcam
+    :return: USB port ID of the webcam
     """
 
     return CONFIG["webcams"][webcam]

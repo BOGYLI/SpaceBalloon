@@ -44,7 +44,7 @@ def send_data(name: str, data: dict, logger: Logger) -> None:
     """
 
     try:
-        requests.post(f"http://localhost:8000/{name}", json=data, timeout=0.5)
+        requests.post(f"http://127.0.0.1:8000/{name}", json=data, timeout=0.5)
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to send data to data manager: {e}")
 

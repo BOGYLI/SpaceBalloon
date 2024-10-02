@@ -1,5 +1,6 @@
 import sys
 import cv2
+import os
 import subprocess
 import utils
 
@@ -60,8 +61,13 @@ logger = utils.init_logger(f"webcam{WEBCAM}")
 
 def init_cam():
 
+    # Get the USB port and device index for the webcam
+    port = utils.camera_port(WEBCAM)
+    device = get_camera_index_by_usb_port(port)
+    logger.info(f"Using webcam device {device} on USB port {port}")
+
     # Open webcam
-    cap = cv2.VideoCapture(utils.camera_index(WEBCAM), cv2.CAP_V4L2)
+    cap = cv2.VideoCapture(device, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, CAMERA_FOURCC)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
@@ -90,3 +96,32 @@ def init_ffmpeg():
     ffmpeg = subprocess.Popen(FFMPEG, stdin=subprocess.PIPE)
 
     return ffmpeg
+
+
+def get_camera_devices():
+    video_devices = []
+    for device in os.listdir('/dev'):
+        if device.startswith('video'):
+            video_devices.append(f"/dev/{device}")
+    return video_devices
+
+
+def get_usb_port_for_video_device(video_device):
+    try:
+        cmd = f"udevadm info --query=all --name={video_device} | grep ID_PATH="
+        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        usb_path = result.stdout.decode().strip()
+        if usb_path:
+            return usb_path.split('=')[-1]  # Extract the ID_PATH value
+    except Exception as e:
+        print(f"Error getting USB port for {video_device}: {e}")
+    return None
+
+
+def get_camera_index_by_usb_port(usb_port):
+    devices = get_camera_devices()
+    for device in devices:
+        usb_path = get_usb_port_for_video_device(device)
+        if usb_path and usb_port in usb_path:
+            return device  # Return the corresponding /dev/video* device
+    return None

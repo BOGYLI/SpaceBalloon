@@ -138,6 +138,11 @@ def route_gps(data: GPS):
     return {"status": "successfully updated data"}
 
 
+@app.get("/gps")
+def route_gps():
+    return gps
+
+
 @app.post("/magnet")
 def route_magnet(data: Magnet):
     global magnet, magnet_updated
