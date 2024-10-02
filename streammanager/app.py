@@ -1,4 +1,5 @@
 import datetime
+import time
 import json
 import requests
 import os
@@ -78,6 +79,9 @@ else:
     with open(STATE_FILE, "w") as file:
         json.dump(state, file, indent=4, separators=(', ', ': '))
     print("Created new state file")
+
+# Image cache
+image_cache = {}
 
 
 # Define data models for requests
@@ -296,6 +300,11 @@ def route_image(request: Request, streamid: str):
 @app.get("/img/{streamid}")
 def route_img(streamid: str, response: Response):
 
+    if streamid in image_cache and image_cache[streamid]["time"] > time.time() - 10:
+        print("Serving image from cache")
+        image_stream = BytesIO(image_cache[streamid]["data"])
+        return StreamingResponse(image_stream, media_type="image/png")
+
     path = f"{storage_path}/photo/{streamid}/latest.jpg"
     if streamid == "thermal":
         path = f"{storage_path}/thermal/latest.png"
@@ -303,6 +312,7 @@ def route_img(streamid: str, response: Response):
     url = f"https://{storage_user}:{storage_password}@{storage_url}/{path}"
 
     try:
+        print("Requesting image from storage box")
         rqs = requests.get(url, timeout=3)
         if rqs.status_code != 200:
             response.status_code = 404
@@ -310,6 +320,11 @@ def route_img(streamid: str, response: Response):
     except requests.exceptions.RequestException as e:
         response.status_code = 404
         return "Image not found! Please check stream id or verify the image is available."
+
+    image_cache[streamid] = {
+        "time": time.time(),
+        "data": rqs.content
+    }
 
     image_stream = BytesIO(rqs.content)
     return StreamingResponse(image_stream, media_type="image/png")
