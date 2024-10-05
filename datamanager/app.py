@@ -222,10 +222,8 @@ def aprs():
         aprs_dest_ssid = int(utils.get_aprs_dst().split("-")[1])
     except (IndexError, ValueError):
         logger.error("Invalid APRS source or destination")
-    aprs_table = "/"
-    aprs_symbol = "O"
     aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
-    aprs_message = f"!{aprs_lat}{aprs_table}{aprs_lon}{aprs_symbol}{aprs_comment}"
+    aprs_message = f"!{aprs_lat}/{aprs_lon}OSpace Balloon Mission Data: {aprs_comment}"
     logger.info(f"APRS packet data: {aprs_src}-{aprs_src_ssid} > {aprs_dest}-{aprs_dest_ssid} | {aprs_message}")
 
     # Construct a AX.25 frame
