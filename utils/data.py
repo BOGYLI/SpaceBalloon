@@ -129,13 +129,3 @@ def get_aprs_dst() -> str:
     """
 
     return CONFIG["aprs"]["dst"]
-
-
-def get_aprs_path() -> str:
-    """
-    Get the APRS path
-
-    :return: APRS path
-    """
-
-    return CONFIG["aprs"]["path"]

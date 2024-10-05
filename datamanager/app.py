@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
 import influxdb_client
+from aprslib import *
 
 
 # Initialize logger
@@ -14,13 +15,6 @@ logger = utils.init_logger("datamanager")
 
 # Initialize FastAPI
 app = FastAPI(title="Data Manager", description="Collect all sensor data via a HTTP server and transmit it", version="1.0")
-
-# KISS protocol
-KISS_FEND = b'\xC0'
-KISS_FESC = b'\xDB'
-KISS_TFEND = b'\xDC'
-KISS_TFESC = b'\xDD'
-KISS_DATA_FRAME = b'\x00'
 
 
 # Define data models for the sensors
@@ -175,36 +169,6 @@ def route_thermal(data: Thermal):
     return {"status": "successfully updated data"}
 
 
-def kiss_escape(data):
-    """Escape special KISS characters in data."""
-    data = data.replace(KISS_FEND, KISS_FESC + KISS_TFEND)
-    data = data.replace(KISS_FESC, KISS_FESC + KISS_TFESC)
-    return data
-
-
-def construct_kiss_frame(aprs_packet):
-    """Construct a KISS frame for an APRS packet."""
-    kiss_frame = KISS_DATA_FRAME + aprs_packet
-    kiss_frame = kiss_escape(kiss_frame)
-    return KISS_FEND + kiss_frame + KISS_FEND
-
-
-def convert_to_aprs_format(lat, lon):
-    # Convert latitude to APRS format
-    lat_deg = int(lat)
-    lat_min = (lat - lat_deg) * 60
-    lat_hemi = 'N' if lat >= 0 else 'S'
-    aprs_lat = f'{abs(lat_deg):02d}{lat_min:05.2f}{lat_hemi}'
-
-    # Convert longitude to APRS format
-    lon_deg = int(lon)
-    lon_min = (lon - lon_deg) * 60
-    lon_hemi = 'E' if lon >= 0 else 'W'
-    aprs_lon = f'{abs(lon_deg):03d}{lon_min:05.2f}{lon_hemi}'
-
-    return aprs_lat, aprs_lon
-
-
 @app.on_event("startup")
 @repeat_every(seconds=utils.get_interval("dm_debug"))
 def debug():
@@ -251,17 +215,26 @@ def aprs():
     aprs_comment = base64.b64encode(data).decode()
     
     # Construct an APRS packet
-    aprs_src = utils.get_aprs_src()
-    aprs_dest = utils.get_aprs_dst()
-    aprs_path = utils.get_aprs_path()
-    aprs_type = "!"
+    try:
+        aprs_src = utils.get_aprs_src().split("-")[0]
+        aprs_src_ssid = int(utils.get_aprs_src().split("-")[1])
+        aprs_dest = utils.get_aprs_dst().split("-")[0]
+        aprs_dest_ssid = int(utils.get_aprs_dst().split("-")[1])
+    except (IndexError, ValueError):
+        logger.error("Invalid APRS source or destination")
     aprs_table = "/"
     aprs_symbol = "O"
     aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
-    aprs_packet = f"{aprs_src}>{aprs_dest},{aprs_path}:{aprs_type}{aprs_lat}{aprs_table}{aprs_lon}{aprs_symbol}{aprs_comment}".encode('ascii')
+    aprs_message = f"!{aprs_lat}{aprs_table}{aprs_lon}{aprs_symbol}{aprs_comment}"
+    logger.info(f"APRS packet data: {aprs_src}-{aprs_src_ssid} > {aprs_dest}-{aprs_dest_ssid} | {aprs_message}")
+
+    # Construct a AX.25 frame
+    ax25_frame = construct_ax25_frame(aprs_src, aprs_src_ssid, aprs_dest, aprs_dest_ssid, aprs_message)
+    logger.info(f"AX.25 Frame: {to_hex_bytes(ax25_frame)}")
 
     # Construct a KISS frame
-    kiss_frame = construct_kiss_frame(aprs_packet)
+    kiss_frame = construct_kiss_frame(ax25_frame)
+    logger.info(f"KISS Frame: {to_hex_bytes(kiss_frame)}")
 
     for i in range(2):
     
@@ -277,7 +250,7 @@ def aprs():
         logger.info("Write data to APRS")
         ser.write(kiss_frame)
 
-        logger.info(f"Sent APRS packet: {aprs_packet.decode('ascii')}")
+        logger.info(f"Sent APRS packet")
 
         ser.close()
 

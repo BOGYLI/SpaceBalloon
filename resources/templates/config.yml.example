@@ -62,9 +62,8 @@ stream:
 
 # APRS details
 aprs:
-  src: "DN5WA-11"
-  dst: "APRS"
-  path: "WIDE1-1,WIDE2-2"
+  src: "DN5WA-2"
+  dst: "APRS-0"
 
 # sensor data, video and remote photo storage
 storage:
