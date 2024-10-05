@@ -27,6 +27,10 @@ def main():
     ser.dtr = False
 
     try:
+
+        # Activate KISS Mode
+        ser.write("INTFACE KISS\nRESET".encode('ascii'))
+
         # Construct an APRS packet
         src = "DN5WA-11"
         dest = "APRS"

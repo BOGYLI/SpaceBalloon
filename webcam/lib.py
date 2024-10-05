@@ -59,12 +59,7 @@ FFMPEG = [
 logger = utils.init_logger(f"webcam{WEBCAM}")
 
 
-def init_cam():
-
-    # Get the USB port and device index for the webcam
-    port = utils.camera_port(WEBCAM)
-    device = get_camera_index_by_usb_port(port)
-    logger.info(f"Using webcam device {device} on USB port {port}")
+def init_cam(device):
 
     # Open webcam
     cap = cv2.VideoCapture(device, cv2.CAP_V4L2)

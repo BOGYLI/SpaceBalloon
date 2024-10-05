@@ -25,7 +25,7 @@ start_time = time.time()
 frames = 0
 
 # Components
-capture = VideoCapture()
+capture = None
 video = None
 ffmpeg = None
 
@@ -86,6 +86,12 @@ def main():
 
     global video_mode, live_mode, running, next_photo, capture, video, ffmpeg
 
+    port = utils.camera_port(WEBCAM)
+    device = get_camera_index_by_usb_port(port)
+    logger.info(f"Using webcam device {device} on USB port {port}")
+    time.sleep(3)
+
+    capture = VideoCapture(device)
     capture.start()
 
     live_mode_changed = False
@@ -222,6 +228,6 @@ def main():
 
 if __name__ == "__main__":
 
-    logger.info(f"Starting webcam {WEBCAM} ({utils.camera_index(WEBCAM)}) ...")
+    logger.info(f"Starting webcam {WEBCAM} ...")
 
     main()

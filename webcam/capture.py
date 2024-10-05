@@ -5,7 +5,7 @@ from lib import *
 
 class VideoCapture(th.Thread):
 
-    def __init__(self):
+    def __init__(self, device):
 
         th.Thread.__init__(self, name="Video Capture", daemon=True)
 
@@ -16,6 +16,7 @@ class VideoCapture(th.Thread):
         self.running = True
         self.standby = True
         self.active_time = 0
+        self.device = device
 
     def run(self):
 
@@ -32,7 +33,7 @@ class VideoCapture(th.Thread):
 
                 if self.cap is None:
                     logger.info("Active mode")
-                    self.cap = init_cam()
+                    self.cap = init_cam(self.device)
                     if self.cap is None:
                         self.running = False
                         break
@@ -54,7 +55,7 @@ class VideoCapture(th.Thread):
             with self.lock:
                 return self.grabbed, self.frame
 
-        cap = init_cam()
+        cap = init_cam(self.device)
         if cap is None:
             return False, None
 
