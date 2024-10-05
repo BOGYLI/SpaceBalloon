@@ -27,7 +27,7 @@ def construct_kiss_frame(ax25_packet):
     kiss_frame = KISS_DATA_FRAME + kiss_escape(ax25_packet)
     return KISS_FEND + kiss_frame + KISS_FEND
 
-def encode_ax25_address(call, ssid):
+def encode_ax25_address(call, ssid, is_last=False):
     """Encodes a callsign and SSID into the AX.25 address format."""
     address = []
     
@@ -40,6 +40,10 @@ def encode_ax25_address(call, ssid):
     
     # Encode SSID correctly, bits 1-4 contain the SSID, bit 5 is always 1, and bits 6-7 are reserved
     ssid_byte = 0b01100000 | (ssid << 1)  # Bit 5 is set to 1, bits 6 and 7 are 0
+
+    if is_last:
+        ssid_byte |= 0b00000001  # Set the last bit to 1 for the last address field
+
     address.append(ssid_byte)
     
     return address
@@ -57,7 +61,7 @@ def construct_ax25_frame(source_call, source_ssid, dest_call, dest_ssid, informa
     dest_address = encode_ax25_address(dest_call, dest_ssid)
     source_address = encode_ax25_address(source_call, source_ssid)
     path1_address = encode_ax25_address("WIDE1", 1)
-    path2_address = encode_ax25_address("WIDE2", 2)
+    path2_address = encode_ax25_address("WIDE2", 2, True)
     
     # Combine the frame components
     frame = dest_address + source_address + path1_address + path2_address
@@ -71,18 +75,14 @@ def construct_ax25_frame(source_call, source_ssid, dest_call, dest_ssid, informa
     # Convert to byte array
     frame_bytes = bytearray(frame)
     
-    # Optionally, compute the CRC (Frame Check Sequence - FCS)
-    fcs = binascii.crc_hqx(frame_bytes, 0xFFFF)
-    frame_bytes += struct.pack('<H', fcs)  # Append the CRC (2 bytes)
-    
     return frame_bytes
 
 # Example APRS message
 source_callsign = "DN5WA"
-source_ssid = 11
+source_ssid = 2
 dest_callsign = "APRS"
 dest_ssid = 0
-aprs_message = ">Space Balloon Test"
+aprs_message = "!4756.37N/00968.28E-Space Balloon Test Packet"
 
 # Encode the AX.25 frame
 ax25_frame = construct_ax25_frame(source_callsign, source_ssid, dest_callsign, dest_ssid, aprs_message)
