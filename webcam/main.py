@@ -33,7 +33,7 @@ ffmpeg = None
 
 def update_mode():
     
-    global video_mode_new, live_mode_new
+    global video_mode_new, live_mode_new, live_mode_stop
     
     while running:
 
@@ -90,15 +90,15 @@ def save_photo(frame):
 
 def main():
 
-    global video_mode, live_mode, running, next_photo, capture, video, ffmpeg
+    global video_mode, live_mode, live_mode_new, live_mode_stop, running, next_photo, capture, video, ffmpeg
 
     port = utils.camera_port(WEBCAM)
     device = get_camera_index_by_usb_port(port)
 
     if device is None:
         logger.error(f"Webcam device not found on USB port {port}")
-        logger.error("Exiting in 20 seconds ...")
-        time.sleep(20)
+        logger.error("Restarting in 30 seconds ...")
+        time.sleep(25)
         running = False
         return
 
