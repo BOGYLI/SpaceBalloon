@@ -47,7 +47,7 @@ def update_mode():
                         live_mode_new = True
                         live_mode_stop = 0
                     else:
-                        if time.time() - live_mode_stop > 10:
+                        if time.time() - live_mode_stop > utils.get_interval("live_mode_stop") + 5:
                             live_mode_stop = time.time()
             else:
                 logger.error(f"Failed to update mode: {response.status_code}")
@@ -107,7 +107,10 @@ def main():
     if device is None:
         logger.error(f"Webcam device not found on USB port {port}")
         logger.error("Restarting in 30 seconds ...")
-        time.sleep(25)
+        for i in range(25):
+            time.sleep(1)
+            if not running:
+                break
         running = False
         return
 
@@ -128,7 +131,7 @@ def main():
 
     while running:
 
-        if live_mode_stop != 0 and time.time() - live_mode_stop > 5:
+        if live_mode_stop != 0 and time.time() - live_mode_stop > utils.get_interval("live_mode_stop"):
             live_mode_new = False
             live_mode_stop = 0
 

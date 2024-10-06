@@ -26,6 +26,7 @@ interval:
   cm_debug: 10
   cm_services: 3
   cm_offline: 10
+  live_mode_stop: 12
 
 # webcam usb port ID configuration
 # list all devices with 'v4l2-ctl --list-devices'
