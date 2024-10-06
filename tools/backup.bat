@@ -41,8 +41,10 @@ set ssh_username=maker
 :custom_username
 
 REM Get ssh password
-echo Enter your ssh password:
-set /p ssh_password="> "
+set /p ssh_password="%ssh_username%@%ip_address%'s password: "
+
+REM Stop services
+ssh %ssh_username%@%ip_address% "sudo /home/maker/SpaceBalloon/tools/stopall.sh"
 
 REM Obscure password
 rclone obscure %ssh_password%
@@ -51,14 +53,16 @@ for /f "tokens=*" %%A in ('rclone obscure %ssh_password%') do set obscured_passw
 REM Make dir for backup
 mkdir data
 
+set credentials=--sftp-host %ip_address% --sftp-user %ssh_username% --sftp-pass %obscured_password% --contimeout 15s
+
 REM Backup sensor data
 echo Copy %ssh_username%@%ip_address%:/home/maker/SpaceBalloon/data/sensor to ./data/sensor
-rclone -P copy :sftp:home/maker/SpaceBalloon/data/sensor ./data/sensor --sftp-host %ip_address% --sftp-user %ssh_username% --sftp-pass %obscured_password% --contimeout 15s
+rclone -P copy :sftp:/home/maker/SpaceBalloon/data/sensor ./data/sensor %credentials%
 
 REM Backup photo data
 echo Copy %ssh_username%@%ip_address%:/home/maker/SpaceBalloon/data/video to ./data/video (photo only)
-rclone -P --ignore-existing copy :sftp:home/maker/SpaceBalloon/data/video ./data/video --sftp-host %ip_address% --sftp-user %ssh_username% --sftp-pass %obscured_password% --include "*.jpg" --contimeout 15s
+rclone -P --ignore-existing --include "*.jpg" copy :sftp:/home/maker/SpaceBalloon/data/video ./data/video %credentials%
 
 REM Backup video data
 echo Copy %ssh_username%@%ip_address%:/home/maker/SpaceBalloon/data/video to ./data/video (video only)
-rclone -P --ignore-existing copy :sftp:home/maker/SpaceBalloon/data/video ./data/video --sftp-host %ip_address% --sftp-user %ssh_username% --sftp-pass %obscured_password% --include "*.mp4" --contimeout 15s
+rclone -P --ignore-existing --include "*.mp4" copy :sftp:/home/maker/SpaceBalloon/data/video ./data/video %credentials%
