@@ -8,6 +8,7 @@ import subprocess as sp
 import time
 import cv2
 import utils
+import signal
 from capture import VideoCapture
 from lib import *
 
@@ -86,6 +87,14 @@ def save_photo(frame):
         logger.error(f"Failed to upload small photo: {e}")
 
     logger.info("Photo saved")
+
+
+def handle_signal(signum, frame):
+
+    global running
+
+    logger.info(f"Received signal {signum}, stopping ...")
+    running = False
 
 
 def main():
@@ -247,5 +256,8 @@ def main():
 if __name__ == "__main__":
 
     logger.info(f"Starting webcam {WEBCAM} ...")
+
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
 
     main()
