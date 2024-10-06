@@ -204,21 +204,21 @@ def services():
         active = subprocess.check_output("systemctl list-units --type=service --state=active | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
         services_active = [line.strip().split(" ")[0] for line in active.decode().splitlines() if line]
     except subprocess.CalledProcessError:
-        pass
+        services_active = []
     try:
         activating = subprocess.check_output("systemctl list-units --type=service --state=activating | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
         services_activating = [line.strip().split(" ")[0] for line in activating.decode().splitlines() if line]
     except subprocess.CalledProcessError:
-        pass
+        services_activating = []
     try:
         failed = subprocess.check_output("systemctl list-units --type=service --state=failed | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
         services_failed = [line.strip().split(" ")[0] for line in failed.decode().splitlines() if line]
     except subprocess.CalledProcessError:
-        pass
+        services_failed = []
     try:
         inactive = subprocess.check_output("systemctl list-units --type=service --state=inactive | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
         services_inactive = [line.strip().split(" ")[0] for line in inactive.decode().splitlines() if line]
     except subprocess.CalledProcessError:
-        pass
+        services_inactive = []
 
     services_updated = time.time()

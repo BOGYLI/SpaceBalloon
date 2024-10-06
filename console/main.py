@@ -376,7 +376,7 @@ def main():
             print("")
 
         elif command.startswith("r restart "):
-            service = command[11:]
+            service = command[10:]
             print("")
             print(f"ATTENTION: THIS ACTION WILL RESTART THE SERVICE {service}!")
             print("Only do this under direct command of the flight director.")
@@ -396,7 +396,7 @@ def main():
             print("")
 
         elif command.startswith("r start "):
-            service = command[9:]
+            service = command[8:]
             print("")
             print(f"ATTENTION: THIS ACTION WILL START THE SERVICE {service}!")
             print("Only do this under direct command of the flight director.")
@@ -416,7 +416,7 @@ def main():
             print("")
 
         elif command.startswith("r stop "):
-            service = command[8:]
+            service = command[7:]
             print("")
             print(f"ATTENTION: THIS ACTION WILL STOP THE SERVICE {service}!")
             print("Only do this under direct command of the flight director.")
