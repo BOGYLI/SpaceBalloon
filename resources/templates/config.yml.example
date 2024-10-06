@@ -21,9 +21,9 @@ interval:
   photo_offset: 4
   photo_delay: 20
   dm_debug: 10
-  dm_aprs: 30
+  dm_aprs: 60
   dm_influx: 3
-  cm_debug: 5
+  cm_debug: 10
   cm_services: 3
   cm_offline: 10
 

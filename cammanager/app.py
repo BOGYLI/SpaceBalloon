@@ -45,6 +45,7 @@ video_cam_updated = time.time()
 offline_cam = utils.CONFIG["default"]["offline"]
 offline_pressure = utils.CONFIG["default"]["offline_pressure"]
 offline_altitude = utils.CONFIG["default"]["offline_altitude"]
+offline_mode = False
 services_active = []
 services_activating = []
 services_failed = []
@@ -68,6 +69,9 @@ def route_live():
 @app.post("/video")
 def route_video(data: VideoCam):
     global video_cam, video_cam_updated
+    if offline_mode:
+        video_cam.webcam1 = offline_cam
+        video_cam.webcam2 = -1
     video_cam = data
     video_cam_updated = time.time()
     return {"status": "successfully updated data"}
@@ -175,10 +179,19 @@ def offline():
     logger.info(f"Pressure: {pressure:.1f} hPa / {offline_pressure} hPa")
     logger.info(f"Altitude: {altitude:.1f} m / {offline_altitude} m")
 
-    if (pressure < offline_pressure or altitude > offline_altitude) and video_cam.webcam2 != offline_cam:
-        video_cam.webcam2 = offline_cam
+    if (pressure < offline_pressure or altitude > offline_altitude):
+        offline_mode = True
+        video_cam.webcam1 = offline_cam
+        video_cam.webcam2 = -1
         video_cam_updated = time.time()
-        logger.warning(f"Switched to offline camera {offline_cam} due to low pressure or high altitude")
+        logger.warning(f"Switched to offline camera mode due to low pressure or high altitude")
+    else:
+        if offline_mode:
+            video_cam.webcam1 = utils.CONFIG["default"]["video1"]
+            video_cam.webcam2 = utils.CONFIG["default"]["video2"]
+            video_cam_updated = time.time()
+            logger.warning(f"Switched back to normal camera mode due to high pressure and low altitude")
+        offline_mode = False
 
 
 @app.on_event("startup")
