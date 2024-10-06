@@ -94,6 +94,14 @@ def main():
 
     port = utils.camera_port(WEBCAM)
     device = get_camera_index_by_usb_port(port)
+
+    if device is None:
+        logger.error(f"Webcam device not found on USB port {port}")
+        logger.error("Exiting in 20 seconds ...")
+        time.sleep(20)
+        running = False
+        return
+
     logger.info(f"Using webcam device {device} on USB port {port}")
     time.sleep(3)
 
