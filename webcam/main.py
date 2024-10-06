@@ -22,6 +22,7 @@ running = True
 # Timer
 next_photo = 0
 start_time = time.time()
+live_mode_stop = 0
 frames = 0
 
 # Components
@@ -40,8 +41,13 @@ def update_mode():
             response = requests.get("http://127.0.0.1/live", timeout=1)
             if response.status_code == 200:
                 target = response.json()["webcam"] == WEBCAM
-                if target != live_mode:
-                    live_mode_new = target
+                if target != live_mode or live_mode_stop != 0:
+                    if target:
+                        live_mode_new = True
+                        live_mode_stop = 0
+                    else:
+                        if time.time() - live_mode_stop > 10:
+                            live_mode_stop = time.time()
             else:
                 logger.error(f"Failed to update mode: {response.status_code}")
             response = requests.get("http://127.0.0.1/video", timeout=1)
@@ -104,7 +110,11 @@ def main():
     next_photo = now - (now % utils.get_interval("photo_delay")) + offset
 
     while running:
-        
+
+        if live_mode_stop != 0 and time.time() - live_mode_stop > 5:
+            live_mode_new = False
+            live_mode_stop = 0
+
         if live_mode != live_mode_new:
             live_mode = live_mode_new
             live_mode_changed = True
