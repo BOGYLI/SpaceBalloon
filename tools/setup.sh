@@ -6,8 +6,8 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     exit
 fi
 
-# Change directory to script directory
-cd "$(dirname "$0")"
+# Change directory to the parent of the script directory
+cd "$(dirname "$0")/.."
 
 # Create a virtual environment if it doesn't exist
 if [ ! -d ".venv" ]; then

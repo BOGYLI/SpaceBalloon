@@ -6,8 +6,8 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     exit
 fi
 
-# Change directory to script directory
-cd "$(dirname "$0")"
+# Change directory to the parent of the script directory
+cd "$(dirname "$0")/.."
 
 # Check for virtual environment
 if [ ! -d ".venv" ]; then
@@ -15,8 +15,8 @@ if [ ! -d ".venv" ]; then
     exit
 fi
 
-# Restart the services
+# Start the services
 for service in /etc/systemd/system/balloon-*.service; do
-    echo "Restarting service $(basename "$service")"
-    systemctl restart "$(basename "$service")"
+    echo "Starting service $(basename "$service")"
+    systemctl start "$(basename "$service")"
 done

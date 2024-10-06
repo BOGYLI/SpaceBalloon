@@ -142,9 +142,10 @@ def read_kiss_frames(port):
                         # Decode AX.25 frame
                         source_call, dest_call, path, message = decode_ax25_frame(ax25_frame)
                         
+                        print(f"Received message from {source_call}: {message}")
+                        print(f"Destination: {dest_call}, Path: {path}")
+
                         if source_call and CALLSIGN in source_call:
-                            print(f"Received message from {source_call}: {message}")
-                            print(f"Destination: {dest_call}, Path: {path}")
 
                             # Extract and convert coordinates
                             lat_lon_pattern = r'!(\d{2}\d{2}\.\d+)([NS])\/(\d{3}\d{2}\.\d+)([EW])'

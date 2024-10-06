@@ -41,14 +41,16 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
   - [diagrams](/resources/diagrams/) documentation diagram related stuff
   - [grafana](/resources/grafana/) holds all dashboard configurations for Grafana
   - [images](/resources/images/) hosts various images for the repository and documentation
-  - [streamelements](/resources/streamelements/) holds all configurations for Stream Elements
+  - [streamelements](/resources/streamelements/) holds custom widgets and their assets for Stream Elements
   - [tests](/resources/tests/) contains various tests throughout the development
   - [templates](/resources/templates/) are the default configuration and example module
-- [setup.sh](/setup.sh) setups the repository environment on board
-- [reset.sh](/reset.sh) clears all data and initialize new storage directories
-- [startall.sh](/startall.sh), [stopall.sh](/stopall.sh), [restartall.sh](/restartall.sh) change module service execution state respectively
-- [backup.sh](/backup.sh) is a guided script to backup all data to an USB stick
-- [logall.sh](/logall.sh) shows the logs of all module services one after another
+- [tools](/tools/) is a mix of scripts to manage the repository instance on board
+  - [setup.sh](/tools/setup.sh) setups the repository environment on board
+  - [reset.sh](/tools/reset.sh) clears all data and initialize new storage directories
+  - [startall.sh](/tools/startall.sh), [stopall.sh](/tools/stopall.sh), [restartall.sh](/tools/restartall.sh) change module service execution state respectively
+  - [logall.sh](/tools/logall.sh) shows the logs of all module services one after another
+  - [backup.sh](/tools/backup.sh) is a guided script to backup all data to an USB stick
+  - [backup.bat](/tools/backup.bat) is a guided script to be run on Windows to backup all data via SSH over WiFi
 
 ### Sponsors
 - [Rütgers Stiftung](https://ruetgers-stiftung.de/)
