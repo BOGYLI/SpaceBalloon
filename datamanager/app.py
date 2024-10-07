@@ -301,7 +301,8 @@ def aprs():
         except Exception as e:
             logger.error(f"An unexpected error occurred in the APRS thread: {e}")
             logger.error("Retrying in 20 seconds")
-            time.sleep(20)
+            
+        time.sleep(20)
 
 
 @app.on_event("startup")
