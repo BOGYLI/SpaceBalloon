@@ -3,6 +3,7 @@ import time
 import serial
 import struct
 import base64
+import threading as th
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
@@ -15,6 +16,7 @@ logger = utils.init_logger("datamanager")
 
 # Initialize FastAPI
 app = FastAPI(title="Data Manager", description="Collect all sensor data via a HTTP server and transmit it", version="1.0")
+running = True
 
 
 # Define data models for the sensors
@@ -181,12 +183,10 @@ def debug():
     logger.info(f"Spectral ({time.time() - spectral_updated:.1f} secs ago): {spectral}")
     logger.info(f"System ({time.time() - system_updated:.1f} secs ago): {system}")
     logger.info(f"Thermal ({time.time() - thermal_updated:.1f} secs ago): min={thermal.min}, max={thermal.max}, avg={thermal.avg}, median={thermal.median}")
-    
-    
-@app.on_event("startup")
-@repeat_every(seconds=utils.get_interval("dm_aprs"))
-def aprs():
 
+
+def encode_aprs_comment():
+    
     # Compress values to bytes
     gps_altitude = struct.pack('H', min(max(int(gps.altitude), 0), 65535))  # 2 bytes, 0-65535
     adc_uv = struct.pack('H', min(max(int(adc.uv * 1000), 0), 65535))  # 2 bytes, 0-65535
@@ -212,45 +212,108 @@ def aprs():
         thermal_min + thermal_max + thermal_avg + thermal_median
 
     # Base64 encode the data
-    aprs_comment = base64.b64encode(data).decode()
+    return base64.b64encode(data).decode()
+
     
-    # Construct an APRS packet
-    try:
-        aprs_src = utils.get_aprs_src().split("-")[0]
-        aprs_src_ssid = int(utils.get_aprs_src().split("-")[1])
-        aprs_dest = utils.get_aprs_dst().split("-")[0]
-        aprs_dest_ssid = int(utils.get_aprs_dst().split("-")[1])
-    except (IndexError, ValueError):
-        logger.error("Invalid APRS source or destination")
-    aprs_lat, aprs_lon = convert_to_aprs_format(gps.latitude, gps.longitude)
-    aprs_message = f"!{aprs_lat}/{aprs_lon}OSpace Balloon Mission Data: {aprs_comment}"
-    logger.info(f"APRS packet data: {aprs_src}-{aprs_src_ssid} > {aprs_dest}-{aprs_dest_ssid} | {aprs_message}")
-
-    # Construct a AX.25 frame
-    ax25_frame = construct_ax25_frame(aprs_src, aprs_src_ssid, aprs_dest, aprs_dest_ssid, aprs_message)
-    logger.info(f"AX.25 Frame: {to_hex_bytes(ax25_frame)}")
-
-    # Construct a KISS frame
-    kiss_frame = construct_kiss_frame(ax25_frame)
-    logger.info(f"KISS Frame: {to_hex_bytes(kiss_frame)}")
-
-    for i in range(2):
+def aprs():
     
-        # Replace '/dev/ttyUSB0' with the appropriate serial port for your device
-        logger.info("Open serial connection")
-        ser = serial.Serial('/dev/ttyUSB0', 115200)
+    last_sent = 0
 
-        # Ensure RTS and DTR are set low
-        ser.rts = False
-        ser.dtr = False
+    while running:
 
-        # Send the KISS frame over the serial connection
-        logger.info("Write data to APRS")
-        ser.write(kiss_frame)
+        try:
 
-        logger.info(f"Sent APRS packet")
+            # Open serial connection
+            logger.info("Open serial connection")
+            ser = serial.Serial('/dev/ttyUSB0', 115200)
 
-        ser.close()
+            # Ensure RTS and DTR are set low
+            ser.rts = False
+            ser.dtr = False
+
+            # Receive buffer
+            buffer = bytearray()
+
+            while running:
+
+                # Check if it is time to send an APRS packet
+                if time.time() - last_sent > utils.get_interval("dm_aprs"):
+
+                    # Construct an APRS packet
+                    try:
+                        aprs_src = utils.get_aprs_src().split("-")[0]
+                        aprs_src_ssid = int(utils.get_aprs_src().split("-")[1])
+                        aprs_dest = utils.get_aprs_dst().split("-")[0]
+                        aprs_dest_ssid = int(utils.get_aprs_dst().split("-")[1])
+                    except (IndexError, ValueError):
+                        logger.error("Invalid APRS source or destination")
+                    aprs_lat, aprs_lon = encode_gps_aprs(gps.latitude, gps.longitude)
+                    aprs_comment = encode_aprs_comment()
+                    aprs_message = f"!{aprs_lat}/{aprs_lon}OSpace Balloon Mission Data: {aprs_comment}"
+                    logger.info(f"APRS packet data: {aprs_src}-{aprs_src_ssid} > {aprs_dest}-{aprs_dest_ssid} | {aprs_message}")
+
+                    # Construct a AX.25 frame
+                    ax25_frame = encode_ax25_frame(aprs_src, aprs_src_ssid, aprs_dest, aprs_dest_ssid, aprs_message)
+                    logger.info(f"AX.25 Frame: {to_hex_bytes(ax25_frame)}")
+
+                    # Construct a KISS frame
+                    kiss_frame = construct_kiss_frame(ax25_frame)
+                    logger.info(f"KISS Frame: {to_hex_bytes(kiss_frame)}")
+
+                    # Send the KISS frame over the serial connection
+                    logger.info("Write data to APRS")
+                    ser.write(kiss_frame)
+
+                    last_sent = time.time()
+
+                # Read data from the serial connection
+                byte = ser.read(1)
+
+                if byte == KISS_FEND:
+
+                    print("Received KISS frame FEND")
+                    if buffer:
+
+                        print(f"KISS frame complete: {buffer.hex()}")
+                        kiss_frame = kiss_unescape(buffer)
+                        
+                        # Skip the KISS command byte (first byte)
+                        ax25_frame = kiss_frame[1:]
+                        
+                        # Decode AX.25 frame
+                        source_call, dest_call, path, message = decode_ax25_frame(ax25_frame)
+                        
+                        print(f"Received message from {source_call}: {message}")
+                        print(f"Destination: {dest_call}, Path: {path}")
+
+                        if dest_call == utils.get_aprs_src():
+                            print("Received message for me!")
+                        
+                        buffer.clear()
+
+                else:
+                    buffer += byte
+                
+
+            logger.info(f"Closing serial connection")
+            ser.close()
+
+        except Exception as e:
+            logger.error(f"An unexpected error occurred in the APRS thread: {e}")
+            logger.error("Retrying in 20 seconds")
+            time.sleep(20)
+
+
+@app.on_event("startup")
+def start_aprs():
+
+    th.Thread(target=aprs).start()
+
+
+@app.on_event("shutdown")
+def stop_aprs():
+
+    running = False
 
 
 @app.on_event("startup")
