@@ -225,7 +225,7 @@ def aprs():
 
             # Open serial connection
             logger.info("Open serial connection")
-            ser = serial.Serial('/dev/ttyUSB0', 115200)
+            ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=2)
 
             # Ensure RTS and DTR are set low
             ser.rts = False
@@ -238,6 +238,8 @@ def aprs():
 
                 # Check if it is time to send an APRS packet
                 if time.time() - last_sent > utils.get_interval("dm_aprs"):
+
+                    last_sent = time.time()
 
                     # Construct an APRS packet
                     try:
@@ -263,8 +265,6 @@ def aprs():
                     # Send the KISS frame over the serial connection
                     logger.info("Write data to APRS")
                     ser.write(kiss_frame)
-
-                    last_sent = time.time()
 
                 # Read data from the serial connection
                 byte = ser.read(1)
