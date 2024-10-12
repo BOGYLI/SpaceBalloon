@@ -1,7 +1,7 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 14
+version: 15
 
 # sensor custom I2C bus
 bus:
@@ -62,7 +62,9 @@ stream:
   password: ""
 
 # APRS details
+# list all devices with 'ls -l /dev/serial/by-id/'
 aprs:
+  device: "usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_02e63ec96457ed11b7bb50ca5720eef3-if00-port0"
   src: "DN5WA-2"
   dst: "APRS-0"
 

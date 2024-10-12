@@ -111,6 +111,16 @@ def get_influx_token() -> str:
     return CONFIG["influx"]["token"]
 
 
+def get_aprs_device() -> str:
+    """
+    Get the APRS device name
+
+    :return: APRS device name
+    """
+
+    return CONFIG["aprs"]["device"]
+
+
 def get_aprs_src() -> str:
     """
     Get the APRS source callsign

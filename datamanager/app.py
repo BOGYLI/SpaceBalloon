@@ -271,7 +271,7 @@ def aprs():
 
             # Open serial connection
             logger.info("Open serial connection")
-            ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=2)
+            ser = serial.Serial(f'/dev/serial/by-id/{utils.get_aprs_device()}', 115200, timeout=2)
 
             # Ensure RTS and DTR are set low
             ser.rts = False
