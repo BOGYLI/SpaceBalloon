@@ -50,6 +50,7 @@ services_active = []
 services_activating = []
 services_failed = []
 services_inactive = []
+uptime = 0
 services_updated = time.time()
 
 
@@ -92,7 +93,8 @@ def route_status():
             "activating": services_activating,
             "failed": services_failed,
             "inactive": services_inactive
-        }
+        },
+        "uptime": uptime
     }
 
 
@@ -156,6 +158,7 @@ def debug():
     logger.info(f"  activating: {', '.join(services_activating)}")
     logger.info(f"  failed: {', '.join(services_failed)}")
     logger.info(f"  inactive: {', '.join(services_inactive)}")
+    logger.info(f"Uptime: {uptime} secs")
 
 
 @app.on_event("startup")
@@ -198,7 +201,7 @@ def offline():
 @repeat_every(seconds=utils.get_interval("cm_services"))
 def services():
 
-    global services_active, services_activating, services_failed, services_inactive, services_updated
+    global services_active, services_activating, services_failed, services_inactive, uptime, services_updated
 
     try:
         active = subprocess.check_output("systemctl list-units --type=service --state=active | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
@@ -220,5 +223,8 @@ def services():
         services_inactive = [line.strip().split(" ")[0] for line in inactive.decode().splitlines() if line]
     except subprocess.CalledProcessError:
         services_inactive = []
+
+    with open('/proc/uptime', 'r') as f:
+        uptime = float(f.readline().split()[0])
 
     services_updated = time.time()

@@ -4,6 +4,7 @@ import os
 import time
 from influxdb_client import InfluxDBClient, Point, WriteOptions
 
+
 # Configuration
 feed_url = os.getenv('FEED_URL') or "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/1kkyoG79tTlJqnS3lrCl6G9dT5x4QL2YP/message.xml"
 feed_password = os.getenv('FEED_PASSWORD')
@@ -14,6 +15,7 @@ influxdb_url = os.getenv('INFUXDB_URL') or "https://influx.balloon.nikogenia.de"
 if feed_password is None or influxdb_token is None:
     print("Missing configuration via environment variables")
     exit(1)
+
 
 while True:
 

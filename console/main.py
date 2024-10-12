@@ -13,6 +13,7 @@ PHASES = ["Countdown", "Troposphäre", "Stratosphäre", "Sinkflug", "Rescue"]
 
 
 url_raspi = "https://raspi.balloon.nikogenia.de"
+url_aprs = "https://aprs.balloon.nikogenia.de"
 url_sm = "https://sm.balloon.nikogenia.de"
 username_raspi = "root"
 password_raspi = ""
@@ -31,6 +32,15 @@ def convert_camera_name(number):
     if number == -1:
         return "off"
     return f"cam{number}"
+
+
+def seconds_to_time(seconds):
+
+    hours = seconds // 3600
+    minutes = seconds // 60 % 60
+    seconds = seconds % 60
+
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
 def status_message(response):
@@ -61,16 +71,36 @@ def status():
             print(f"  Activating: {', '.join(strip_service_names(status['services']['activating'])) or '-'}")
             print(f"  Failed: {', '.join(strip_service_names(status['services']['failed'])) or '-'}")
             print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
+            print(f"Uptime: {seconds_to_time(status['uptime'])}")
         else:
-            print(f"Raspi status request failed: {response.status_code}")
+            print(f"Raspi status request failed: {response.status_code} (Fallback to APRS)")
             aprs_fallback = True
     except requests.exceptions.RequestException as e:
-        print(f"Raspi status request failed: {e}")
+        print(f"Raspi status request failed: {e} (Fallback to APRS)")
         aprs_fallback = True
     print("")
 
+    if aprs_fallback:
+        try:
+            response = requests.get(url_aprs + "/status", timeout=2, auth=(username_raspi, password_raspi))
+            if response.status_code == 200:
+                status = response.json()
+                print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
+                print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
+                        f"{convert_camera_name(status['video']['webcam1'])}, " +
+                        f"{convert_camera_name(status['video']['webcam2'])}")
+                print("Services:")
+                print(f"  Active: {', '.join(strip_service_names(status['services']['active'])) or '-'}")
+                print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
+                print(f"Uptime: {seconds_to_time(status['uptime'])}")
+            else:
+                print(f"Raspi status APRS fallback request failed: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"Raspi status APRS fallback request failed: {e}")
+        print("")
+
     try:
-        response = requests.get(url_sm + "/status", timeout=3)
+        response = requests.get(url_sm + "/status", timeout=2)
         if response.status_code == 200:
             status = response.json()
             print(f"Phase: {PHASES[status["phase"]]} ({status['phase']})")
@@ -128,7 +158,7 @@ def help():
 
 def main():
 
-    global url_raspi, url_sm, username_raspi, password_raspi, token_sm
+    global url_raspi, url_aprs, url_sm, username_raspi, password_raspi, token_sm
 
     print("Space Balloon Mission Control Console")
     print("=====================================")
@@ -137,13 +167,20 @@ def main():
     print("Login")
     print("-----")
     print("")
+
+    if "-o" in sys.argv or "--offline" in sys.argv:
+        url_raspi = "http://192.168.25.4"
+        url_aprs = "http://127.0.0.1"
     if "-c" in sys.argv or "--custom" in sys.argv:
         url_raspi = input("Raspi URL (empty for default, 'offline' for offline operation): ").strip() or url_raspi
         if url_raspi.lower() == "offline":
             url_raspi = "http://192.168.25.4"
+        url_aprs = input("APRS URL (empty for default, 'offline' for offline operation): ").strip() or url_aprs
+        if url_aprs.lower() == "offline":
+            url_aprs = "http://127.0.0.1"
         url_sm = input("Stream manager URL (empty for default): ").strip() or url_sm
-        username_raspi = input("Raspi username (empty for default): ").strip() or username_raspi
-        password_raspi = getpass.getpass("Raspi password: ").strip()
+        username_raspi = input("Raspi/APRS username (empty for default): ").strip() or username_raspi
+        password_raspi = getpass.getpass("Raspi/APRS password: ").strip()
         token_sm = getpass.getpass("Stream manager token (empty to use the raspi password): ").strip() or password_raspi
     else:
         password_raspi = token_sm = getpass.getpass("Password: ").strip()
@@ -154,6 +191,7 @@ def main():
 
     print("Configuration:")
     print(f"Raspi URL: {url_raspi} (username: {username_raspi}, password: {'*' * len(password_raspi)})")
+    print(f"APRS URL: {url_aprs} (username: {username_raspi}, password: {'*' * len(password_raspi)})")
     print(f"Stream manager URL: {url_sm} (token: {'*' * len(token_sm)})")
     print("")
 

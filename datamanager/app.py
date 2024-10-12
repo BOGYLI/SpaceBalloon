@@ -3,12 +3,30 @@ import time
 import serial
 import struct
 import base64
+import requests
 import threading as th
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
 import influxdb_client
 from aprslib import *
+
+
+SERVICE_MAP = ["balloon-adc.service",
+               "balloon-cammanager.service",
+               "balloon-climate.service",
+               "balloon-co2.service",
+               "balloon-datamanager.service",
+               "balloon-gps.service",
+               "balloon-magnet.service",
+               "balloon-spectral.service",
+               "balloon-system.service",
+               "balloon-thermal.service",
+               "balloon-webcam0.service",
+               "balloon-webcam1.service",
+               "balloon-webcam2.service",
+               "balloon-webcam3.service",
+               "balloon-webcam4.service"]
 
 
 # Initialize logger
@@ -186,6 +204,26 @@ def debug():
 
 
 def encode_aprs_comment():
+
+    live_cam = -1
+    video_cam0 = -1
+    video_cam1 = -1
+    video_cam2 = -1
+    uptime = 0
+    services = 0b0000000000000000
+    try:
+        status = requests.get("http://127.0.0.1/status").json()
+        live_cam = status["live"]["webcam"]
+        video_cam0 = status["video"]["webcam0"]
+        video_cam1 = status["video"]["webcam1"]
+        video_cam2 = status["video"]["webcam2"]
+        uptime = status["uptime"]
+        for i, service in enumerate(SERVICE_MAP):
+            if service in status["services"]["active"]:
+                services |= 1 << i
+        services |= 1 << 15  # Set the last bit to indicate valid status data
+    except requests.exceptions.RequestException:
+        logger.warning("Failed to fetch status data")
     
     # Compress values to bytes
     gps_altitude = struct.pack('H', min(max(int(gps.altitude), 0), 65535))  # 2 bytes, 0-65535
@@ -197,19 +235,27 @@ def encode_aprs_comment():
     climate_altitude = struct.pack('H', min(max(int(climate.altitude), 0), 65535))  # 2 bytes, 0-65535
     co2_co2 = struct.pack('H', min(max(int(co2.co2), 0), 65535))  # 2 bytes, 0-65535
     co2_voc = struct.pack('H', min(max(int(co2.voc), 0), 65535))  # 2 bytes, 0-65535
-    magnet_heading = struct.pack('H', min(max(int(magnet.heading), 0), 65535))  # 2 bytes, 0-65535
     system_cpu = struct.pack('B', min(max(int(system.cpu), 0), 255))  # 1 byte, 0-255
     system_memory = struct.pack('B', min(max(int(system.memory), 0), 255))  # 1 byte, 0-255
     system_temp = struct.pack('b', min(max(int(system.temp), -128), 127))  # 1 byte, -128-127
+    system_sent = struct.pack('f', float(system.sent))  # 4 bytes, float
+    system_received = struct.pack('f', float(system.received))  # 4 bytes, float
     thermal_min = struct.pack('b', min(max(int(thermal.min), -128), 127))  # 1 byte, -128-127
     thermal_max = struct.pack('b', min(max(int(thermal.max), -128), 127))  # 1 byte, -128-127
     thermal_avg = struct.pack('b', min(max(int(thermal.avg), -128), 127))  # 1 byte, -128-127
     thermal_median = struct.pack('b', min(max(int(thermal.median), -128), 127))  # 1 byte, -128-127
+    live_cam = struct.pack('b', min(max(int(live_cam), -128), 127))  # 1 byte, -128-127
+    video_cam0 = struct.pack('b', min(max(int(video_cam0), -128), 127))  # 1 byte, -128-127
+    video_cam1 = struct.pack('b', min(max(int(video_cam1), -128), 127))  # 1 byte, -128-127
+    video_cam2 = struct.pack('b', min(max(int(video_cam2), -128), 127))  # 1 byte, -128-127
+    uptime = struct.pack('I', int(uptime))  # 4 bytes, 0-4294967295
+    services = struct.pack('H', int(services))  # 2 bytes, 0-65535
 
     # Concatenate all data (total 25 bytes)
     data = gps_altitude + adc_uv + adc_methane + climate_pressure + climate_temp + climate_humidity + \
-        climate_altitude + co2_co2 + co2_voc + magnet_heading + system_cpu + system_memory + system_temp + \
-        thermal_min + thermal_max + thermal_avg + thermal_median
+        climate_altitude + co2_co2 + co2_voc + system_cpu + system_memory + system_temp + system_sent + system_received + \
+        thermal_min + thermal_max + thermal_avg + thermal_median + live_cam + video_cam0 + video_cam1 + video_cam2 + \
+        uptime + services
 
     # Base64 encode the data
     return base64.b64encode(data).decode()
@@ -251,7 +297,7 @@ def aprs():
                         logger.error("Invalid APRS source or destination")
                     aprs_lat, aprs_lon = encode_gps_aprs(gps.latitude, gps.longitude)
                     aprs_comment = encode_aprs_comment()
-                    aprs_message = f"!{aprs_lat}/{aprs_lon}OSpace Balloon Mission Data: {aprs_comment}"
+                    aprs_message = f"!{aprs_lat}/{aprs_lon}OSpace Balloon: {aprs_comment}"
                     logger.info(f"APRS packet data: {aprs_src}-{aprs_src_ssid} > {aprs_dest}-{aprs_dest_ssid} | {aprs_message}")
 
                     # Construct a AX.25 frame
@@ -300,9 +346,9 @@ def aprs():
 
         except Exception as e:
             logger.error(f"An unexpected error occurred in the APRS thread: {e}")
-            logger.error("Retrying in 20 seconds")
+            logger.error("Retrying in 10 seconds")
             
-        time.sleep(20)
+        time.sleep(10)
 
 
 @app.on_event("startup")
@@ -314,6 +360,7 @@ def start_aprs():
 @app.on_event("shutdown")
 def stop_aprs():
 
+    global running
     running = False
 
 
