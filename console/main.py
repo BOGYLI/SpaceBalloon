@@ -36,9 +36,9 @@ def convert_camera_name(number):
 
 def seconds_to_time(seconds):
 
-    hours = seconds // 3600
-    minutes = seconds // 60 % 60
-    seconds = seconds % 60
+    hours = int(seconds // 3600)
+    minutes = int(seconds // 60 % 60)
+    seconds = int(seconds % 60)
 
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
@@ -71,7 +71,7 @@ def status():
             print(f"  Activating: {', '.join(strip_service_names(status['services']['activating'])) or '-'}")
             print(f"  Failed: {', '.join(strip_service_names(status['services']['failed'])) or '-'}")
             print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
-            print(f"Uptime: {seconds_to_time(status['uptime'])}")
+            print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
         else:
             print(f"Raspi status request failed: {response.status_code} (Fallback to APRS)")
             aprs_fallback = True
@@ -92,7 +92,7 @@ def status():
                 print("Services:")
                 print(f"  Active: {', '.join(strip_service_names(status['services']['active'])) or '-'}")
                 print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
-                print(f"Uptime: {seconds_to_time(status['uptime'])}")
+                print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
             else:
                 print(f"Raspi status APRS fallback request failed: {response.status_code}")
         except requests.exceptions.RequestException as e:

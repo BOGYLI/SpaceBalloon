@@ -83,6 +83,25 @@ active_services = []
 inactive_services = []
 
 
+@app.get("/status")
+def route_status():
+    return {
+        "live": {
+            "webcam": live_cam
+        },
+        "video": {
+            "webcam0": video_cam0,
+            "webcam1": video_cam1,
+            "webcam2": video_cam2
+        },
+        "uptime": uptime,
+        "services": {
+            "active": active_services,
+            "inactive": inactive_services
+        }
+    }
+
+
 def write_to_influx(data):
 
     print("Connecting to InfluxDB")
@@ -120,7 +139,7 @@ def decode_sensor_data(encoded_data):
     gps_altitude, adc_uv, adc_methane, climate_pressure, climate_temp, climate_humidity, climate_altitude, \
         co2_co2, co2_voc, system_cpu, system_memory, system_temp, system_sent, system_received, \
         thermal_min, thermal_max, thermal_avg, thermal_median, live_cam, video_cam0, video_cam1, video_cam2, \
-        uptime, services = struct.unpack('HHHHbBHHHBBbffbbbbbbbbIH', data_bytes)
+        uptime, services = struct.unpack('=HHHHbBHHHBBbffbbbbbbbbIH', data_bytes)
 
     # Decode service state with bitwise operations
     active_services.clear()
@@ -137,12 +156,12 @@ def decode_sensor_data(encoded_data):
             "altitude": gps_altitude,
         },
         "aprs_adc": {
-            "uv": adc_uv,
-            "methane": adc_methane
+            "uv": adc_uv / 1000,
+            "methane": adc_methane / 1000
         },
         "aprs_climate": {
             "pressure": climate_pressure,
-            "temperature": climate_temp,
+            "temp": climate_temp,
             "humidity": climate_humidity,
             "altitude": climate_altitude
         },
@@ -153,14 +172,14 @@ def decode_sensor_data(encoded_data):
         "aprs_system": {
             "cpu": system_cpu,
             "memory": system_memory,
-            "temperature": system_temp,
+            "temp": system_temp,
             "sent": int(system_sent),
             "received": int(system_received)
         },
         "aprs_thermal": {
             "min": thermal_min,
             "max": thermal_max,
-            "average": thermal_avg,
+            "avg": thermal_avg,
             "median": thermal_median
         }
     }
@@ -187,7 +206,10 @@ def aprs():
 
             while running:
 
-                # Check if it is time to send an APRS packet
+                # Temporary deactivation of sending data
+                # Sorry for everyone reading this
+                # It isn't our fault but the weird behavior of the PicoAPRS V4
+                # :/
                 if False:
 
                     # Construct an APRS packet
@@ -217,6 +239,9 @@ def aprs():
 
                 # Read data from the serial connection
                 byte = ser.read(1)
+
+                if byte:
+                    print(f"Received byte: {to_hex_bytes(byte)}")
 
                 if byte == KISS_FEND:
 
@@ -251,8 +276,8 @@ def aprs():
                                 latitude = decode_gps_aprs(lat_lon_match.group(1) + lat_lon_match.group(2), 2)
                                 longitude = decode_gps_aprs(lat_lon_match.group(3) + lat_lon_match.group(4), 3)
                                 print(f"Latitude: {latitude}, Longitude: {longitude}")  # Print coordinates
-                                sensor_data["gps"]["latitude"] = latitude
-                                sensor_data["gps"]["longitude"] = longitude
+                                sensor_data["aprs_gps"]["latitude"] = latitude
+                                sensor_data["aprs_gps"]["longitude"] = longitude
                             
                             write_to_influx(sensor_data)
                         

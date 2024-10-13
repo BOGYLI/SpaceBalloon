@@ -228,7 +228,7 @@ def encode_aprs_comment():
     # Compress values to bytes
     gps_altitude = struct.pack('H', min(max(int(gps.altitude), 0), 65535))  # 2 bytes, 0-65535
     adc_uv = struct.pack('H', min(max(int(adc.uv * 1000), 0), 65535))  # 2 bytes, 0-65535
-    adc_methane = struct.pack('H', min(max(int(adc.methane), 0), 65535))  # 2 bytes, 0-65535
+    adc_methane = struct.pack('H', min(max(int(adc.methane * 1000), 0), 65535))  # 2 bytes, 0-65535
     climate_pressure = struct.pack('H', min(max(int(climate.pressure), 0), 65535))  # 2 bytes, 0-65535
     climate_temp = struct.pack('b', min(max(int(climate.temp), -128), 127))  # 1 byte, -128-127
     climate_humidity = struct.pack('B', min(max(int(climate.humidity), 0), 255))  # 1 byte, 0-255
@@ -257,7 +257,7 @@ def encode_aprs_comment():
         thermal_min + thermal_max + thermal_avg + thermal_median + live_cam + video_cam0 + video_cam1 + video_cam2 + \
         uptime + services
 
-    print(f"Unencoded comment data: {to_hex_bytes(data)} ({len(data)} bytes)")
+    logger.info(f"Unencoded comment data: {to_hex_bytes(data)} ({len(data)} bytes)")
 
     # Base64 encode the data
     return base64.b64encode(data).decode()
@@ -315,6 +315,9 @@ def aprs():
                     ser.write(kiss_frame)
 
                 # Temporary deactivation of receiving data
+                # Sorry for everyone reading this
+                # It isn't our fault but the weird behavior of the PicoAPRS V4
+                # :/
                 if False:
 
                     # Read data from the serial connection
