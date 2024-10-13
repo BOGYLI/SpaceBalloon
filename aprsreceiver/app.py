@@ -72,6 +72,7 @@ print(f"APRS Source Data Manager: {aprs_dm_src}")
 print(f"APRS Source PicoAPRS: {aprs_pico_src}")
 print(f"Influx URL: {influx_url} (organisation: {influx_org}, bucket: {influx_bucket}, token: {'*' * len(influx_token)})")
 print("Serial Port:", serial_port)
+print("")
 
 live_cam = -1
 video_cam0 = -1
@@ -113,7 +114,7 @@ def decode_sensor_data(encoded_data):
     # Decode the Base64 string
     data_bytes = base64.b64decode(encoded_data)
 
-    print(f"Base64 decoded bytes: {to_hex_bytes(data_bytes)}")
+    print(f"Base64 decoded bytes: {to_hex_bytes(data_bytes)} ({len(data_bytes)} bytes)")
     
     # Unpack the bytes into respective sensor values
     gps_altitude, adc_uv, adc_methane, climate_pressure, climate_temp, climate_humidity, climate_altitude, \
@@ -222,7 +223,7 @@ def aprs():
                     print("Received KISS frame FEND")
                     if buffer:
 
-                        print(f"KISS frame complete: {buffer.hex()}")
+                        print(f"KISS frame complete: {to_hex_bytes(buffer)}")
                         kiss_frame = kiss_unescape(buffer)
                         
                         # Skip the KISS command byte (first byte)
@@ -260,15 +261,15 @@ def aprs():
                 else:
                     buffer += byte
                 
-
+        except Exception as e:
+            print(f"An unexpected error occurred in the APRS thread: {e}")
+        finally:
             print(f"Closing serial connection")
             ser.close()
 
-        except Exception as e:
-            print(f"An unexpected error occurred in the APRS thread: {e}")
+        if running:
             print("Retrying in 10 seconds")
-            
-        time.sleep(10)
+            time.sleep(10)
 
 
 @app.on_event("startup")

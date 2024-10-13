@@ -138,6 +138,10 @@ def read_kiss_frames(port):
                         
                         # Skip the KISS command byte (first byte)
                         ax25_frame = kiss_frame[1:]
+
+                        print(f"Data: {ax25_frame.decode("ascii")}")
+                        buffer.clear()
+                        continue
                         
                         # Decode AX.25 frame
                         source_call, dest_call, path, message = decode_ax25_frame(ax25_frame)

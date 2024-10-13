@@ -251,11 +251,13 @@ def encode_aprs_comment():
     uptime = struct.pack('I', int(uptime))  # 4 bytes, 0-4294967295
     services = struct.pack('H', int(services))  # 2 bytes, 0-65535
 
-    # Concatenate all data (total 25 bytes)
+    # Concatenate all data
     data = gps_altitude + adc_uv + adc_methane + climate_pressure + climate_temp + climate_humidity + \
         climate_altitude + co2_co2 + co2_voc + system_cpu + system_memory + system_temp + system_sent + system_received + \
         thermal_min + thermal_max + thermal_avg + thermal_median + live_cam + video_cam0 + video_cam1 + video_cam2 + \
         uptime + services
+
+    print(f"Unencoded comment data: {to_hex_bytes(data)} ({len(data)} bytes)")
 
     # Base64 encode the data
     return base64.b64encode(data).decode()
@@ -312,43 +314,48 @@ def aprs():
                     logger.info("Write data to APRS")
                     ser.write(kiss_frame)
 
-                # Read data from the serial connection
-                byte = ser.read(1)
+                # Temporary deactivation of receiving data
+                if False:
 
-                if byte == KISS_FEND:
+                    # Read data from the serial connection
+                    byte = ser.read(1)
 
-                    print("Received KISS frame FEND")
-                    if buffer:
+                    if byte == KISS_FEND:
 
-                        print(f"KISS frame complete: {buffer.hex()}")
-                        kiss_frame = kiss_unescape(buffer)
-                        
-                        # Skip the KISS command byte (first byte)
-                        ax25_frame = kiss_frame[1:]
-                        
-                        # Decode AX.25 frame
-                        source_call, dest_call, path, message = decode_ax25_frame(ax25_frame)
-                        
-                        print(f"Received message from {source_call}: {message}")
-                        print(f"Destination: {dest_call}, Path: {path}")
+                        print("Received KISS frame FEND")
+                        if buffer:
 
-                        if dest_call == utils.get_aprs_src():
-                            print("Received message for me!")
-                        
-                        buffer.clear()
+                            print(f"KISS frame complete: {buffer.hex()}")
+                            kiss_frame = kiss_unescape(buffer)
+                            
+                            # Skip the KISS command byte (first byte)
+                            ax25_frame = kiss_frame[1:]
+                            
+                            # Decode AX.25 frame
+                            source_call, dest_call, path, message = decode_ax25_frame(ax25_frame)
+                            
+                            print(f"Received message from {source_call}: {message}")
+                            print(f"Destination: {dest_call}, Path: {path}")
 
-                else:
-                    buffer += byte
+                            if dest_call == utils.get_aprs_src():
+                                print("Received message for me!")
+                            
+                            buffer.clear()
+
+                    else:
+                        buffer += byte
+
+                time.sleep(0.2)
                 
-
-            logger.info(f"Closing serial connection")
+        except Exception as e:
+            print(f"An unexpected error occurred in the APRS thread: {e}")
+        finally:
+            print(f"Closing serial connection")
             ser.close()
 
-        except Exception as e:
-            logger.error(f"An unexpected error occurred in the APRS thread: {e}")
-            logger.error("Retrying in 10 seconds")
-            
-        time.sleep(10)
+        if running:
+            print("Retrying in 10 seconds")
+            time.sleep(10)
 
 
 @app.on_event("startup")

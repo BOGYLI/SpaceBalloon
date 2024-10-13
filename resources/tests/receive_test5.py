@@ -283,7 +283,7 @@ def main():
                         print(f"Received message from {source_call}: {message}")
                         print(f"Destination: {dest_call}, Path: {path}")
 
-                        if source_call and CALLSIGN in source_call:
+                        if source_call and CALLSIGN in source_call and False:
 
                             # Extract and convert coordinates
                             lat_lon_pattern = r'!(\d{2}\d{2}\.\d+)([NS])\/(\d{3}\d{2}\.\d+)([EW])'
