@@ -112,7 +112,8 @@ def write_to_influx(data):
         for measurement in data:
             point = influxdb_client.Point(measurement).time(int(time.time()), "s")
             for field in data[measurement]:
-                point.field(field, data[measurement][field])
+                if data[measurement][field] != 0:
+                    point.field(field, data[measurement][field])
             points.append(point)
 
         write_api = client.write_api()
@@ -153,7 +154,7 @@ def decode_sensor_data(encoded_data):
     # Create a dictionary ready to be sent to InfluxDB
     sensor_data = {
         "aprs_gps": {
-            "altitude": gps_altitude,
+            "altitude": float(gps_altitude),
         },
         "aprs_adc": {
             "uv": adc_uv / 1000,
