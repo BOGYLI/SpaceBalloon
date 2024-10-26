@@ -3,7 +3,7 @@ import "math"
 // Dashboard-Variablen
 antennaLat = float(v: ${antenna_latitude})
 antennaLon = float(v: ${antenna_longitude})
-antennaAlt = int(v: ${antenna_altitude})
+antennaAlt = float(v: ${antenna_altitude})
 
 // Radius der Erde in Metern
 R = 6371000.0
@@ -12,8 +12,9 @@ R = 6371000.0
 degToRad = (d) => d * math.pi / 180.0
 
 from(bucket: "balloon")
-  |> range(start: -90d)
-  |> filter(fn: (r) => r._measurement == "aprs_gps")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r._measurement == "MEASUREMENT") // MEASUREMENT: aprs_gps, aprs_pico, wifi_gps, spot_gps
+  |> last()
   |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
   |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten
   |> map(fn: (r) => ({
