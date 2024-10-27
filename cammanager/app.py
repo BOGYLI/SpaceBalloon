@@ -92,7 +92,9 @@ def route_status():
             "active": services_active,
             "activating": services_activating,
             "failed": services_failed,
-            "inactive": services_inactive
+            "inactive": services_inactive,
+            "alive": len(services_active),
+            "dead": len(services_activating) + len(services_failed) + len(services_inactive)
         },
         "uptime": uptime
     }

@@ -46,19 +46,26 @@ storage_user = os.getenv('STORAGE_USER') or "u421785"
 storage_password = os.getenv('STORAGE_PASSWORD')
 storage_path = os.getenv('STORAGE_PATH') or "System"
 
-if api_token is None or influxdb_token is None or storage_password is None:
+raspi_url = os.getenv('RASPI_URL') or "https://raspi.balloon.nikogenia.de"
+raspi_user = os.getenv('RASPI_USER') or "root"
+raspi_password = os.getenv('RASPI_PASSWORD')
+
+aprs_url = os.getenv('APRS_URL') or "https://aprs.balloon.nikogenia.de"
+aprs_user = os.getenv('APRS_USER') or "root"
+aprs_password = os.getenv('APRS_PASSWORD')
+
+if api_token is None or influxdb_token is None or storage_password is None or raspi_password is None or aprs_password is None:
     print("Missing configuration via environment variables")
     exit(1)
 
 # Initialize state
 STATE_VERSION = "1.4"
 STATE_FILE = "/config/state.json"
-STATE_FILE = "state.json"
 state = {
     "version": STATE_VERSION,
     "phase": 0,
-    "countdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
-    "streamcountdown": datetime.datetime(2024, 7, 25, 9, 30, 0).timestamp(),
+    "countdown": datetime.datetime(2024, 7, 25, 8, 30, 0).timestamp(),
+    "streamcountdown": datetime.datetime(2024, 7, 25, 8, 00, 0).timestamp(),
     "title": "",
     "subtitle": "",
     "sensors": False,
@@ -74,6 +81,8 @@ if os.path.exists(STATE_FILE):
             state = file_state
         else:
             print("State file version mismatch, using new state")
+            with open(STATE_FILE, "w") as file:
+                json.dump(state, file, indent=4, separators=(', ', ': '))
     print("Loaded state from file")
 else:
     with open(STATE_FILE, "w") as file:
@@ -82,6 +91,10 @@ else:
 
 # Image cache
 image_cache = {}
+
+# Status cache
+wifi_status_cache = {}
+aprs_status_cache = {}
 
 
 # Define data models for requests
@@ -189,6 +202,16 @@ def route_title_get():
 @app.get("/status")
 def route_status():
     return state
+
+
+@app.get("/status/wifi")
+def route_status_wifi():
+    return wifi_status_cache
+
+
+@app.get("/status/aprs")
+def route_status_aprs():
+    return aprs_status_cache
 
 
 @app.post("/phase/back")
@@ -342,3 +365,26 @@ def debug():
 
     print("State:")
     print(json.dumps(state, indent=4, separators=(', ', ': ')))
+
+
+@app.on_event("startup")
+@repeat_every(seconds=20)
+def status_update():
+
+    global wifi_status_cache, aprs_status_cache
+
+    try:
+        print("Updating status from Raspi via WiFi")
+        rqs = requests.get(f"{raspi_url}/status", auth=(raspi_user, raspi_password), timeout=5)
+        wifi_status_cache = rqs.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to update status from Raspi via WiFi: {e}")
+        wifi_status_cache = {}
+
+    try:
+        print("Updating status from Raspi via APRS")
+        rqs = requests.get(f"{aprs_url}/status", auth=(aprs_user, aprs_password), timeout=5)
+        aprs_status_cache = rqs.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to update status from Raspi via APRS: {e}")
+        aprs_status_cache = {}

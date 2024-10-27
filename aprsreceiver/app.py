@@ -97,7 +97,9 @@ def route_status():
         "uptime": uptime,
         "services": {
             "active": active_services,
-            "inactive": inactive_services
+            "inactive": inactive_services,
+            "alive": len(active_services),
+            "dead": len(inactive_services)
         }
     }
 
@@ -281,6 +283,19 @@ def aprs():
                                 sensor_data["aprs_gps"]["longitude"] = longitude
                             
                             write_to_influx(sensor_data)
+
+                        elif source_call == aprs_pico_src:
+
+                            print("Decoding PicoAPRS packet")
+
+                            # Extract and convert coordinates
+                            lat_lon_pattern = r'!(\d{2}\d{2}\.\d+)([NS])\/(\d{3}\d{2}\.\d+)([EW])'
+                            lat_lon_match = re.search(lat_lon_pattern, message)
+
+                            if lat_lon_match:
+                                latitude = decode_gps_aprs(lat_lon_match.group(1) + lat_lon_match.group(2), 2)
+                                longitude = decode_gps_aprs(lat_lon_match.group(3) + lat_lon_match.group(4), 3)
+                                print(f"Latitude: {latitude}, Longitude: {longitude}")  # Print coordinates
                         
                         buffer.clear()
 
