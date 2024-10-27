@@ -66,7 +66,7 @@ function fetchSensor() {
             tempin = data.avg == null ? 0 : data.avg.toFixed(1);
             humidity = data.humidity == null ? 0 : data.humidity.toFixed(0);
             pressure = data.pressure == null ? 0 : data.pressure.toFixed(0);
-            uv = data.uv == null ? 0 : (data.uv * 1000).toFixed(0);
+            uv = data.uv == null ? 0 : data.uv.toFixed(2);
             co2 = data.co2 == null ? 0 : data.co2.toFixed(0);
             isFetchingSensor = false;
             console.log('Fetched sensor:', data);
