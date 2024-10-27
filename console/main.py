@@ -18,6 +18,8 @@ url_sm = "https://sm.balloon.nikogenia.de"
 username_raspi = "root"
 password_raspi = ""
 token_sm = ""
+realtime = True
+fail_count = 0
     
 
 def strip_service_name(name):
@@ -52,26 +54,36 @@ def status_message(response):
 
 def status():
 
+    global realtime, fail_count
+
     aprs_fallback = False
 
-    print("Status")
-    print("------")
+    title = f"Status ({'realtime' if realtime else 'cached'})"
+    print(title)
+    print("-" * len(title))
     print("")
 
     try:
-        response = requests.get(url_raspi + "/status", timeout=3, auth=(username_raspi, password_raspi))
+        if realtime:
+            response = requests.get(url_raspi + "/status", timeout=3, auth=(username_raspi, password_raspi))
+        else:
+            response = requests.get(url_sm + "/status/wifi", timeout=2)
         if response.status_code == 200:
             status = response.json()
-            print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
-            print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
-                    f"{convert_camera_name(status['video']['webcam1'])}, " +
-                    f"{convert_camera_name(status['video']['webcam2'])}")
-            print("Services:")
-            print(f"  Active: {', '.join(strip_service_names(status['services']['active'])) or '-'}")
-            print(f"  Activating: {', '.join(strip_service_names(status['services']['activating'])) or '-'}")
-            print(f"  Failed: {', '.join(strip_service_names(status['services']['failed'])) or '-'}")
-            print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
-            print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
+            if not status:
+                print("No raspi status via WiFi available (Fallback to APRS)")
+                aprs_fallback = True
+            else:
+                print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
+                print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
+                        f"{convert_camera_name(status['video']['webcam1'])}, " +
+                        f"{convert_camera_name(status['video']['webcam2'])}")
+                print("Services:")
+                print(f"  Active: {', '.join(strip_service_names(status['services']['active'])) or '-'}")
+                print(f"  Activating: {', '.join(strip_service_names(status['services']['activating'])) or '-'}")
+                print(f"  Failed: {', '.join(strip_service_names(status['services']['failed'])) or '-'}")
+                print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
+                print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
         else:
             print(f"Raspi status request failed: {response.status_code} (Fallback to APRS)")
             aprs_fallback = True
@@ -82,22 +94,48 @@ def status():
 
     if aprs_fallback:
         try:
-            response = requests.get(url_aprs + "/status", timeout=2, auth=(username_raspi, password_raspi))
+            if realtime:
+                response = requests.get(url_aprs + "/status", timeout=2, auth=(username_raspi, password_raspi))
+            else:
+                response = requests.get(url_sm + "/status/aprs", timeout=2)
             if response.status_code == 200:
                 status = response.json()
-                print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
-                print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
-                        f"{convert_camera_name(status['video']['webcam1'])}, " +
-                        f"{convert_camera_name(status['video']['webcam2'])}")
-                print("Services:")
-                print(f"  Active: {', '.join(strip_service_names(status['services']['active'])) or '-'}")
-                print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
-                print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
+                if not status:
+                    print("No raspi status via APRS available")
+                    aprs_fallback = True
+                else:
+                    print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
+                    print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
+                            f"{convert_camera_name(status['video']['webcam1'])}, " +
+                            f"{convert_camera_name(status['video']['webcam2'])}")
+                    print("Services:")
+                    print(f"  Active: {', '.join(strip_service_names(status['services']['active'])) or '-'}")
+                    print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
+                    print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
             else:
                 print(f"Raspi status APRS fallback request failed: {response.status_code}")
+                aprs_fallback = True
         except requests.exceptions.RequestException as e:
             print(f"Raspi status APRS fallback request failed: {e}")
+            aprs_fallback = True
         print("")
+
+    if realtime and aprs_fallback:
+        fail_count += 1
+        if fail_count >= 5:
+            realtime = False
+            fail_count = 0
+            print("WARNING: Realtime status updates are failing! Falling back")
+            print(f"to cached status updates automatically. Type 'rt' to activate")
+            print("realtime mode again ...")
+        else:
+            print("WARNING: Realtime status updates are failing! Automatic fallback")
+            print(f"to cached status updates after {5 - fail_count} more failed requests.")
+            print(f"Alternatively, type 'rt' to deactivate realtime mode manually ...")
+        print("")
+    else:
+        if fail_count > 0:
+            fail_count -= 1
 
     try:
         response = requests.get(url_sm + "/status", timeout=2)
@@ -128,6 +166,7 @@ def help():
     print("")
     print("h                       show help")
     print("q                       quit")
+    print("rt                      toggle realtime status updates")
     print("l[x]                    livestream camera x")
     print("l                       stop camera livestream")
     print("v[xyz]                  camera x, y, z to save video file")
@@ -158,7 +197,7 @@ def help():
 
 def main():
 
-    global url_raspi, url_aprs, url_sm, username_raspi, password_raspi, token_sm
+    global url_raspi, url_aprs, url_sm, username_raspi, password_raspi, token_sm, realtime, fail_count
 
     print("Space Balloon Mission Control Console")
     print("=====================================")
@@ -209,6 +248,12 @@ def main():
 
         elif command == "q":
             running = False
+
+        elif command == "rt":
+            realtime = not realtime
+            fail_count = 0
+            print(f"Realtime status updates are now {'on' if realtime else 'off'}")
+            print("")
 
         elif command == "l":
             try:
