@@ -15,8 +15,16 @@ if [ ! -d ".venv" ]; then
     exit
 fi
 
-# Stop the services
+# Check for service name argument
+if [ -z "$1" ]; then
+    echo "Disabling service balloon-$service.service"
+    systemctl disable balloon-"$service".service
+    exit
+fi
+
+# Disable all services
+echo "No service name argument provided, disabling all services"
 for service in /etc/systemd/system/balloon-*.service; do
-    echo "Stopping service $(basename "$service")"
-    systemctl stop "$(basename "$service")"
+    echo "Disabling service $(basename "$service")"
+    systemctl disable "$(basename "$service")"
 done

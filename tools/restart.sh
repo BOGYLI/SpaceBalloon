@@ -15,7 +15,15 @@ if [ ! -d ".venv" ]; then
     exit
 fi
 
-# Restart the services
+# Check for service name argument
+if [ -z "$1" ]; then
+    echo "Restarting service balloon-$service.service"
+    systemctl restart balloon-"$service".service
+    exit
+fi
+
+# Restart all services
+echo "No service name argument provided, restarting all services"
 for service in /etc/systemd/system/balloon-*.service; do
     echo "Restarting service $(basename "$service")"
     systemctl restart "$(basename "$service")"

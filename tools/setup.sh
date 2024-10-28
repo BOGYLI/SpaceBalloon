@@ -50,4 +50,20 @@ done
 if [ ! -f "config.yml" ]; then
     echo "Creating configuration file"
     cp resources/templates/config.yml.example config.yml
+else
+    echo "Configuration file already exists"
+    read -p "Do you want to override it? (y/n) " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Making a copy of existing configuration"
+        cp config.yml config.yml.old
+        echo "Overriding configuration file"
+        cp resources/templates/config.yml.example config.yml
+    fi
 fi
+
+# Futher instructions
+echo "Basic setup completed"
+echo "Please edit the configuration file config.yml"
+echo "Run reset.sh to initialize data storage (WARNING: this will delete all existing data)"
+echo "Run start.sh to start the services"
+echo "(Uninstall everything with uninstall.sh)"

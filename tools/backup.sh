@@ -27,7 +27,7 @@ read -r
 
 # List all block devices and prompt user to select the correct one
 lsblk
-echo "Please select the USB stick e.g. /dev/sdb (empty input to cancel)"
+echo "Please select the USB stick e.g. /dev/sda1 (empty input to cancel)"
 read -r -p "> " usb_stick
 
 # Check if the input is empty
@@ -59,6 +59,14 @@ umount /mnt/balloon
 # Wait for stick removal and user confirmation
 echo "Please remove the USB stick (press enter to continue)"
 read -r
+
+# Ask for the user confirmation to start the services
+read -p "Do you want the services to start automatically? (y/n) " -n 1 -r
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Backup process completed"
+    echo "Please start the services manually"
+    exit
+fi
 
 # Start the services
 for service in /etc/systemd/system/balloon-*.service; do

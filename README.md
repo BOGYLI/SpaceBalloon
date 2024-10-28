@@ -47,7 +47,9 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [tools](/tools/) is a mix of scripts to manage the repository instance on board
   - [setup.sh](/tools/setup.sh) setups the repository environment on board
   - [reset.sh](/tools/reset.sh) clears all data and initialize new storage directories
-  - [startall.sh](/tools/startall.sh), [stopall.sh](/tools/stopall.sh), [restartall.sh](/tools/restartall.sh) change module service execution state respectively
+  - [start.sh](/tools/start.sh), [stop.sh](/tools/stop.sh), [restart.sh](/tools/restart.sh) change module service execution state respectively
+  - [enable.sh](/tools/enable.sh), [disable.sh](/tools/disable.sh) change module service autostart configuration respectively
+  - [uninstall.sh](/tools/uninstall.sh) uninstalls the repository environment on board
   - [logall.sh](/tools/logall.sh) shows the logs of all module services one after another
   - [backup.sh](/tools/backup.sh) is a guided script to backup all data to an USB stick
   - [backup.bat](/tools/backup.bat) is a guided script to be run on Windows to backup all data via SSH over WiFi
