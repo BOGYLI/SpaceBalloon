@@ -14,6 +14,7 @@ echo "You are about to uninstall this environment"
 echo "This will remove the python virtual environment,"
 echo "configuration, systemd service files and data storage"
 read -p "Are you sure? (y/n) " -n 1 -r
+echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit
 fi
@@ -47,13 +48,15 @@ if [ -f "config.yml" ]; then
 fi
 
 # Ask for confirmation before deleting data storage
-echo "WARNING! You are about to delete all existing sensor data and video footage!"
-echo "This action cannot be undone. It isn't recommended to automatically run this script."
-read -p "Are you sure to continue? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Removing data storage"
-    rm -r data
+if [ -d "data" ]; then
+    echo "WARNING! You are about to delete all existing sensor data and video footage!"
+    echo "This action cannot be undone. It isn't recommended to automatically run this script."
+    read -p "Are you sure to continue? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Removing data storage"
+        rm -r data
+    fi
 fi
 
 # Futher instructions

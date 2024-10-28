@@ -16,9 +16,9 @@ if [ ! -d ".venv" ]; then
 fi
 
 # Check for service name argument
-if [ -z "$1" ]; then
-    echo "Disabling service balloon-$service.service"
-    systemctl disable balloon-"$service".service
+if [ ! -z "$1" ]; then
+    echo "Disabling service balloon-$1.service"
+    systemctl disable balloon-"$1".service
     exit
 fi
 

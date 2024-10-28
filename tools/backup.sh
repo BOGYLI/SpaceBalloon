@@ -66,6 +66,7 @@ read -r
 
 # Ask for the user confirmation to start the services
 read -p "Do you want the services to start automatically? (y/n) " -n 1 -r
+echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Backup process completed"
     echo "Please start the services manually"

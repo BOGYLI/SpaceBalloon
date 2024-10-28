@@ -61,7 +61,8 @@ if [ ! -f "config.yml" ]; then
 else
     echo "Configuration file already exists"
     read -p "Do you want to override it? (y/n) " -n 1 -r
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Making a copy of existing configuration"
         cp config.yml config.yml.old
         echo "Overriding configuration file"

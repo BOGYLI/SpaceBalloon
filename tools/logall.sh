@@ -18,6 +18,7 @@ fi
 # Ask for update mode
 echo "Do you want the logs to update? (y/n)"
 read -r update
+echo
 
 # Show logs of the services
 for service in datamanager cammanager adc climate co2 gps magnet spectral system thermal \

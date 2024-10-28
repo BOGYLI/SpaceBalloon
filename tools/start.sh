@@ -16,9 +16,9 @@ if [ ! -d ".venv" ]; then
 fi
 
 # Check for service name argument
-if [ -z "$1" ]; then
-    echo "Starting service balloon-$service.service"
-    systemctl start balloon-"$service".service
+if [ ! -z "$1" ]; then
+    echo "Starting service balloon-$1.service"
+    systemctl start balloon-"$1".service
     exit
 fi
 
