@@ -25,6 +25,10 @@ fi
 # Enable all services
 echo "No service name argument provided, enabling all services"
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Enabling service $(basename "$service")"
     systemctl enable "$(basename "$service")"
 done

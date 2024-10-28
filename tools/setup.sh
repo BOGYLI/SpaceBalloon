@@ -24,6 +24,10 @@ pip3 install -r requirements.txt --use-pep517
 
 # Remove old systemd service files
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Removing old service $(basename "$service")"
     systemctl stop "$(basename "$service")"
     systemctl disable "$(basename "$service")"
@@ -42,6 +46,10 @@ systemctl daemon-reload
 
 # Enable the services
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Enabling service $(basename "$service")"
     systemctl enable "$(basename "$service")"
 done

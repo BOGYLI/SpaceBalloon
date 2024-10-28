@@ -17,6 +17,10 @@ fi
 
 # Stop the services
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Stopping service $(basename "$service")"
     systemctl stop "$(basename "$service")"
 done
@@ -70,6 +74,10 @@ fi
 
 # Start the services
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Starting service $(basename "$service")"
     systemctl start "$(basename "$service")"
 done

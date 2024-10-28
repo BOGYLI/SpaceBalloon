@@ -20,6 +20,10 @@ fi
 
 # Remove systemd service files
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Removing service $(basename "$service")"
     systemctl stop "$(basename "$service")"
     systemctl disable "$(basename "$service")"

@@ -25,6 +25,10 @@ fi
 # Restart all services
 echo "No service name argument provided, restarting all services"
 for service in /etc/systemd/system/balloon-*.service; do
+    if [ "$service" == "/etc/systemd/system/balloon-*.service" ]; then
+        echo "No systemd service files found"
+        break
+    fi
     echo "Restarting service $(basename "$service")"
     systemctl restart "$(basename "$service")"
 done
