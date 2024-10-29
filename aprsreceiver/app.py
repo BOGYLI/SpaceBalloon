@@ -7,7 +7,7 @@ import time
 import struct
 import sys
 import base64
-import serial
+import socket
 from getpass import getpass
 import threading as th
 from fastapi import FastAPI
@@ -43,7 +43,7 @@ influx_url = "https://influx.balloon.nikogenia.de"
 influx_org = "makerspace"
 influx_bucket = "balloon"
 influx_token = ""
-serial_port = "COM0"
+kiss_server = "127.0.0.1:8100"
 aprs_dm_src = "DN5WA-2"
 aprs_pico_src = "DN5WA-11"
 
@@ -57,13 +57,22 @@ print("")
 if "-c" in sys.argv or "--custom" in sys.argv:
     aprs_dm_src = input("APRS Source Data Manager (empty for default): ").strip() or aprs_dm_src
     aprs_pico_src = input("APRS Source PicoAPRS (empty for default): ").strip() or aprs_pico_src
+    kiss_server = input("Kiss Server (empty for default): ").strip() or kiss_server
     influx_url = input("Influx URL (empty for default): ").strip() or influx_url
     influx_org = input("Influx Organisation (empty for default): ").strip() or influx_org
     influx_bucket = input("Influx Bucket (empty for default): ").strip() or influx_bucket
 influx_token = getpass("Influx Token: ").strip()
-serial_port = input("Serial Port (for example COM0): ").strip() or serial_port
 if not influx_token:
     print("Empty token detected, exiting")
+    sys.exit(1)
+if len(kiss_server.split(":")) != 2:
+    print("Invalid Kiss Host, exiting")
+    sys.exit(1)
+try:
+    kiss_host, kiss_port = kiss_server.split(":")
+    kiss_port = int(kiss_port)
+except ValueError:
+    print("Invalid Kiss Host, exiting")
     sys.exit(1)
 print("")
 
@@ -71,7 +80,7 @@ print("Configuration:")
 print(f"APRS Source Data Manager: {aprs_dm_src}")
 print(f"APRS Source PicoAPRS: {aprs_pico_src}")
 print(f"Influx URL: {influx_url} (organisation: {influx_org}, bucket: {influx_bucket}, token: {'*' * len(influx_token)})")
-print("Serial Port:", serial_port)
+print(f"Kiss Server: {kiss_host}:{kiss_port}")
 print("")
 
 live_cam = -1
@@ -196,55 +205,27 @@ def aprs():
 
         try:
 
-            # Open serial connection
-            print("Open serial connection")
-            ser = serial.Serial(serial_port, 115200, timeout=2)
-
-            # Ensure RTS and DTR are set low
-            ser.rts = False
-            ser.dtr = False
+            # Open socket connection
+            print("Open socket connection")
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((kiss_host, kiss_port))
+            s.settimeout(2)
 
             # Receive buffer
             buffer = bytearray()
 
             while running:
 
-                # Temporary deactivation of sending data
-                # Sorry for everyone reading this
-                # It isn't our fault but the weird behavior of the PicoAPRS V4
-                # :/
-                if False:
-
-                    # Construct an APRS packet
-                    try:
-                        aprs_src = utils.get_aprs_src().split("-")[0]
-                        aprs_src_ssid = int(utils.get_aprs_src().split("-")[1])
-                        aprs_dest = utils.get_aprs_dst().split("-")[0]
-                        aprs_dest_ssid = int(utils.get_aprs_dst().split("-")[1])
-                    except (IndexError, ValueError):
-                        logger.error("Invalid APRS source or destination")
-                    aprs_lat, aprs_lon = encode_gps_aprs(gps.latitude, gps.longitude)
-                    aprs_comment = encode_aprs_comment()
-                    aprs_message = f"!{aprs_lat}/{aprs_lon}OSpace Balloon Mission Data: {aprs_comment}"
-                    logger.info(f"APRS packet data: {aprs_src}-{aprs_src_ssid} > {aprs_dest}-{aprs_dest_ssid} | {aprs_message}")
-
-                    # Construct a AX.25 frame
-                    ax25_frame = encode_ax25_frame(aprs_src, aprs_src_ssid, aprs_dest, aprs_dest_ssid, aprs_message)
-                    logger.info(f"AX.25 Frame: {to_hex_bytes(ax25_frame)}")
-
-                    # Construct a KISS frame
-                    kiss_frame = construct_kiss_frame(ax25_frame)
-                    logger.info(f"KISS Frame: {to_hex_bytes(kiss_frame)}")
-
-                    # Send the KISS frame over the serial connection
-                    logger.info("Write data to APRS")
-                    ser.write(kiss_frame)
-
-                # Read data from the serial connection
-                byte = ser.read(1)
+                # Read data from the socket connection
+                try:
+                    byte = s.recv(1)
+                except socket.timeout:
+                    continue
 
                 if byte:
                     print(f"Received byte: {to_hex_bytes(byte)}")
+                else:
+                    continue
 
                 if byte == KISS_FEND:
 
@@ -301,12 +282,12 @@ def aprs():
 
                 else:
                     buffer += byte
-                
+
         except Exception as e:
             print(f"An unexpected error occurred in the APRS thread: {e}")
         finally:
-            print(f"Closing serial connection")
-            ser.close()
+            print(f"Closing socket connection")
+            s.close()
 
         if running:
             print("Retrying in 10 seconds")
