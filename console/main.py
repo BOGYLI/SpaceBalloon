@@ -2,11 +2,13 @@
 Mission control console
 """
 
+import os
 import sys
 import requests
 import datetime
 import time
 import getpass
+from upload import upload
 
 
 PHASES = ["Countdown", "Troposphäre", "Stratosphäre", "Sinkflug", "Rescue"]
@@ -202,6 +204,10 @@ def main():
     print("Space Balloon Mission Control Console")
     print("=====================================")
     print("")
+
+    if "-u" in sys.argv or "--upload" in sys.argv:
+        upload()
+        return
 
     print("Login")
     print("-----")
