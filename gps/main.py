@@ -100,8 +100,8 @@ def main():
     buffer = ""
     while True:
 
-        # Sleep 30 ms to avoid high CPU usage
-        time.sleep(0.03)
+        # Sleep 80 ms to avoid high CPU usage
+        time.sleep(0.08)
 
         # Read GPS data
         raw_data = read_gps_data()

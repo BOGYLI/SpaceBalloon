@@ -16,3 +16,4 @@ pimoroni-sgp30
 opencv-python-headless
 psutil
 pyserial
+RPi.GPIO
