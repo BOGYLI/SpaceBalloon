@@ -102,9 +102,9 @@ def get_cameras():
     current_path = ""
     for line in v4l2:
         if line.startswith("Webcam"):
-            match = re.findall(r"\((.*)\)", line)
-            if match:
-                current_path = match.group(1)
+            matches = re.findall(r"\((.*)\)", line)
+            if matches:
+                current_path = matches[-1]
         elif current_path and line.strip().startswith("/dev/video"):
             if current_path not in cameras:
                 cameras[current_path] = int(line.strip().split("video")[1])
