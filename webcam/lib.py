@@ -1,4 +1,5 @@
 import sys
+import re
 import cv2
 import os
 import subprocess
@@ -93,30 +94,27 @@ def init_ffmpeg():
     return ffmpeg
 
 
-def get_camera_devices():
-    video_devices = []
-    for device in os.listdir('/dev'):
-        if device.startswith('video'):
-            video_devices.append(f"/dev/{device}")
-    return video_devices
-
-
-def get_usb_port_for_video_device(video_device):
-    try:
-        cmd = f"udevadm info --query=all --name={video_device} | grep ID_PATH="
-        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        usb_path = result.stdout.decode().strip()
-        if usb_path:
-            return usb_path.split('=')[-1]  # Extract the ID_PATH value
-    except Exception as e:
-        print(f"Error getting USB port for {video_device}: {e}")
-    return None
+def get_cameras():
+    cameras = {}
+    cmd = f"v4l2-ctl --list-devices"
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    v4l2 = result.stdout.decode().strip().splitlines()
+    current_path = ""
+    for line in v4l2:
+        if line.startswith("Webcam"):
+            match = re.findall(r"\((.*)\)", line)
+            if match:
+                current_path = match.group(1)
+        elif current_path and line.strip().startswith("/dev/video"):
+            if current_path not in cameras:
+                cameras[current_path] = int(line.strip().split("video")[1])
+            current_path = ""
+    return cameras
 
 
 def get_camera_index_by_usb_port(usb_port):
-    devices = get_camera_devices()
-    for device in devices:
-        usb_path = get_usb_port_for_video_device(device)
-        if usb_path and usb_port in usb_path:
-            return device  # Return the corresponding /dev/video* device
+    cameras = get_cameras()
+    for path, index in cameras.items():
+        if path == usb_port:
+            return index
     return None
