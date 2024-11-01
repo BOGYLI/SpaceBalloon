@@ -36,7 +36,7 @@ def list_files(sftp):
     result = []
 
     for file in files:
-        if not file.endswith(".png"):
+        if not file.endswith(".png") or file == "latest.png":
             continue
         try:
             year, month, day, hour, minute, second = [int(x) for x in file.split(".")[0].split("-")]
@@ -63,31 +63,49 @@ def convert_color(temp):
 
 def parse_image(point):
 
-    # Parse the data
-    pixels = point.get_value()
-    pixels = pixels.split(",")
-    pixels = [int(x) for x in pixels]
+    try:
 
-    # Create the image
-    image = PIL.Image.new("RGB", (32, 24))
+        # Parse the data
+        pixels = point.get_value()
+        pixels = pixels.split(",")
+        pixels = [int(x) for x in pixels]
+        if len(pixels) != 32 * 24:
+            print(f"Invalid number of pixels: {len(pixels)}")
+            print(f"Skipping image point {point.get_time()}")
+            return None
 
-    # Convert the pixels
-    for i in range(32):
-        for j in range(24):
-            temp = pixels[i + j * 32]
-            image.putpixel((i, j), convert_color(temp))
+        # Create the image
+        image = PIL.Image.new("RGB", (32, 24))
 
-    return image
+        # Convert the pixels
+        for i in range(32):
+            for j in range(24):
+                temp = pixels[i + j * 32]
+                image.putpixel((i, j), convert_color(temp))
+
+        return image
+
+    except Exception as e:
+        print(f"Unexpected error while parsing image: {e}")
+        print(f"Skipping image point {point.get_time()}")
 
 
 def upload_image(sftp, image, timestamp):
 
-    # Save a local image
-    image.save("latest.png")
+    try:
 
-    # Upload the image
-    sftp.put("latest.png", "latest.png")
-    sftp.put("latest.png", f"{timestamp.strftime('%Y-%m-%d-%H-%M-%S')}.png")
+        # Save a local image
+        image.save("latest.png")
+
+        # Upload the image
+        sftp.put("latest.png", "latest.png")
+        sftp.put("latest.png", f"{timestamp.strftime('%Y-%m-%d-%H-%M-%S')}.png")
+
+        print(f"Rendered image and saved as {timestamp.strftime('%Y-%m-%d-%H-%M-%S')}.png")
+
+    except Exception as e:
+        print(f"Unexpected error while uploading image: {e}")
+        print(f"Skipping image {timestamp}")
 
 
 def init_sftp():
@@ -142,7 +160,7 @@ def main():
         print("Querying data from InfluxDB")
         points = query_api.query_stream(f'''from(bucket: "{BUCKET}")
             |> range(start: {'-1y' if newest_point is None else newest_point.strftime('%Y-%m-%dT%H:%M:%SZ')})
-            |> filter(fn: (r) => r._measurement == "wifi_thermal")
+            |> filter(fn: (r) => r._measurement == "wifi_thermal" or r._measurement == "file_thermal")
             |> filter(fn: (r) => r._field == "pixels")
             ''')
 
@@ -163,10 +181,10 @@ def main():
                     break
             else:
                 img = parse_image(point)
-                if ssh_client is None or sftp is None:
-                    ssh_client, sftp = init_sftp()
-                upload_image(sftp, img, timestamp)
-                print(f"Rendered image and saved as {timestamp.strftime('%Y-%m-%d-%H-%M-%S')}.png")
+                if img:
+                    if ssh_client is None or sftp is None:
+                        ssh_client, sftp = init_sftp()
+                    upload_image(sftp, img, timestamp)
         print(f"Found a total of {total_points} (cached {cached_points}) points")
         print(f"Skipped {skipped_points} and renderered {total_points - skipped_points}")
         cached_points += total_points

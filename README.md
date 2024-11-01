@@ -19,7 +19,7 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 - [adc](/adc/) responsible for the UV and methane sensors
 - [cammanager](/cammanager/) coordinating camera operation and system status
 - [climate](/climate/) sensor measuring temperature, humidity and pressure (+ estimated altitude)
-- [co2](/co2/) sensor for CO2 and VOC
+- [co2](/co2/) sensor for CO₂ and VOC
 - [datamanager](/datamanager/) collecting all sensor data and sending it via APRS and WiFi
 - [gps](/gps/) sensor tracking location and altitude
 - [magnet](/magnet/) sensor monitoring some magnetic activity
@@ -31,7 +31,7 @@ Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wi
 ### Containers
 - [thermalrenderer](/thermalrenderer/) fetching pixel data from InfluxDB and rendering a thermal image to storage box ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-thermalrenderer))
 - [spotcollector](/spotcollector/) reading the newest GPS data from the SPOT API and sending it to InfluxDB ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-spotcollector))
-- [streammanager](/streammanager/) API controlling the state of the stream and communicating with Streamelements ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-streammanager))
+- [streammanager](/streammanager/) API controlling the state of the stream and communicating with Stream Elements ([dockerhub](https://hub.docker.com/repository/docker/nikogenia/sp-streammanager))
 
 ### Extras
 - [console](/console/) is the Mission Control Console
