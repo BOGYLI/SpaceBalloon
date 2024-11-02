@@ -1,7 +1,13 @@
 # SPACE BALLOON CONFIGURATION
 
 # config version (do not touch)
-version: 15
+version: 16
+
+# pressure at sea level (adjust right before start)
+# https://zoom.earth/maps/pressure/#view=47.625005,9.798937,9z
+# use this map to read the current pressure conditions
+# the unit is hPa so the default value is 1013.25
+sea_level_pressure: 1013.25
 
 # sensor custom I2C bus
 bus:
@@ -54,7 +60,7 @@ influx:
   bucket: "balloon"
   token: ""
 
-# Stream details
+# stream details
 stream:
   url: "srt://server.balloon.nikogenia.de:8890?streamid=publish:#PATH:#USERNAME:#PASSWORD&pkt_size=1316"
   username: "maker"

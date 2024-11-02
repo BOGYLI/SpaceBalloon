@@ -25,6 +25,11 @@ logger = utils.init_logger("climate")
 def main():
     i2c = board.I2C()  # uses board.SCL and board.SDA
     sensor = MS8607(i2c)
+    sea_level_pressure = utils.CONFIG["sea_level_pressure"]
+    if not sea_level_pressure or not isinstance(sea_level_pressure, (int, float)):
+        logger.error("Sea level pressure not set in config file. Using default of 1013 hPa.")
+        sea_level_pressure = 1013.25
+    logger.info(f"Sea level pressure set to {sea_level_pressure} hPa.")
 
     while True:
         # Read sensor data
@@ -32,11 +37,11 @@ def main():
         temp = sensor.temperature  # Temperature in °C
         humidity = sensor.relative_humidity  # Humidity in rH
 
-        # Convert pressure from hPa to Pa for altitude calculation
-        pressure_pa = pressure_hpa * 100
-
         # Calculate altitude
-        altitude = calculate_altitude(pressure_pa)
+        pressure_pa = pressure_hpa * 100  # hPa -> Pa
+        sea_level_pressure = sea_level_pressure * 100  # hPa -> Pa
+        temp_k = temp + 273.15  # °C -> K
+        altitude = calculate_altitude(pressure_pa, sea_level_pressure, temp_k)
 
         # Log the sensor data and calculated altitude
         logger.info(f"Pressure: {pressure_hpa:.3f}hPa, Temperature: {temp:.3f}°C, Humidity: {humidity:.3f}rH, Estimated Altitude: {altitude:.3f}m")
