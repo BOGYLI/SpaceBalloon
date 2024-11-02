@@ -16,7 +16,7 @@ bus:
   gps: 4
   magnet: 6
 
-# various intervals (timeout in seconds)
+# various durations (timeout or interval in seconds)
 interval:
   adc: 1
   climate: 1
@@ -31,8 +31,10 @@ interval:
   dm_influx: 3
   cm_debug: 10
   cm_services: 3
-  cm_offline: 10
-  live_mode_stop: 12
+  cm_mode: 10
+  ping_fail: 30
+  cam_cycle: 120
+  live_mode_stop: 15
 
 # webcam usb port ID configuration
 # list all devices with 'v4l2-ctl --list-devices'
@@ -43,15 +45,13 @@ webcams:
   3: "usb-xhci-hcd.1-1.4"
   4: "usb-xhci-hcd.1-1.3"
 
-# webcam default configuration
-default:
-  live: -1
-  video0: -1
-  video1: -1
-  video2: -1
-  offline: 4
-  offline_pressure: 50
-  offline_altitude: 25000
+# webcam offline and pop mode configuration
+mode:
+  offline_auto: true
+  offline_ping: "192.168.25.2"
+  pop_auto: true
+  pop_pressure: 50
+  pop_altitude: 25000
 
 # InfluxDB details
 influx:
