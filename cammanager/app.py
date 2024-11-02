@@ -267,7 +267,7 @@ def refresh_pop():
 @repeat_every(seconds=utils.get_interval("cm_mode"))
 def mode():
 
-    global live_cam, live_cam_updated, video_cam, video_cam_updated
+    global live_cam, live_cam_updated, video_cam, video_cam_updated, last_cycle
 
     refresh_offline()
     refresh_pop()

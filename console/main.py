@@ -88,9 +88,9 @@ def status():
                 print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
                 print(f"Offline mode: {'on' if status['offline'] else 'off'}")
                 print(f"Pop mode: {'on' if status['pop'] else 'off'}")
-                print(f"Last ping: {datetime.datetime.fromtimestamp(status['last_ping']).strftime('%H:%M:%S')} ({status['last_ping'] - time.time():.0f} seconds ago)")
+                print(f"Last ping: {datetime.datetime.fromtimestamp(status['last_ping']).strftime('%H:%M:%S')} ({time.time() - status['last_ping']:.0f} seconds ago)")
                 if status['last_cycle']:
-                    print(f"Last cycle: {datetime.datetime.fromtimestamp(status['last_cycle']).strftime('%H:%M:%S')} ({status['last_cycle'] - time.time():.0f} seconds ago)")
+                    print(f"Last cycle: {datetime.datetime.fromtimestamp(status['last_cycle']).strftime('%H:%M:%S')} ({time.time() - status['last_cycle']:.0f} seconds ago)")
                 else:
                     print(f"Next cycle triggered")
         else:
