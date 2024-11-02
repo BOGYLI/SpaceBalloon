@@ -33,24 +33,24 @@ def main():
 
     while True:
         # Read sensor data
-        pressure_hpa = sensor.pressure  # Pressure in hPa
+        pressure = sensor.pressure  # Pressure in hPa
         temp = sensor.temperature  # Temperature in °C
         humidity = sensor.relative_humidity  # Humidity in rH
 
         # Calculate altitude
-        pressure_pa = pressure_hpa * 100  # hPa -> Pa
-        sea_level_pressure = sea_level_pressure * 100  # hPa -> Pa
+        pressure_pa = pressure * 100  # hPa -> Pa
+        sea_level_pressure_pa = sea_level_pressure * 100  # hPa -> Pa
         temp_k = temp + 273.15  # °C -> K
-        altitude = calculate_altitude(pressure_pa, sea_level_pressure, temp_k)
+        altitude = calculate_altitude(pressure_pa, sea_level_pressure_pa, temp_k)
 
         # Log the sensor data and calculated altitude
-        logger.info(f"Pressure: {pressure_hpa:.3f}hPa, Temperature: {temp:.3f}°C, Humidity: {humidity:.3f}rH, Estimated Altitude: {altitude:.3f}m")
+        logger.info(f"Pressure: {pressure:.3f}hPa, Temperature: {temp:.3f}°C, Humidity: {humidity:.3f}rH, Estimated Altitude: {altitude:.3f}m")
 
         # Write data to CSV file
-        utils.write_csv("climate", [pressure_hpa, temp, humidity, altitude])
+        utils.write_csv("climate", [pressure, temp, humidity, altitude])
         
         # Send data to the server or other destinations
-        utils.send_data("climate", {"pressure": pressure_hpa, "temp": temp, "humidity": humidity, "altitude": altitude}, logger)
+        utils.send_data("climate", {"pressure": pressure, "temp": temp, "humidity": humidity, "altitude": altitude}, logger)
 
         # Wait before taking the next reading
         time.sleep(utils.get_interval("climate"))
