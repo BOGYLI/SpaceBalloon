@@ -6,6 +6,9 @@ const error = document.getElementById('error');
 img.onerror = function() {
     img.style.display = 'none';
     error.style.display = 'block';
+    setTimeout(() => {
+        location.reload();
+    }, 5000);
 };
 
 // Reload the page every 15 seconds

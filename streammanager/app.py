@@ -336,7 +336,7 @@ def route_img(streamid: str, response: Response):
 
     try:
         print("Requesting image from storage box")
-        rqs = requests.get(url, timeout=3)
+        rqs = requests.get(url, timeout=5)
         if rqs.status_code != 200:
             response.status_code = 404
             return "Image not found! Please check stream id or verify the image is available."
@@ -375,7 +375,7 @@ def status_update():
 
     try:
         print("Updating status from Raspi via WiFi")
-        rqs = requests.get(f"{raspi_url}/status", auth=(raspi_user, raspi_password), timeout=5)
+        rqs = requests.get(f"{raspi_url}/status", auth=(raspi_user, raspi_password), timeout=8)
         wifi_status_cache = rqs.json()
     except requests.exceptions.RequestException as e:
         print(f"Failed to update status from Raspi via WiFi: {e}")
@@ -383,7 +383,7 @@ def status_update():
 
     try:
         print("Updating status from Raspi via APRS")
-        rqs = requests.get(f"{aprs_url}/status", auth=(aprs_user, aprs_password), timeout=5)
+        rqs = requests.get(f"{aprs_url}/status", auth=(aprs_user, aprs_password), timeout=8)
         aprs_status_cache = rqs.json()
     except requests.exceptions.RequestException as e:
         print(f"Failed to update status from Raspi via APRS: {e}")

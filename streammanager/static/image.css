@@ -11,28 +11,24 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-}
-
-ol {
-    list-style-position: inside;
-}
-
-ol > li {
-    padding-bottom: 1rem;
+    font-family: Courier, "Courier New", monospace;
 }
 
 #error {
     display: flex;
-    padding-left: 10%;
-    padding-right: 10%;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.4rem;
+    text-align: center;
 }
 
-#error > * {
-    padding-bottom: 2rem;
+h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+p {
+    font-size: 0.9rem;
 }
 
 #image {

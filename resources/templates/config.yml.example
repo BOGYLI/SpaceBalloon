@@ -34,7 +34,7 @@ interval:
   cm_mode: 10
   ping_fail: 30
   cam_cycle: 120
-  live_mode_stop: 15
+  live_mode_stop: 20
 
 # webcam usb port ID configuration
 # list all devices with 'v4l2-ctl --list-devices'
