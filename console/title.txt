@@ -1,6 +1,11 @@
 Marko Berezhanskyy (11A);Projektleiter und Moderator
 Nikolas Beyer (10T);Softwareleiter und Flugdirektor
 Valentin Sutter (9A);Hardware- und Technikleiter
+Nikolas Beyer (10T) | Valentin Sutter (9A);Softwareleiter und Flugdirektor | Hardware- und Technikleiter
 Felix Berg (10T);Medienleiter
+Till Pudlo (10B);Moderator
+Schülerin am Bodensee-Gymnasium;Publikum
+Schülerinnen am Bodensee-Gymnasium;Publikum
+Schüler am Bodensee-Gymnasium;Publikum
 Dr. Andre Scherl;Schulischer Betreuer
 Helmut Rupp;Stellv. Ortsverbandsvorsitzender des Deutschen Amateur-Radio-Clubs (DARC) Lindau-Westallgäu (T13)

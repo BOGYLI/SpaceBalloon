@@ -80,9 +80,9 @@ def save_photo(frame):
     try:
         logger.info(f"Uploading photo to {utils.photo_remote(WEBCAM)}")
         sp.run(["rclone", "mkdir", utils.photo_remote(WEBCAM), "--timeout=5s", "--retries=1"], check=True)
-        sp.run(["rclone", "copy", path_small, utils.photo_remote(WEBCAM), "--timeout=15s", "--retries=1"], check=True)
+        sp.run(["rclone", "copy", path_small, utils.photo_remote(WEBCAM), "--timeout=15s", "--retries=1", "-v"], check=True)
         sp.run(["rclone", "copyto", f"{utils.photo_remote(WEBCAM)}/{path_small.split('/')[-1]}",
-                f"{utils.photo_remote(WEBCAM)}/latest.jpg", "--timeout=15s", "--retries=1"], check=True)
+                f"{utils.photo_remote(WEBCAM)}/latest.jpg", "--timeout=15s", "--retries=1", "-v"], check=True)
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to upload small photo: {e}")
 
@@ -178,7 +178,12 @@ def main():
 
         if take_photo:
             next_photo += utils.get_interval("photo_delay")
-            while time.time() >= next_photo:
+            if time.time() >= next_photo + 120:
+                logger.warning("Photo delay way too short, can't keep up, resetting")
+                now = int(time.time())
+                offset = utils.get_interval("photo_offset") * WEBCAM
+                next_photo = now - (now % utils.get_interval("photo_delay")) + offset
+            while time.time() + 5 >= next_photo:
                 logger.warning("Photo delay too short, can't keep up, skipping")
                 next_photo += utils.get_interval("photo_delay")
 
