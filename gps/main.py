@@ -61,36 +61,39 @@ def extract_lat_lon_alt(nmea_sentence):
     longitude = None
     altitude = None
 
-    if nmea_sentence.startswith("$GNRMC") or nmea_sentence.startswith("$GPRMC"):
-        parts = nmea_sentence.split(',')
-        if len(parts) > 6 and parts[3] and parts[5]:
-            # Extract latitude and longitude
-            latitude = convert_to_degrees(parts[3])
-            if parts[4] == 'S':
-                latitude = -latitude
+    try:
+        if nmea_sentence.startswith("$GNRMC") or nmea_sentence.startswith("$GPRMC"):
+            parts = nmea_sentence.split(',')
+            if len(parts) > 6 and parts[3] and parts[5]:
+                # Extract latitude and longitude
+                latitude = convert_to_degrees(parts[3])
+                if parts[4] == 'S':
+                    latitude = -latitude
 
-            longitude = convert_to_degrees(parts[5])
-            if parts[6] == 'W':
-                longitude = -longitude
+                longitude = convert_to_degrees(parts[5])
+                if parts[6] == 'W':
+                    longitude = -longitude
 
-    elif nmea_sentence.startswith("$GNGGA") or nmea_sentence.startswith("$GPGGA"):
-        parts = nmea_sentence.split(',')
-        if len(parts) > 9 and parts[2] and parts[4] and parts[9]:
-            # Extract latitude and longitude
-            latitude = convert_to_degrees(parts[2])
-            if parts[3] == 'S':
-                latitude = -latitude
+        elif nmea_sentence.startswith("$GNGGA") or nmea_sentence.startswith("$GPGGA"):
+            parts = nmea_sentence.split(',')
+            if len(parts) > 9 and parts[2] and parts[4] and parts[9]:
+                # Extract latitude and longitude
+                latitude = convert_to_degrees(parts[2])
+                if parts[3] == 'S':
+                    latitude = -latitude
 
-            longitude = convert_to_degrees(parts[4])
-            if parts[5] == 'W':
-                longitude = -longitude
+                longitude = convert_to_degrees(parts[4])
+                if parts[5] == 'W':
+                    longitude = -longitude
 
-            # Extract altitude
-            altitude = float(parts[9])
+                # Extract altitude
+                altitude = float(parts[9])
 
-    # Adjusting longitude by a certain amount
-    if longitude is not None:
-        longitude -= 6.0  # Adjust longitude by -6.0 degrees
+        # Adjusting longitude by a certain amount
+        if longitude is not None:
+            longitude -= 6.0  # Adjust longitude by -6.0 degrees
+    except Exception as e:
+        logger.warning(f"Error extracting latitude, longitude, and altitude: {e}")
 
     return latitude, longitude, altitude
 

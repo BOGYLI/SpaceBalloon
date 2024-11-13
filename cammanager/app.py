@@ -214,7 +214,7 @@ def refresh_offline():
     if not offline_auto:
         return
 
-    if time.time() - last_ping > utils.get_interval("ping_fail"):
+    if time.time() - last_ping > utils.get_interval("ping_fail") and not offline:
         last_cycle = 0
         offline = True
         logger.warning(f"Switched to offline mode due to failing pings for {utils.get_interval('ping_fail')} secs")

@@ -5,6 +5,7 @@ APRS Receiver
 
 import time
 import struct
+import os
 import sys
 import base64
 import socket
@@ -42,7 +43,11 @@ running = True
 influx_url = "https://influx.balloon.nikogenia.de"
 influx_org = "makerspace"
 influx_bucket = "balloon"
-influx_token = ""
+try:
+    with open("key.txt", "r") as f:
+        influx_token = f.read().strip()
+except OSError:
+    influx_token = ""
 kiss_server = "127.0.0.1:8100"
 aprs_dm_src = "DN5WA-2"
 aprs_pico_src = "DN5WA-11"
@@ -61,10 +66,21 @@ if "-c" in sys.argv or "--custom" in sys.argv:
     influx_url = input("Influx URL (empty for default): ").strip() or influx_url
     influx_org = input("Influx Organisation (empty for default): ").strip() or influx_org
     influx_bucket = input("Influx Bucket (empty for default): ").strip() or influx_bucket
-influx_token = getpass("Influx Token: ").strip()
+old_token = influx_token
+if influx_token:
+    print("Influx Token already configured")
+    change = input("Change it? (y/n): ").strip().lower()
+if not influx_token or change == "y":
+    influx_token = getpass("Influx Token: ").strip()
 if not influx_token:
     print("Empty token detected, exiting")
     sys.exit(1)
+if old_token != influx_token:
+    save = input("Save token to key.txt? (y/n): ").strip().lower()
+    if save == "y":
+        with open("key.txt", "w") as f:
+            f.write(influx_token)
+        print(f"Token saved to {os.path.abspath('key.txt')}")
 if len(kiss_server.split(":")) != 2:
     print("Invalid Kiss Host, exiting")
     sys.exit(1)

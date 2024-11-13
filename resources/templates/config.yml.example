@@ -1,5 +1,8 @@
 # SPACE BALLOON CONFIGURATION
 
+# Detailed documentation is available in the wiki
+# https://github.com/BOGYLI/SpaceBalloon/wiki/Software-Guide#rpi-config
+
 # config version (do not touch)
 version: 16
 
@@ -34,7 +37,7 @@ interval:
   cm_mode: 10
   ping_fail: 30
   cam_cycle: 120
-  live_mode_stop: 20
+  live_mode_stop: 30
 
 # webcam usb port ID configuration
 # list all devices with 'v4l2-ctl --list-devices'
@@ -74,6 +77,8 @@ aprs:
   dst: "APRS-0"
 
 # sensor data, video and remote photo storage
+# local storage paths shouldn't be changed
+# only edit remote photo storage
 storage:
   sensor:
     default:
