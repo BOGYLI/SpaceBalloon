@@ -12,10 +12,8 @@ import socket
 from getpass import getpass
 import threading as th
 from fastapi import FastAPI
-from fastapi_utils.tasks import repeat_every
-from pydantic import BaseModel
 import influxdb_client
-from aprslib import *
+from aprstools import *
 
 
 SERVICE_MAP = ["balloon-adc.service",
@@ -281,18 +279,22 @@ def aprs():
                             
                             write_to_influx(sensor_data)
 
-                        elif source_call == aprs_pico_src:
+                        elif source_call == aprs_pico_src and message.startswith("`"):
 
                             print("Decoding PicoAPRS packet")
 
-                            # Extract and convert coordinates
-                            lat_lon_pattern = r'!(\d{2}\d{2}\.\d+)([NS])\/(\d{3}\d{2}\.\d+)([EW])'
-                            lat_lon_match = re.search(lat_lon_pattern, message)
-
-                            if lat_lon_match:
-                                latitude = decode_gps_aprs(lat_lon_match.group(1) + lat_lon_match.group(2), 2)
-                                longitude = decode_gps_aprs(lat_lon_match.group(3) + lat_lon_match.group(4), 3)
-                                print(f"Latitude: {latitude}, Longitude: {longitude}")  # Print coordinates
+                            packet_data = parse_mice(dest_call, message[1:])[1]
+                            print(f"Decoded data: {packet_data}")
+                            measurement_data = {
+                                "aprs_pico": {
+                                    "latitude": packet_data["latitude"],
+                                    "longitude": packet_data["longitude"],
+                                    "altitude": float(packet_data["altitude"]),
+                                    "speed": packet_data["speed"],
+                                    "course": packet_data["course"],
+                                }
+                            }
+                            write_to_influx(measurement_data)
                         
                         buffer.clear()
 
