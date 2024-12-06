@@ -276,6 +276,8 @@ def aprs():
                                 print(f"Latitude: {latitude}, Longitude: {longitude}")  # Print coordinates
                                 sensor_data["aprs_gps"]["latitude"] = latitude
                                 sensor_data["aprs_gps"]["longitude"] = longitude
+                                sensor_data["aprs_climate"]["latitude"] = latitude
+                                sensor_data["aprs_climate"]["longitude"] = longitude
                             
                             write_to_influx(sensor_data)
 

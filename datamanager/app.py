@@ -389,7 +389,8 @@ def influx():
         
         if climate_updated != 0:
             points.append(influxdb_client.Point("wifi_climate").time(int(climate_updated), "s").field("pressure", climate.pressure)
-                          .field("temp", climate.temp).field("humidity", climate.humidity).field("altitude", climate.altitude))
+                          .field("temp", climate.temp).field("humidity", climate.humidity).field("altitude", climate.altitude)
+                          .field("latitude", gps.latitude).field("longitude", gps.longitude))
         
         if co2_updated != 0:
             points.append(influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("co2", co2.co2).field("voc", co2.voc))

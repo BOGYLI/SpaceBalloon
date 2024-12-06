@@ -36,6 +36,192 @@
             "mode": "absolute",
             "steps": [
               {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Azimuth (WiFi)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Elevation GPS (WiFi)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_climate\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Elevation Pressure (WiFi)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
                 "color": "orange",
                 "value": null
               }
@@ -46,10 +232,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
-        "w": 6,
+        "h": 4,
+        "w": 8,
         "x": 0,
-        "y": 0
+        "y": 4
       },
       "id": 9,
       "options": {
@@ -108,10 +294,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 0
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 4
       },
       "id": 10,
       "options": {
@@ -142,7 +328,317 @@
           "refId": "A"
         }
       ],
-      "title": "Elevation (APRS)",
+      "title": "Elevation GPS (APRS)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_climate\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Elevation Pressure (APRS)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Azimuth (PicoAPRS)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Elevation (PicoAPRS)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Azimuth (SPOT Trace)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "cdsjn2wng5gqof"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "cdsjn2wng5gqof"
+          },
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Elevation (SPOT Trace)",
       "type": "stat"
     },
     {
@@ -180,10 +676,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 20,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 12
       },
       "id": 8,
       "options": {
@@ -604,378 +1100,6 @@
       ],
       "title": "Map",
       "type": "geomap"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 5
-      },
-      "id": 11,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
-          },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
-          "refId": "A"
-        }
-      ],
-      "title": "Azimuth (PicoAPRS)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 5
-      },
-      "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
-          },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
-          "refId": "A"
-        }
-      ],
-      "title": "Elevation (PicoAPRS)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 10
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
-          },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
-          "refId": "A"
-        }
-      ],
-      "title": "Azimuth (WiFi)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 10
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
-          },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
-          "refId": "A"
-        }
-      ],
-      "title": "Elevation (WiFi)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "semi-dark-yellow",
-                "value": null
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 15
-      },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
-          },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
-          "refId": "A"
-        }
-      ],
-      "title": "Azimuth (SPOT Trace)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-yellow",
-                "value": null
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 15
-      },
-      "id": 14,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
-          },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
-          "refId": "A"
-        }
-      ],
-      "title": "Elevation (SPOT Trace)",
-      "type": "stat"
     }
   ],
   "refresh": "5s",
@@ -986,8 +1110,8 @@
       {
         "current": {
           "selected": false,
-          "text": "47.559568",
-          "value": "47.559568"
+          "text": "47.586207",
+          "value": "47.586207"
         },
         "hide": 0,
         "label": "Antenna Latitude",
@@ -995,19 +1119,19 @@
         "options": [
           {
             "selected": true,
-            "text": "47.559568",
-            "value": "47.559568"
+            "text": "47.586207",
+            "value": "47.586207"
           }
         ],
-        "query": "",
+        "query": "47.586207",
         "skipUrlSync": false,
         "type": "textbox"
       },
       {
         "current": {
           "selected": false,
-          "text": "9.698465",
-          "value": "9.698465"
+          "text": "9.677720",
+          "value": "9.677720"
         },
         "hide": 0,
         "label": "Antenna Longitude",
@@ -1015,19 +1139,19 @@
         "options": [
           {
             "selected": true,
-            "text": "9.698465",
-            "value": "9.698465"
+            "text": "9.677720",
+            "value": "9.677720"
           }
         ],
-        "query": "",
+        "query": "9.677720",
         "skipUrlSync": false,
         "type": "textbox"
       },
       {
         "current": {
           "selected": false,
-          "text": "420",
-          "value": "420"
+          "text": "462",
+          "value": "462"
         },
         "hide": 0,
         "label": "Antenna Altitude",
@@ -1035,24 +1159,24 @@
         "options": [
           {
             "selected": true,
-            "text": "420",
-            "value": "420"
+            "text": "462",
+            "value": "462"
           }
         ],
-        "query": "420",
+        "query": "462",
         "skipUrlSync": false,
         "type": "textbox"
       }
     ]
   },
   "time": {
-    "from": "now-4d",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "antenna",
   "uid": "antenna",
-  "version": 39,
+  "version": 44,
   "weekStart": ""
 }

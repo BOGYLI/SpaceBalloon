@@ -13,7 +13,7 @@ degToRad = (d) => d * math.pi / 180.0
 
 from(bucket: "balloon")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-  |> filter(fn: (r) => r._measurement == "MEASUREMENT") // MEASUREMENT: aprs_gps, aprs_pico, wifi_gps, spot_gps
+  |> filter(fn: (r) => r._measurement == "MEASUREMENT") // MEASUREMENT: aprs_gps, aprs_pico, aprs_climate, wifi_gps, wifi_climate, spot_gps
   |> last()
   |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
   |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten
