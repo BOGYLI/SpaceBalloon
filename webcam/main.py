@@ -130,6 +130,8 @@ def main():
     offset = utils.get_interval("photo_offset") * WEBCAM
     next_photo = now - (now % utils.get_interval("photo_delay")) + offset
 
+    retries = 0
+
     while running:
 
         if live_mode_stop != 0 and time.time() - live_mode_stop > utils.get_interval("live_mode_stop"):
@@ -191,12 +193,17 @@ def main():
         if take_photo or video_mode or live_mode:
             grabbed, frame = capture.read()
             if not grabbed:
+                if retries < 20:
+                    logger.warning(f"Cannot read frame from webcam, {retries} retries made")
+                    retries += 1
+                    continue
                 if (time.time() - capture.active_time > 6 and not capture.standby) or (take_photo and capture.standby):
                     logger.error("Cannot read frame from webcam")
                     running = False
                     break
                 time.sleep(0.1)
                 continue
+            retries = 0
             
         if take_photo:
             logger.info("Schedule photo taking")
