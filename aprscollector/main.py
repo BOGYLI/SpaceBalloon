@@ -152,8 +152,8 @@ def parse_entry(entry):
         print("Parsing datamanager packet")
 
         data = decode_sensor_data(entry["comment"].split(": ")[1])
-        data["aprs_gps"]["latitude"] = entry["lat"]
-        data["aprs_gps"]["longitude"] = entry["lng"]
+        data["aprs_gps"]["latitude"] = float(entry["lat"])
+        data["aprs_gps"]["longitude"] = float(entry["lng"])
 
         write_to_influx(entry["time"], data)
 
