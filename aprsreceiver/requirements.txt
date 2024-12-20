@@ -4,3 +4,4 @@ fastapi-utils[all]
 uvicorn
 influxdb-client
 aprslib
+paramiko

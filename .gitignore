@@ -14,6 +14,7 @@ thermalrenderer/latest.png
 config.yml
 streammanager/state.json
 aprsreceiver/key.txt
+aprsreceiver/pass.txt
 
 # TODO
 TODO.md

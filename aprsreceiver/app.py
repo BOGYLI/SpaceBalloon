@@ -12,6 +12,7 @@ import socket
 from getpass import getpass
 import threading as th
 from fastapi import FastAPI
+import paramiko
 import influxdb_client
 from aprstools import *
 
@@ -49,6 +50,15 @@ except OSError:
 kiss_server = "127.0.0.1:8100"
 aprs_dm_src = "DN5WA-2"
 aprs_pico_src = "DN5WA-11"
+ssh_active = True
+ssh_host = "192.168.25.2"
+ssh_port = 22
+ssh_user = "admin"
+try:
+    with open("pass.txt", "r") as f:
+        ssh_pass = f.read().strip()
+except OSError:
+    ssh_pass = ""
 
 print("Space Balloon APRS Receiver")
 print("===========================")
@@ -57,6 +67,7 @@ print("")
 print("Login")
 print("-----")
 print("")
+
 if "-c" in sys.argv or "--custom" in sys.argv:
     aprs_dm_src = input("APRS Source Data Manager (empty for default): ").strip() or aprs_dm_src
     aprs_pico_src = input("APRS Source PicoAPRS (empty for default): ").strip() or aprs_pico_src
@@ -64,6 +75,11 @@ if "-c" in sys.argv or "--custom" in sys.argv:
     influx_url = input("Influx URL (empty for default): ").strip() or influx_url
     influx_org = input("Influx Organisation (empty for default): ").strip() or influx_org
     influx_bucket = input("Influx Bucket (empty for default): ").strip() or influx_bucket
+    ssh_active = input("Activate MikroTik SSH monitoring? (y/n): ").strip().lower() == "y"
+    ssh_host = input("MikroTik SSH Host (empty for default): ").strip() or ssh_host
+    ssh_port = input("MikroTik SSH Port (empty for default): ").strip() or ssh_port
+    ssh_user = input("MikroTik SSH User (empty for default): ").strip() or ssh_user
+
 old_token = influx_token
 if influx_token:
     print("Influx Token already configured")
@@ -79,6 +95,24 @@ if old_token != influx_token:
         with open("key.txt", "w") as f:
             f.write(influx_token)
         print(f"Token saved to {os.path.abspath('key.txt')}")
+
+if ssh_active:
+    old_pass = ssh_pass
+    if ssh_pass:
+        print("MikroTik SSH Password already configured")
+        change = input("Change it? (y/n): ").strip().lower()
+    if not ssh_pass or change == "y":
+        ssh_pass = getpass("MikroTik SSH Password: ").strip()
+    if not ssh_pass:
+        print("Empty password detected, exiting")
+        sys.exit(1)
+    if old_pass != ssh_pass:
+        save = input("Save password to pass.txt? (y/n): ").strip().lower()
+        if save == "y":
+            with open("pass.txt", "w") as f:
+                f.write(ssh_pass)
+            print(f"Password saved to {os.path.abspath('pass.txt')}")
+
 if len(kiss_server.split(":")) != 2:
     print("Invalid Kiss Host, exiting")
     sys.exit(1)
@@ -95,6 +129,8 @@ print(f"APRS Source Data Manager: {aprs_dm_src}")
 print(f"APRS Source PicoAPRS: {aprs_pico_src}")
 print(f"Influx URL: {influx_url} (organisation: {influx_org}, bucket: {influx_bucket}, token: {'*' * len(influx_token)})")
 print(f"Kiss Server: {kiss_host}:{kiss_port}")
+if ssh_active:
+    print(f"MikroTik SSH: {ssh_host}:{ssh_port} (user: {ssh_user}, password: {'*' * len(ssh_pass)})")
 print("")
 
 live_cam = -1
@@ -314,10 +350,58 @@ def aprs():
             time.sleep(10)
 
 
+def ssh():
+    
+    while running:
+
+        try:
+
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(hostname=ssh_host, port=ssh_port, username=ssh_user, password=ssh_pass)
+            print(f"Connected to '{ssh_host}' as '{ssh_user}'")
+
+            while running:
+
+                response = client.exec_command("/interface wireless registration-table print")[1].read().decode("utf-8")
+                print(response)
+
+                if False:
+
+                    signal = 0
+                    upload = 0
+                    download = 0
+                    uptime = 0
+
+                    data = {
+                        "wifi_stats": {
+                            "signal": signal,
+                            "upload": upload,
+                            "download": download,
+                            "uptime": uptime
+                        }
+                    }
+
+                    write_to_influx(data)
+
+                time.sleep(5)
+
+        except Exception as e:
+            print(f"An unexpected error occurred in the SSH thread: {e}")
+        finally:
+            print(f"Closing SSH connection")
+            client.close()
+
+        if running:
+            print("Retrying in 10 seconds")
+            time.sleep(10)
+
+
 @app.on_event("startup")
 def start_aprs():
 
     th.Thread(target=aprs).start()
+    th.Thread(target=ssh).start()
 
 
 @app.on_event("shutdown")
