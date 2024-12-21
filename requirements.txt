@@ -12,6 +12,7 @@ ADS1x15-ADC
 adafruit-circuitpython-ms8607
 adafruit-circuitpython-as726x
 adafruit-circuitpython-mlx90640
+adafruit-extended-bus
 pimoroni-sgp30
 opencv-python-headless
 psutil

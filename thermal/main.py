@@ -6,8 +6,7 @@ timestamp, 0, 1, 2, ..., 767
 """
 
 import utils
-import board
-import busio
+from adafruit_extended_bus import ExtendedI2C as I2C
 import adafruit_mlx90640
 
 
@@ -27,8 +26,7 @@ def get_frame(mlx):
 
 def main():
 
-    i2c = busio.I2C(board.SCL, board.SDA)
-
+    i2c = I2C(8)
     mlx = adafruit_mlx90640.MLX90640(i2c)
 
     mlx.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ

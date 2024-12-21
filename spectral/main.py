@@ -7,7 +7,7 @@ timestamp, temp, violet, blue, green, yellow, orange, red
 
 import time
 import utils
-import board
+from adafruit_extended_bus import ExtendedI2C as I2C
 from adafruit_as726x import AS726x_I2C
 
 
@@ -17,7 +17,7 @@ logger = utils.init_logger("spectral")
 
 def main():
 
-    i2c = board.I2C()  # uses board.SCL and board.SDA
+    i2c = I2C(8)
     sensor = AS726x_I2C(i2c)
 
     sensor.conversion_mode = sensor.MODE_2

@@ -7,7 +7,7 @@ timestamp, pressure, temp, humidity, altitude
 
 import time
 import utils
-import board
+from adafruit_extended_bus import ExtendedI2C as I2C
 from adafruit_ms8607 import MS8607
 
 # Define the function to calculate altitude based on pressure
@@ -23,8 +23,10 @@ def calculate_altitude(pressure, sea_level_pressure=101325, temperature=288.15, 
 logger = utils.init_logger("climate")
 
 def main():
-    i2c = board.I2C()  # uses board.SCL and board.SDA
+
+    i2c = I2C(8)
     sensor = MS8607(i2c)
+
     sea_level_pressure = utils.CONFIG["sea_level_pressure"]
     if not sea_level_pressure or not isinstance(sea_level_pressure, (int, float)):
         logger.error("Sea level pressure not set in config file. Using default of 1013 hPa.")
