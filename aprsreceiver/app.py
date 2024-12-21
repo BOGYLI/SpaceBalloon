@@ -249,6 +249,51 @@ def decode_sensor_data(encoded_data):
     return sensor_data
 
 
+def decode_wifi_data(command_output):
+
+    data = {}
+    lines = command_output.split("\n")
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        
+        matches = re.findall(r'(\S+)=("[^"]*"|\S+)', line)
+        for key, value in matches:
+
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1]
+            
+            if key in {"packets", "bytes", "frames", "frame-bytes"}:
+                rx, tx = value.split(",")
+                data[key] = {"rx": int(rx), "tx": int(tx)}
+            elif key == "uptime":
+                    hours = 0
+                    minutes = 0
+                    if "h" in value:
+                        hours, value = value.split("h")
+                    if "m" in value:
+                        minutes, value = value.split("m")
+                    seconds = value.removesuffix("s")
+                    data[key] = int(hours) * 3600 + int(minutes) * 60 + int(seconds)
+            else:
+                try:
+                    value = value.removesuffix("dBm").removesuffix("dB").removesuffix("%")
+                    value = int(value)
+                except ValueError:
+                    pass
+                
+                data[key] = value
+        
+        if "strength-at-rates=" in line:
+            rates = re.findall(r'(-?\d+dBm@[^\s]+ \d+[ms]+)', line)
+            if rates:
+                data["strength-at-rates"] = rates
+    
+    return data
+
+
 def aprs():
     
     while running:
@@ -363,21 +408,47 @@ def ssh():
 
             while running:
 
-                response = client.exec_command("/interface wireless registration-table print")[1].read().decode("utf-8")
-                print(response)
+                command = "/interface wireless registration-table print stats"
+                response = client.exec_command(command)[1].read().decode("utf-8")
 
-                if False:
+                wifi_data = decode_wifi_data(response)
 
-                    signal = 0
-                    upload = 0
-                    download = 0
-                    uptime = 0
+                if wifi_data:
+
+                    rx_signal = wifi_data.get("signal-strength", 0)
+                    rx_signal_a0 = wifi_data.get("signal-strength-ch0", 0)
+                    rx_signal_a1 = wifi_data.get("signal-strength-ch1", 0)
+                    tx_signal = wifi_data.get("tx-signal-strength", 0)
+                    tx_signal_a0 = wifi_data.get("tx-signal-strength-ch0", 0)
+                    tx_signal_a1 = wifi_data.get("tx-signal-strength-ch1", 0)
+                    rx_quality = wifi_data.get("rx-ccq", 0)
+                    tx_quality = wifi_data.get("tx-ccq", 0)
+                    tx_packets = wifi_data.get("packets", {}).get("tx", 0)
+                    rx_packets = wifi_data.get("packets", {}).get("rx", 0)
+                    tx_bytes = wifi_data.get("bytes", {}).get("tx", 0)
+                    rx_bytes = wifi_data.get("bytes", {}).get("rx", 0)
+                    noise = wifi_data.get("signal-to-noise", 0)
+                    uptime = wifi_data.get("uptime", 0)
+
+                    print("WiFi stats:")
+                    print(f"RX {rx_signal}dBm {rx_quality}% {rx_packets} packets {rx_bytes} bytes")
+                    print(f"TX {tx_signal}dBm {tx_quality}% {tx_packets} packets {tx_bytes} bytes")
 
                     data = {
                         "wifi_stats": {
-                            "signal": signal,
-                            "upload": upload,
-                            "download": download,
+                            "rx_signal": rx_signal,
+                            "rx_signal_a0": rx_signal_a0,
+                            "rx_signal_a1": rx_signal_a1,
+                            "tx_signal": tx_signal,	
+                            "tx_signal_a0": tx_signal_a0,
+                            "tx_signal_a1": tx_signal_a1,
+                            "rx_quality": rx_quality,
+                            "tx_quality": tx_quality,
+                            "tx_packets": tx_packets,
+                            "rx_packets": rx_packets,
+                            "tx_bytes": tx_bytes,
+                            "rx_bytes": rx_bytes,
+                            "noise": noise,
                             "uptime": uptime
                         }
                     }
