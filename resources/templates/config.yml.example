@@ -15,10 +15,12 @@ sea_level_pressure: 1013.25
 # sensor custom I2C bus
 bus:
   adc: 7
+  climate: 8
   co2: 5
   gps: 4
   magnet: 6
-  master: 8
+  spectral: 8
+  thermal: 8
 
 # various durations (timeout or interval in seconds)
 interval:

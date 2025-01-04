@@ -24,7 +24,7 @@ logger = utils.init_logger("climate")
 
 def main():
 
-    i2c = I2C(8)
+    i2c = I2C(utils.get_bus("climate"))
     sensor = MS8607(i2c)
 
     sea_level_pressure = utils.CONFIG["sea_level_pressure"]

@@ -27,7 +27,7 @@ def get_frame(mlx):
 
 def main():
 
-    i2c = I2C(8)
+    i2c = I2C(utils.get_bus("thermal"))
     mlx = adafruit_mlx90640.MLX90640(i2c)
 
     mlx.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ

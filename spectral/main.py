@@ -17,7 +17,7 @@ logger = utils.init_logger("spectral")
 
 def main():
 
-    i2c = I2C(8)
+    i2c = I2C(utils.get_bus("spectral"))
     sensor = AS726x_I2C(i2c)
 
     sensor.conversion_mode = sensor.MODE_2
