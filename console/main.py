@@ -67,7 +67,7 @@ def status():
 
     try:
         if realtime:
-            response = requests.get(url_raspi + "/status", timeout=3, auth=(username_raspi, password_raspi))
+            response = requests.get(url_raspi + "/status", timeout=4, auth=(username_raspi, password_raspi))
         else:
             response = requests.get(url_sm + "/status/wifi", timeout=2)
         if response.status_code == 200:
@@ -178,7 +178,7 @@ def help():
     print("rt                      toggle realtime status updates")
     print("l[x]                    livestream camera x")
     print("l                       stop camera livestream")
-    print("v[xyz]                  camera x, y, z to save video file")
+    print("v[xy]                  camera x, y to save video file")
     print("v                       stop saving video file")
     print("pb                      go back a phase")
     print("pn                      go to next phase")
@@ -325,9 +325,9 @@ def main():
                 print("")
                 continue
             try:
-                response = requests.post(url_raspi + "/video", json={"webcam0": camera0, "webcam1": camera1, "webcam2": camera2}, auth=(username_raspi, password_raspi), timeout=5)
+                response = requests.post(url_raspi + "/video", json={"webcam0": camera0, "webcam1": camera1, "webcam2": -1}, auth=(username_raspi, password_raspi), timeout=5)
                 if response.status_code == 200:
-                    print(f"Changed to video cameras {camera0}, {camera1}, {camera2}")
+                    print(f"Changed to video cameras {camera0}, {camera1}")
                 else:
                     print(f"Failed to change video cameras: {response.status_code}")
                 status_message(response)
