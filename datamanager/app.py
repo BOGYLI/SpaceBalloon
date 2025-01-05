@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from pydantic import BaseModel
 import influxdb_client
+from gpiozero import OutputDevice
 from aprslib import *
 
 
@@ -433,3 +434,32 @@ def influx():
             write_api.close()
 
             logger.info("Successfully sent data to InfluxDB")
+
+
+@app.on_event("startup")
+@repeat_every(seconds=utils.get_interval("dm_cooling"))
+def cooling():
+
+    try:
+
+        fan = OutputDevice(utils.get_cooling_fan(), initial_value=None)
+
+        if time.time() - thermal_updated < 120:
+            cool = thermal.min > utils.get_cooling_min_temp() and thermal.max > utils.get_cooling_max_temp()
+            logger.info(f"Cooling mode {'on' if cool else 'off'} based on thermal {thermal.min} °C / {utils.get_cooling_min_temp()} °C and {thermal.max} °C / {utils.get_cooling_max_temp()} °C")
+        elif time.time() - system_updated < 120:
+            logger.warning(f"No thermal data received since {time.time() - thermal_updated:.1f} seconds. Fallback to CPU temperature")
+            cool = system.temp > utils.get_cooling_cpu_temp()
+            logger.info(f"Cooling mode {'on' if cool else 'off'} based on system {system.temp} °C / {utils.get_cooling_cpu_temp()} °C")
+        else:
+            logger.warning("No thermal or system data received. Fallback to default value")
+            cool = False
+
+        if cool != fan.value:
+            logger.info(f"Update cooling fan mode to {'on' if cool else 'off'}")
+            fan.value = cool
+
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in the cooling thread: {e}")
+    finally:
+        fan.close()

@@ -4,7 +4,7 @@
 # https://github.com/BOGYLI/SpaceBalloon/wiki/Software-Guide#rpi-config
 
 # config version (do not touch)
-version: 17
+version: 18
 
 # pressure at sea level (adjust right before start)
 # https://zoom.earth/maps/pressure/#view=47.625005,9.798937,9z
@@ -22,6 +22,13 @@ bus:
   spectral: 8
   thermal: 8
 
+# cooling control
+cooling:
+  fan_pin: 18
+  min_temp: 20
+  max_temp: 50
+  cpu_temp: 65
+
 # various durations (timeout or interval in seconds)
 interval:
   adc: 1
@@ -36,6 +43,7 @@ interval:
   dm_debug: 10
   dm_aprs: 60
   dm_influx: 5
+  dm_cooling: 10
   cm_debug: 10
   cm_services: 5
   cm_mode: 10

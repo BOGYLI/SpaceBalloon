@@ -139,3 +139,43 @@ def get_aprs_dst() -> str:
     """
 
     return CONFIG["aprs"]["dst"]
+
+
+def get_cooling_fan() -> int:
+    """
+    Get the GPIO pin for the cooling fan
+
+    :return: GPIO pin
+    """
+
+    return CONFIG["cooling"]["fan_pin"]
+
+
+def get_cooling_min_temp() -> float:
+    """
+    Get the requirement for the minimum temperature of the thermal camera for the cooling fan
+
+    :return: Minimum temperature
+    """
+
+    return CONFIG["cooling"]["min_temp"]
+
+
+def get_cooling_max_temp() -> float:
+    """
+    Get the requirement for the maximum temperature of the thermal camera for the cooling fan
+
+    :return: Maximum temperature
+    """
+
+    return CONFIG["cooling"]["max_temp"]
+
+
+def get_cooling_cpu_temp() -> float:
+    """
+    Get the requirement for the CPU temperature for the cooling fan
+
+    :return: CPU temperature
+    """
+
+    return CONFIG["cooling"]["cpu_temp"]
