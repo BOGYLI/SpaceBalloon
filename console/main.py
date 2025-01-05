@@ -534,7 +534,7 @@ def main():
         elif command.startswith("cs "):
             try:
                 month, day, hour, minute, second = [int(n) for n in command[3:].split(";")]
-                countdown = datetime.datetime(2024, month, day, hour, minute, second).timestamp()
+                countdown = datetime.datetime(2025, month, day, hour, minute, second).timestamp()
             except ValueError:
                 print("Invalid date and time")
                 print("")
@@ -576,7 +576,7 @@ def main():
         elif command.startswith("c "):
             try:
                 month, day, hour, minute, second = [int(n) for n in command[2:].split(";")]
-                countdown = datetime.datetime(2024, month, day, hour, minute, second).timestamp()
+                countdown = datetime.datetime(2025, month, day, hour, minute, second).timestamp()
             except ValueError:
                 print("Invalid date and time")
                 print("")

@@ -45,7 +45,7 @@ interval:
   dm_influx: 5
   dm_cooling: 10
   cm_debug: 10
-  cm_services: 5
+  cm_services: 3
   cm_mode: 10
   ping_fail: 30
   cam_cycle: 120
