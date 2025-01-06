@@ -392,11 +392,11 @@ def cooling():
 
                 if time.time() - thermal_updated < 120:
                     cool = thermal.min > utils.get_cooling_min_temp() and thermal.max > utils.get_cooling_max_temp()
-                    logger.info(f"Cooling mode {'ON' if cool else 'OFF'} based on thermal {thermal.min:.1f} °C / {utils.get_cooling_min_temp()} °C and {thermal.max:.1f} °C / {utils.get_cooling_max_temp()} °C")
+                    logger.info(f"Cooling mode {'ON' if cool else 'OFF'} based on thermal {thermal.min:.1f}°C / {utils.get_cooling_min_temp()}°C and {thermal.max:.1f}°C / {utils.get_cooling_max_temp()}°C")
                 elif time.time() - system_updated < 120:
                     logger.warning(f"No thermal data received since {time.time() - thermal_updated:.1f} seconds. Fallback to CPU temperature")
                     cool = system.temp > utils.get_cooling_cpu_temp()
-                    logger.info(f"Cooling mode {'ON' if cool else 'OFF'} based on system {system.temp:.1f} °C / {utils.get_cooling_cpu_temp()} °C")
+                    logger.info(f"Cooling mode {'ON' if cool else 'OFF'} based on system {system.temp:.1f}°C / {utils.get_cooling_cpu_temp()}°C")
                 else:
                     logger.warning("No thermal or system data received. Fallback to default value")
                     cool = False
