@@ -310,12 +310,12 @@ def mode():
             live_cam.webcam = -1
             live_cam_updated = time.time()
             logger.info(f"Disabled live camera")
-        video_cam.webcam0 = 1 if video_cam.webcam0 != 1 else 2
+        video_cam.webcam0 = 3 if video_cam.webcam0 != 3 else 2
         logger.info(f"Changed camera slot 0 to webcam {video_cam.webcam0}")
-        if video_cam.webcam1 not in (0, 3, 4):
+        if video_cam.webcam1 not in (0, 1, 4):
             video_cam.webcam1 = 0
         else:
-            video_cam.webcam1 = 3 if video_cam.webcam1 == 0 else (4 if video_cam.webcam1 == 3 else 0)
+            video_cam.webcam1 = 1 if video_cam.webcam1 == 0 else (4 if video_cam.webcam1 == 1 else 0)
         logger.info(f"Changed camera slot 1 to webcam {video_cam.webcam1}")
         if video_cam.webcam2 != -1:
             video_cam.webcam2 = -1
