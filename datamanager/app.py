@@ -373,6 +373,12 @@ def cooling():
             logger.info(f"Initialize cooling fan on GPIO pin {utils.get_cooling_fan()}")
             fan = OutputDevice(utils.get_cooling_fan(), initial_value=None)
 
+            logger.info("Turn fan on for 5 seconds")
+            fan.on()
+            time.sleep(5)
+            fan.off()
+            logger.info("Fan turned off, testing complete")
+
             while running:
 
                 if time.time() - last_update < utils.get_interval("dm_cooling"):
