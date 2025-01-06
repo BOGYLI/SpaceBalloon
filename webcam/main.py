@@ -193,7 +193,7 @@ def main():
         if take_photo or video_mode or live_mode:
             grabbed, frame = capture.read()
             if not grabbed:
-                if retries < 20:
+                if retries < 40:
                     logger.warning(f"Cannot read frame from webcam, {retries} retries made")
                     retries += 1
                     continue

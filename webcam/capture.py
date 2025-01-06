@@ -17,6 +17,7 @@ class VideoCapture(th.Thread):
         self.standby = True
         self.active_time = 0
         self.device = device
+        self.retries = 0
 
     def run(self):
 
@@ -42,6 +43,22 @@ class VideoCapture(th.Thread):
                 with self.lock:
                     self.grabbed = grabbed
                     self.frame = frame
+                
+                if not grabbed:
+                    logger.warning(f"Video capture failed, {self.retries} retries made")
+                    self.retries += 1
+                    if self.retries > 3:
+                        logger.warning("Reinitializing camera")
+                        self.cap.release()
+                        self.cap = init_cam(self.device)
+                        if self.cap is None:
+                            self.running = False
+                            break
+                        self.retries = 0
+                        logger.warning("Retry count reset")
+                else:
+                    self.retries = 0
+
         except Exception as e:
             logger.error(f"Video capture error: {e}")
             self.running = False
