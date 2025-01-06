@@ -15,5 +15,5 @@ export PYTHONPATH="$(dirname "$0")"/..
 # Activate the virtual environment
 source .venv/bin/activate
 
-# Start python script
-python3 thermal/main.py
+# Start python script with priority scheduling
+nice -n -10 python3 thermal/main.py

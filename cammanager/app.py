@@ -55,6 +55,7 @@ services_failed = []
 services_inactive = []
 uptime = 0
 services_updated = time.time()
+cool = None
 
 
 @app.post("/live")
@@ -105,7 +106,8 @@ def route_status():
         "offline": offline,
         "pop": pop,
         "last_ping": last_ping,
-        "last_cycle": last_cycle
+        "last_cycle": last_cycle,
+        "cool": cool
     }
 
 
@@ -331,7 +333,7 @@ def mode():
 @repeat_every(seconds=utils.get_interval("cm_services"))
 def services():
 
-    global services_active, services_activating, services_failed, services_inactive, uptime, services_updated
+    global services_active, services_activating, services_failed, services_inactive, uptime, services_updated, cool
 
     try:
         active = subprocess.check_output("systemctl list-units --type=service --state=active | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
@@ -358,3 +360,12 @@ def services():
         uptime = float(f.readline().split()[0])
 
     services_updated = time.time()
+
+    logger.info("Update cooling state")
+    try:
+        response = requests.get(f"http://127.0.0.1:8000/cool", timeout=3)
+        data = response.json()
+        cool = data["cool"] if "cool" in data else None
+    except requests.exceptions.RequestException:
+        logger.warning("Failed to fetch current cooling state")
+        cool = None

@@ -191,6 +191,11 @@ def route_thermal(data: Thermal):
     return {"status": "successfully updated data"}
 
 
+@app.get("/cool")
+def route_cool_get():
+    return {"cool": cool}
+
+
 @app.on_event("startup")
 @repeat_every(seconds=utils.get_interval("dm_debug"))
 def debug():

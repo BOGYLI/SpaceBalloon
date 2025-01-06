@@ -86,6 +86,7 @@ def status():
                 print(f"  Failed: {', '.join(strip_service_names(status['services']['failed'])) or '-'}")
                 print(f"  Inactive: {', '.join(strip_service_names(status['services']['inactive'])) or '-'}")
                 print(f"Uptime: {seconds_to_time(status['uptime'])} ({status['uptime']:.0f} seconds)")
+                print(f"Cooling: {'unknown' if status['cool'] is None else ('active' if status['cool'] else 'passive')}")
                 print(f"Offline mode: {'on' if status['offline'] else 'off'}")
                 print(f"Pop mode: {'on' if status['pop'] else 'off'}")
                 print(f"Last ping: {datetime.datetime.fromtimestamp(status['last_ping']).strftime('%H:%M:%S')} ({time.time() - status['last_ping']:.0f} seconds ago)")
