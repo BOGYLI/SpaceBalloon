@@ -1,8 +1,10 @@
 """
-Initialize something
+Initialize data storage
 """
+
+import utils
 
 
 if __name__ == "__main__":
 
-    pass
+    utils.init_csv("datamanager", ["cool"])

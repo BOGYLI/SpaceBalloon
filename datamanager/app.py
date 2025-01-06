@@ -114,6 +114,7 @@ system = System(cpu=0, memory=0, temp=0, sent=0, received=0, disk=[])
 system_updated = 0
 thermal = Thermal(min=0, max=0, avg=0, median=0, pixels=[])
 thermal_updated = 0
+cool = False
 
 
 @app.post("/adc")
@@ -364,6 +365,8 @@ def aprs():
 
 def cooling():
 
+    global cool
+
     last_update = 0
 
     while running:
@@ -401,6 +404,8 @@ def cooling():
                 if cool != fan.value:
                     logger.info(f"Update cooling fan mode from {'ON' if fan.value else 'OFF'} to {'ON' if cool else 'OFF'}")
                     fan.value = cool
+
+                utils.write_csv("datamanager", [int(cool)])
 
         except Exception as e:
             logger.error(f"An unexpected error occurred in the cooling thread: {e}")
@@ -475,6 +480,8 @@ def influx():
             thermal_point = influxdb_client.Point("wifi_thermal").time(int(thermal_updated), "s").field("min", thermal.min).field("max", thermal.max) \
                 .field("avg", thermal.avg).field("median", thermal.median).field("pixels", ",".join([str(int(x)) for x in thermal.pixels]))
             points.append(thermal_point)
+
+        points.append(influxdb_client.Point("wifi_datamanager").time(int(time.time()), "s").field("cool", int(cool)))
 
         if points:
 
