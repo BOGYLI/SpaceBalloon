@@ -13,7 +13,18 @@ https://www.youtube.com/@spaceballoonbogy
 https://www.tiktok.com/@spaceballoonbogy
 
 ### Wiki
-Read the detailed documentation [here](https://github.com/BOGYLI/SpaceBalloon/wiki)!
+This entire project is well documented!
+[Get started reading ...](https://github.com/BOGYLI/SpaceBalloon/wiki)
+
+If you already know what you are looking for, we have some shortcuts for you:
+- General Documentation \
+  [Balloon](https://github.com/BOGYLI/SpaceBalloon/wiki/Balloon) | 
+  [Ground](https://github.com/BOGYLI/SpaceBalloon/wiki/Ground) | 
+  [Cloud](https://github.com/BOGYLI/SpaceBalloon/wiki/Cloud) | 
+  [Communication](https://github.com/BOGYLI/SpaceBalloon/wiki/Communication)
+- Usage Guides \
+  [Hardware Guide](https://github.com/BOGYLI/SpaceBalloon/wiki/Hardware-Guide) | 
+  [Software Guide](https://github.com/BOGYLI/SpaceBalloon/wiki/Software-Guide)
 
 ### Modules
 - [adc](/adc/) responsible for the UV and methane sensors
