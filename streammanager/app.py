@@ -47,11 +47,11 @@ storage_password = os.getenv('STORAGE_PASSWORD')
 storage_path = os.getenv('STORAGE_PATH') or "System"
 
 raspi_url = os.getenv('RASPI_URL') or "https://raspi.balloon.nikogenia.de"
-raspi_user = os.getenv('RASPI_USER') or "root"
+raspi_user = os.getenv('RASPI_USER') or "maker"
 raspi_password = os.getenv('RASPI_PASSWORD')
 
 aprs_url = os.getenv('APRS_URL') or "https://aprs.balloon.nikogenia.de"
-aprs_user = os.getenv('APRS_USER') or "root"
+aprs_user = os.getenv('APRS_USER') or "maker"
 aprs_password = os.getenv('APRS_PASSWORD')
 
 if api_token is None or influxdb_token is None or storage_password is None or raspi_password is None or aprs_password is None:
