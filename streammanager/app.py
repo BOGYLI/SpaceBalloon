@@ -36,10 +36,10 @@ app.add_middleware(
 
 api_token = os.getenv('API_TOKEN')
 
-influxdb_token = os.getenv('INFLUXDB_TOKEN')
-influxdb_org = os.getenv('INFLUXDB_ORG') or "makerspace"
-influxdb_bucket = os.getenv('INFLUXDB_BUCKET') or "balloon"
-influxdb_url = os.getenv('INFUXDB_URL') or "https://influx.balloon.nikogenia.de"
+influxdb_token = os.getenv('INFLUX_TOKEN')
+influxdb_org = os.getenv('INFLUX_ORG') or "makerspace"
+influxdb_bucket = os.getenv('INFLUX_BUCKET') or "balloon"
+influxdb_url = os.getenv('INFLUX_URL') or "https://influx.balloon.nikogenia.de"
 
 storage_url = os.getenv('STORAGE_URL') or "u421785.your-storagebox.de"
 storage_user = os.getenv('STORAGE_USER') or "u421785"
@@ -323,20 +323,24 @@ def route_image(request: Request, streamid: str):
 @app.get("/img/{streamid}")
 def route_img(streamid: str, response: Response):
 
-    if streamid in image_cache and image_cache[streamid]["time"] > time.time() - 10:
+    cache_duration = 4 if streamid == "thermal" else 10
+
+    if streamid in image_cache and time.time() - image_cache[streamid]["time"] < cache_duration:
         print("Serving image from cache")
         image_stream = BytesIO(image_cache[streamid]["data"])
-        return StreamingResponse(image_stream, media_type="image/png")
+        return StreamingResponse(image_stream, media_type=image_cache[streamid]["type"])
 
     path = f"{storage_path}/photo/{streamid}/latest.jpg"
+    media_type = "image/jpeg"
     if streamid == "thermal":
         path = f"{storage_path}/thermal/latest.png"
+        media_type = "image/png"
 
     url = f"https://{storage_user}:{storage_password}@{storage_url}/{path}"
 
     try:
         print("Requesting image from storage box")
-        rqs = requests.get(url, timeout=5)
+        rqs = requests.get(url, timeout=8)
         if rqs.status_code != 200:
             response.status_code = 404
             return "Image not found! Please check stream id or verify the image is available."
@@ -346,11 +350,12 @@ def route_img(streamid: str, response: Response):
 
     image_cache[streamid] = {
         "time": time.time(),
-        "data": rqs.content
+        "data": rqs.content,
+        "type": media_type
     }
 
     image_stream = BytesIO(rqs.content)
-    return StreamingResponse(image_stream, media_type="image/png")
+    return StreamingResponse(image_stream, media_type=media_type)
 
 
 def save_state():
