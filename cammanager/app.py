@@ -284,14 +284,17 @@ def mode():
 
     last_cycle = time.time()
 
-    if pop:
-
-        logger.info(f"Cycle cameras according to pop mode")
+    if offline:
 
         if live_cam.webcam != -1:
             live_cam.webcam = -1
             live_cam_updated = time.time()
             logger.info(f"Disabled live camera")
+
+    if pop:
+
+        logger.info(f"Cycle cameras according to pop mode")
+
         video_cam.webcam0 = video_cam.webcam0 + 1 if video_cam.webcam0 < 3 else 0
         logger.info(f"Changed camera slot 0 to webcam {video_cam.webcam0}")
         if video_cam.webcam1 != 4:
@@ -308,10 +311,6 @@ def mode():
 
         logger.info(f"Cycle cameras according to offline mode")
 
-        if live_cam.webcam != -1:
-            live_cam.webcam = -1
-            live_cam_updated = time.time()
-            logger.info(f"Disabled live camera")
         video_cam.webcam0 = 3 if video_cam.webcam0 != 3 else 2
         logger.info(f"Changed camera slot 0 to webcam {video_cam.webcam0}")
         if video_cam.webcam1 not in (0, 1, 4):
