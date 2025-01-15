@@ -24,9 +24,8 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": 1860,
   "graphTooltip": 1,
-  "id": 3,
+  "id": 4,
   "links": [
     {
       "icon": "external link",
@@ -45,14 +44,9 @@
       "url": "https://grafana.com/grafana/dashboards/1860"
     }
   ],
-  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -61,15 +55,6 @@
       },
       "id": 261,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Quick CPU / Mem / Disk",
       "type": "row"
     },
@@ -119,6 +104,12 @@
       "id": 323,
       "options": {
         "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
@@ -136,7 +127,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -260,7 +251,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -350,7 +341,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -414,7 +405,6 @@
         "x": 9,
         "y": 1
       },
-      "hideTimeOverride": false,
       "id": 16,
       "options": {
         "minVizHeight": 75,
@@ -431,7 +421,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -537,7 +527,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -625,7 +615,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -710,7 +700,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -775,7 +765,6 @@
         "x": 20,
         "y": 1
       },
-      "hideTimeOverride": true,
       "id": 15,
       "maxDataPoints": 100,
       "options": {
@@ -795,7 +784,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -884,7 +873,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -971,7 +960,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1056,7 +1045,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1078,10 +1067,6 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1090,15 +1075,6 @@
       },
       "id": 263,
       "panels": [],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Basic CPU / Mem / Net / Disk",
       "type": "row"
     },
@@ -1120,6 +1096,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 40,
             "gradientMode": "none",
@@ -1291,7 +1268,7 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "9.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1403,6 +1380,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 40,
             "gradientMode": "none",
@@ -1836,7 +1814,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1922,6 +1900,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 40,
             "gradientMode": "none",
@@ -2343,7 +2322,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -2391,6 +2370,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 40,
             "gradientMode": "none",
@@ -2456,7 +2436,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "9.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -2476,10 +2456,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2676,7 +2652,6 @@
             "y": 21
           },
           "id": 3,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -3183,7 +3158,6 @@
             "y": 21
           },
           "id": 24,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -3462,7 +3436,6 @@
             "y": 33
           },
           "id": 84,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -3577,7 +3550,6 @@
             "y": 33
           },
           "id": 156,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -4007,7 +3979,6 @@
             "y": 45
           },
           "id": 229,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -4234,7 +4205,6 @@
             "y": 45
           },
           "id": 42,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -4379,7 +4349,6 @@
             "y": 57
           },
           "id": 127,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -4560,24 +4529,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "CPU / Memory / Net / Disk",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4908,7 +4864,6 @@
             "y": 54
           },
           "id": 136,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -5298,7 +5253,6 @@
             "y": 54
           },
           "id": 135,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -5669,7 +5623,6 @@
             "y": 64
           },
           "id": 191,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -6098,7 +6051,6 @@
             "y": 64
           },
           "id": 130,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -6504,7 +6456,6 @@
             "y": 74
           },
           "id": 138,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -6931,7 +6882,6 @@
             "y": 74
           },
           "id": 131,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -7316,7 +7266,6 @@
             "y": 84
           },
           "id": 70,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -7701,7 +7650,6 @@
             "y": 84
           },
           "id": 159,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -8087,7 +8035,6 @@
             "y": 94
           },
           "id": 129,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -8457,7 +8404,6 @@
             "y": 94
           },
           "id": 160,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -8844,7 +8790,6 @@
             "y": 104
           },
           "id": 140,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -9240,7 +9185,6 @@
             "y": 104
           },
           "id": 71,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -9624,7 +9568,6 @@
             "y": 114
           },
           "id": 128,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -10007,7 +9950,6 @@
             "y": 114
           },
           "id": 137,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -10408,7 +10350,6 @@
             "y": 124
           },
           "id": 132,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -10445,24 +10386,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Memory Meminfo",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -10549,7 +10477,6 @@
             "y": 41
           },
           "id": 176,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -10675,7 +10602,6 @@
             "y": 41
           },
           "id": 22,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -11064,7 +10990,6 @@
             "y": 51
           },
           "id": 175,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -11477,7 +11402,6 @@
             "y": 51
           },
           "id": 307,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -11515,24 +11439,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Memory Vmstat",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -11623,7 +11534,6 @@
             "y": 24
           },
           "id": 260,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -11755,7 +11665,6 @@
             "y": 24
           },
           "id": 291,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -11874,7 +11783,6 @@
             "y": 34
           },
           "id": 168,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -11990,7 +11898,6 @@
             "y": 34
           },
           "id": 294,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12041,24 +11948,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "System Timesync",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -12133,7 +12027,6 @@
             "y": 73
           },
           "id": 62,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12248,7 +12141,6 @@
             "y": 73
           },
           "id": 315,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12351,7 +12243,6 @@
             "y": 83
           },
           "id": 148,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12467,7 +12358,6 @@
             "y": 83
           },
           "id": 149,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12630,7 +12520,6 @@
             "y": 93
           },
           "id": 313,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12758,7 +12647,6 @@
             "y": 93
           },
           "id": 305,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12895,7 +12783,6 @@
             "y": 103
           },
           "id": 314,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -12946,24 +12833,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "System Processes",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -13038,7 +12912,6 @@
             "y": 26
           },
           "id": 8,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -13153,7 +13026,6 @@
             "y": 26
           },
           "id": 7,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -13353,7 +13225,6 @@
             "y": 36
           },
           "id": 321,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -13553,7 +13424,6 @@
             "y": 36
           },
           "id": 322,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -13757,7 +13627,6 @@
             "y": 46
           },
           "id": 259,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -13859,7 +13728,6 @@
             "y": 46
           },
           "id": 306,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -13962,7 +13830,6 @@
             "y": 56
           },
           "id": 151,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14063,7 +13930,6 @@
             "y": 56
           },
           "id": 308,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14186,7 +14052,6 @@
             "y": 66
           },
           "id": 64,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14235,24 +14100,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "System Misc",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -14366,7 +14218,6 @@
             "y": 59
           },
           "id": 158,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14543,7 +14394,6 @@
             "y": 59
           },
           "id": 300,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14659,7 +14509,6 @@
             "y": 69
           },
           "id": 302,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14698,24 +14547,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Hardware Misc",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -14790,7 +14626,6 @@
             "y": 46
           },
           "id": 297,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -14968,7 +14803,6 @@
             "y": 46
           },
           "id": 298,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -15058,24 +14892,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Systemd",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -15463,7 +15284,6 @@
             "y": 47
           },
           "id": 9,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -15888,7 +15708,6 @@
             "y": 47
           },
           "id": 33,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -16315,7 +16134,6 @@
             "y": 57
           },
           "id": 37,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -16733,7 +16551,6 @@
             "y": 57
           },
           "id": 35,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -17148,7 +16965,6 @@
             "y": 67
           },
           "id": 133,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -17562,7 +17378,6 @@
             "y": 67
           },
           "id": 36,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -17978,7 +17793,6 @@
             "y": 77
           },
           "id": 34,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -18381,7 +18195,6 @@
             "y": 77
           },
           "id": 301,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -18430,24 +18243,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Storage Disk",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -18523,7 +18323,6 @@
             "y": 62
           },
           "id": 43,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -18654,7 +18453,6 @@
             "y": 62
           },
           "id": 41,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -18758,7 +18556,6 @@
             "y": 72
           },
           "id": 28,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -18873,7 +18670,6 @@
             "y": 72
           },
           "id": 219,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -18994,7 +18790,6 @@
             "y": 82
           },
           "id": 44,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19044,24 +18839,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Storage Filesystem",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -19208,7 +18990,6 @@
             "y": 47
           },
           "id": 60,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19337,7 +19118,6 @@
             "y": 47
           },
           "id": 142,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19464,7 +19244,6 @@
             "y": 57
           },
           "id": 143,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19591,7 +19370,6 @@
             "y": 57
           },
           "id": 141,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19718,7 +19496,6 @@
             "y": 67
           },
           "id": 146,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19833,7 +19610,6 @@
             "y": 67
           },
           "id": 144,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -19960,7 +19736,6 @@
             "y": 77
           },
           "id": 145,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20063,7 +19838,6 @@
             "y": 77
           },
           "id": 231,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20178,7 +19952,6 @@
             "y": 87
           },
           "id": 232,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20301,7 +20074,6 @@
             "y": 87
           },
           "id": 61,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20415,7 +20187,6 @@
             "y": 97
           },
           "id": 230,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20518,7 +20289,6 @@
             "y": 97
           },
           "id": 288,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20621,7 +20391,6 @@
             "y": 107
           },
           "id": 280,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20724,7 +20493,6 @@
             "y": 107
           },
           "id": 289,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20838,7 +20606,6 @@
             "y": 117
           },
           "id": 290,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -20954,7 +20721,6 @@
             "y": 117
           },
           "id": 310,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21057,7 +20823,6 @@
             "y": 127
           },
           "id": 309,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21106,24 +20871,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Network Traffic",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -21198,7 +20950,6 @@
             "y": 48
           },
           "id": 63,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21355,7 +21106,6 @@
             "y": 48
           },
           "id": 124,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21485,7 +21235,6 @@
             "y": 58
           },
           "id": 125,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21602,7 +21351,6 @@
             "y": 58
           },
           "id": 220,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21730,7 +21478,6 @@
             "y": 68
           },
           "id": 126,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21769,24 +21516,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Network Sockstat",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -21873,7 +21607,6 @@
             "y": 33
           },
           "id": 221,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -21989,7 +21722,6 @@
             "y": 33
           },
           "id": 81,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22105,7 +21837,6 @@
             "y": 43
           },
           "id": 115,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22233,7 +21964,6 @@
             "y": 43
           },
           "id": 50,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22360,7 +22090,6 @@
             "y": 53
           },
           "id": 55,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22475,7 +22204,6 @@
             "y": 53
           },
           "id": 109,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22651,7 +22379,6 @@
             "y": 63
           },
           "id": 299,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22769,7 +22496,6 @@
             "y": 63
           },
           "id": 104,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -22976,7 +22702,6 @@
             "y": 73
           },
           "id": 85,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -23107,7 +22832,6 @@
             "y": 73
           },
           "id": 91,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -23239,7 +22963,6 @@
             "y": 83
           },
           "id": 82,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -23352,7 +23075,6 @@
             "y": 83
           },
           "id": 320,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -23440,24 +23162,11 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Network Netstat",
       "type": "row"
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "000000001"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -23532,7 +23241,6 @@
             "y": 66
           },
           "id": 40,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -23659,7 +23367,6 @@
             "y": 66
           },
           "id": 157,
-          "links": [],
           "options": {
             "legend": {
               "calcs": [
@@ -23712,47 +23419,32 @@
           "type": "timeseries"
         }
       ],
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "000000001"
-          },
-          "refId": "A"
-        }
-      ],
       "title": "Node Exporter",
       "type": "row"
     }
   ],
+  "preload": false,
   "refresh": "5s",
-  "revision": 1,
-  "schemaVersion": 39,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "prometheus",
-          "value": "bdrnhzi67ncw0a"
+          "value": "de9jhfzy7a6tcd"
         },
-        "hide": 0,
         "includeAll": false,
         "label": "Datasource",
-        "multi": false,
         "name": "datasource",
         "options": [],
         "query": "prometheus",
-        "queryValue": "",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "type": "datasource"
       },
       {
         "current": {
-          "selected": false,
           "text": "balloon-obs",
           "value": "balloon-obs"
         },
@@ -23761,10 +23453,8 @@
           "uid": "${datasource}"
         },
         "definition": "",
-        "hide": 0,
         "includeAll": false,
         "label": "Job",
-        "multi": false,
         "name": "job",
         "options": [],
         "query": {
@@ -23773,16 +23463,11 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "sort": 1,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "type": "query"
       },
       {
         "current": {
-          "selected": false,
           "text": "10.25.0.3:9100",
           "value": "10.25.0.3:9100"
         },
@@ -23791,10 +23476,8 @@
           "uid": "${datasource}"
         },
         "definition": "label_values(node_uname_info{job=\"$job\"}, instance)",
-        "hide": 0,
         "includeAll": false,
         "label": "Host",
-        "multi": false,
         "name": "node",
         "options": [],
         "query": {
@@ -23803,22 +23486,16 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "sort": 1,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "type": "query"
       },
       {
         "current": {
-          "selected": false,
           "text": "[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+",
           "value": "[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+"
         },
         "hide": 2,
         "includeAll": false,
-        "multi": false,
         "name": "diskdevices",
         "options": [
           {
@@ -23828,7 +23505,6 @@
           }
         ],
         "query": "[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+",
-        "skipUrlSync": false,
         "type": "custom"
       }
     ]
@@ -23837,34 +23513,10 @@
     "from": "now-4h",
     "to": "now"
   },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
-  },
+  "timepicker": {},
   "timezone": "browser",
   "title": "obs",
   "uid": "obs",
-  "version": 7,
+  "version": 3,
   "weekStart": ""
 }

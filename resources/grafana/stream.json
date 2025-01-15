@@ -18,13 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": 2,
   "links": [],
   "panels": [
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -42,14 +42,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam0/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 0",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -67,14 +67,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam1/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 1",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -92,14 +92,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam2/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 2",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -117,14 +117,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam3/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 3",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -142,14 +142,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam4/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 4",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -167,14 +167,14 @@
         "content": "<style>\n.image-thermal {\n  width: 100%;\n  aspect-ratio: 4 / 3;\n}\n</style>\n\n<iframe class=\"image-thermal\" src=\"https://sm.balloon.nikogenia.de/image/thermal\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Thermal Cam",
       "type": "text"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+        "uid": "ee9irnuyg5hj4c"
       },
       "fieldConfig": {
         "defaults": {
@@ -219,7 +219,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "alias": "Min",
@@ -389,12 +389,13 @@
           "tags": []
         }
       ],
+      "title": "",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -407,6 +408,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -449,13 +454,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -464,7 +469,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -477,7 +482,7 @@
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -490,6 +495,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -532,13 +541,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -547,7 +556,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -558,9 +567,9 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bdrnhzi67ncw0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -578,13 +587,14 @@
         "content": "<style>\n.image-cam {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n</style>\n\n<iframe class=\"image-cam\" src=\"https://sm.balloon.nikogenia.de/image/cam0\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
+      "title": "",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bdrnhzi67ncw0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -602,13 +612,14 @@
         "content": "<style>\n.image-cam {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n</style>\n\n<iframe class=\"image-cam\" src=\"https://sm.balloon.nikogenia.de/image/cam1\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
+      "title": "",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bdrnhzi67ncw0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -626,13 +637,14 @@
         "content": "<style>\n.image-cam {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n</style>\n\n<iframe class=\"image-cam\" src=\"https://sm.balloon.nikogenia.de/image/cam2\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
+      "title": "",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bdrnhzi67ncw0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -650,13 +662,14 @@
         "content": "<style>\n.image-cam {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n</style>\n\n<iframe class=\"image-cam\" src=\"https://sm.balloon.nikogenia.de/image/cam3\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
+      "title": "",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bdrnhzi67ncw0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -674,13 +687,14 @@
         "content": "<style>\n.image-cam {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n</style>\n\n<iframe class=\"image-cam\" src=\"https://sm.balloon.nikogenia.de/image/cam4\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
+      "title": "",
       "type": "text"
     },
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -693,6 +707,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -735,13 +753,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -750,7 +768,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -763,7 +781,7 @@
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -776,6 +794,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -818,13 +840,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -833,7 +855,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -844,9 +866,9 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -864,14 +886,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam5/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 5",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -889,14 +911,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam6/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 6",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -914,14 +936,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam7/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 7",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -939,14 +961,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam8/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 8",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -964,14 +986,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam9/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 9",
       "type": "text"
     },
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -984,6 +1006,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -1026,13 +1052,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -1041,7 +1067,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -1054,7 +1080,7 @@
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -1067,6 +1093,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -1109,13 +1139,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -1124,7 +1154,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -1137,7 +1167,7 @@
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -1150,6 +1180,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -1192,13 +1226,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -1207,7 +1241,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -1220,7 +1254,7 @@
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "de24u7to10s8wd"
+        "uid": "be9kdcv05csg0e"
       },
       "fieldConfig": {
         "defaults": {
@@ -1233,6 +1267,10 @@
                 "-1": {
                   "index": 0,
                   "text": "OFF"
+                },
+                "null": {
+                  "index": 1,
+                  "text": "No data"
                 }
               },
               "type": "value"
@@ -1275,13 +1313,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "columns": [],
           "datasource": {
             "type": "yesoreyeram-infinity-datasource",
-            "uid": "de24u7to10s8wd"
+            "uid": "be9kdcv05csg0e"
           },
           "filters": [],
           "format": "table",
@@ -1290,7 +1328,7 @@
           "root_selector": "",
           "source": "url",
           "type": "global",
-          "url": "https://github.com/grafana/grafana-infinity-datasource/blob/main/testdata/users.json",
+          "url": "",
           "url_options": {
             "data": "",
             "method": "GET"
@@ -1301,9 +1339,9 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -1321,14 +1359,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam10/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 10",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -1346,14 +1384,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam11/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 11",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -1371,14 +1409,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam12/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 12",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -1396,14 +1434,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam13/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 13",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -1421,14 +1459,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam14/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 14",
       "type": "text"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "bdrncsm4ktts0a"
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 6,
@@ -1446,14 +1484,14 @@
         "content": "<style>\n.video-container {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n}\n\n.video {\n  width: 100%;\n  height: 100%;\n}\n</style>\n\n<div class=\"video-container\">\n<iframe class=\"video\" src=\"https://webrtc.balloon.nikogenia.de/cam15/\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n</div>",
         "mode": "html"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "title": "Cam 15",
       "type": "text"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bdrnhzi67ncw0a"
+        "uid": "de9jhfzy7a6tcd"
       },
       "fieldConfig": {
         "defaults": {
@@ -1467,6 +1505,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1499,10 +1538,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -1511,7 +1546,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 23
@@ -1529,27 +1564,24 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdrnhzi67ncw0a"
+            "uid": "de9jhfzy7a6tcd"
           },
-          "disableTextWrap": false,
           "editorMode": "code",
           "expr": "(paths_bytes_received - paths_bytes_received offset 10s) / 10",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
           "instant": false,
           "legendFormat": "recv {{name}}",
           "range": true,
-          "refId": "A",
-          "useBackend": false
+          "refId": "A"
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bdrnhzi67ncw0a"
+            "uid": "de9jhfzy7a6tcd"
           },
           "editorMode": "code",
           "expr": "(paths_bytes_sent - paths_bytes_sent offset 10s) / 10",
@@ -1564,8 +1596,9 @@
       "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "5s",
-  "schemaVersion": 39,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": []
@@ -1578,6 +1611,6 @@
   "timezone": "browser",
   "title": "stream",
   "uid": "stream",
-  "version": 43,
+  "version": 4,
   "weekStart": ""
 }

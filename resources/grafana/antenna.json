@@ -22,9 +22,22 @@
   "links": [],
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 21,
+      "panels": [],
+      "title": "Formula Angles",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -49,7 +62,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 2,
       "options": {
@@ -69,14 +82,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -86,7 +99,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -111,7 +124,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 0
+        "y": 1
       },
       "id": 3,
       "options": {
@@ -131,14 +144,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -148,7 +161,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -173,7 +186,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 0
+        "y": 1
       },
       "id": 16,
       "options": {
@@ -193,14 +206,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_climate\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"wifi_climate\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -210,7 +223,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -235,7 +248,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "id": 9,
       "options": {
@@ -255,14 +268,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -272,7 +285,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -297,7 +310,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 4
+        "y": 5
       },
       "id": 10,
       "options": {
@@ -317,14 +330,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -334,7 +347,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -359,7 +372,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 4
+        "y": 5
       },
       "id": 15,
       "options": {
@@ -379,14 +392,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_climate\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = int(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_climate\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -396,7 +409,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -421,7 +434,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 9
       },
       "id": 11,
       "options": {
@@ -441,14 +454,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -458,7 +471,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -483,7 +496,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 8
+        "y": 9
       },
       "id": 12,
       "options": {
@@ -503,14 +516,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"aprs_pico\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -520,7 +533,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -545,7 +558,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 8
+        "y": 9
       },
       "id": 13,
       "options": {
@@ -565,14 +578,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"azimuth\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -582,7 +595,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cdsjn2wng5gqof"
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -607,7 +620,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 8
+        "y": 9
       },
       "id": 14,
       "options": {
@@ -627,14 +640,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: if r.azimuth < 0.0 then r.azimuth + 360.0 else r.azimuth,\r\n      elevation: r.elevation\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
+          "query": "import \"math\"\r\n\r\n// Dashboard-Variablen\r\nantennaLat = float(v: ${antenna_latitude})\r\nantennaLon = float(v: ${antenna_longitude})\r\nantennaAlt = float(v: ${antenna_altitude})\r\nantennaOffset = float(v: ${antenna_offset})\r\ndeclination = float(v: ${declination})\r\n\r\n// Radius der Erde in Metern\r\nR = 6371000.0\r\n\r\n// Umrechnung von Grad in Radianten\r\ndegToRad = (d) => d * math.pi / 180.0\r\n\r\nfrom(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"spot_gps\")\r\n  |> last()\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.latitude and exists r.longitude and exists r.altitude) // Filtern von ungültigen Werten\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      balloonLat: r.latitude,\r\n      balloonLon: r.longitude,\r\n      balloonAlt: r.altitude,\r\n      deltaPhi: degToRad(d: r.latitude - antennaLat),\r\n      deltaLambda: degToRad(d: r.longitude - antennaLon),\r\n      phi1: degToRad(d: antennaLat),\r\n      phi2: degToRad(d: r.latitude)\r\n  }))\r\n  |> map(fn: (r) => {\r\n      a = math.sin(x: r.deltaPhi / 2.0) * math.sin(x: r.deltaPhi / 2.0) + \r\n          math.cos(x: r.phi1) * math.cos(x: r.phi2) * \r\n          math.sin(x: r.deltaLambda / 2.0) * math.sin(x: r.deltaLambda / 2.0)\r\n      distance = R * 2.0 * math.atan2(y: math.sqrt(x: a), x: math.sqrt(x: 1.0 - a))\r\n      return {\r\n        r with\r\n        a: a,\r\n        distance: distance\r\n      }\r\n  })\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: math.atan2(y: math.sin(x: r.deltaLambda) * math.cos(x: r.phi2),\r\n                         x: math.cos(x: r.phi1) * math.sin(x: r.phi2) - math.sin(x: r.phi1) * math.cos(x: r.phi2) * math.cos(x: r.deltaLambda)) * 180.0 / math.pi,\r\n      horizontalDistance: r.distance,\r\n      elevation: math.atan2(y: float(v: r.balloonAlt - antennaAlt), x: r.distance) * 180.0 / math.pi\r\n  }))\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      azimuth: r.azimuth - declination,\r\n      elevation: r.elevation + antennaOffset + 45.0\r\n  }))\r\n  |> keep(columns: [\"_time\", \"elevation\"])\r\n  |> yield(name: \"angles\")\r\n",
           "refId": "A"
         }
       ],
@@ -642,9 +655,22 @@
       "type": "stat"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 22,
+      "panels": [],
+      "title": "Map",
+      "type": "row"
+    },
+    {
       "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
+        "type": "influxdb",
+        "uid": "ee9it87qbaccgf"
       },
       "fieldConfig": {
         "defaults": {
@@ -676,12 +702,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 16,
+        "h": 11,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 14
       },
-      "id": 8,
+      "id": 20,
       "options": {
         "basemap": {
           "config": {},
@@ -891,6 +917,53 @@
           },
           {
             "config": {
+              "showLegend": false,
+              "style": {
+                "color": {
+                  "fixed": "red"
+                },
+                "opacity": 0.4,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "fixed": 5,
+                  "max": 15,
+                  "min": 2
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "symbolAlign": {
+                  "horizontal": "center",
+                  "vertical": "center"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
+            },
+            "filterData": {
+              "id": "byRefId",
+              "options": "E"
+            },
+            "location": {
+              "mode": "auto"
+            },
+            "name": "File",
+            "tooltip": true,
+            "type": "markers"
+          },
+          {
+            "config": {
               "showLegend": true,
               "style": {
                 "color": {
@@ -927,7 +1000,7 @@
             },
             "filterData": {
               "id": "byRefId",
-              "options": "E"
+              "options": "F"
             },
             "location": {
               "mode": "auto"
@@ -951,138 +1024,41 @@
           "zoom": 10
         }
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
           "hide": false,
-          "measurement": "aprs_gps",
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"aprs_gps\")\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => r.latitude != 0 and r.longitude != 0)\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: r.latitude,\r\n      longitude: r.longitude,\r\n      altitude: r.altitude\r\n  }))\r\n  |> keep(columns: [\"_time\", \"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"aprs\")",
+          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "resultFormat": "time_series"
         },
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
           "hide": false,
-          "measurement": "aprs_gps",
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"wifi_gps\")\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => r.latitude != 0 and r.longitude != 0)\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: r.latitude,\r\n      longitide: r.longitude,\r\n      altitude: r.altitude\r\n  }))\r\n  |> keep(columns: [\"_time\", \"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"wifi\")",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "refId": "B"
         },
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
           "hide": false,
-          "measurement": "aprs_gps",
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"spot_gps\")\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => r.latitude != 0 and r.longitude != 0)\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: r.latitude,\r\n      longitude: r.longitude,\r\n      altitude: r.altitude\r\n  }))\r\n  |> keep(columns: [\"_time\", \"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"spot\")",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "refId": "C"
         },
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
           "hide": false,
           "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"aprs_pico\")\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => r.latitude != 0 and r.longitude != 0)\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: r.latitude,\r\n      longitude: r.longitude,\r\n      altitude: r.altitude\r\n  }))\r\n  |> keep(columns: [\"_time\", \"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"pico\")\r\n",
@@ -1091,92 +1067,1849 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cdsjn2wng5gqof"
+            "uid": "ee9it87qbaccgf"
           },
           "hide": false,
-          "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => true)\r\n  |> last()\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: float(v: ${antenna_latitude}),\r\n      longitude: float(v: ${antenna_longitude}),\r\n      altitude: float(v: ${antenna_altitude})\r\n  }))\r\n  |> keep(columns: [\"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"antenna\")",
+          "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"file_gps\")\r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => r.latitude != 0 and r.longitude != 0)\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: r.latitude,\r\n      longitude: r.longitude,\r\n      altitude: r.altitude\r\n  }))\r\n  |> keep(columns: [\"_time\", \"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"file\")\r\n",
           "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "ee9it87qbaccgf"
+          },
+          "hide": false,
+          "query": "from(bucket: \"balloon\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => true)\r\n  |> last()\r\n  |> map(fn: (r) => ({\r\n      r with\r\n      latitude: float(v: ${antenna_latitude}),\r\n      longitude: float(v: ${antenna_longitude}),\r\n      altitude: float(v: ${antenna_altitude})\r\n  }))\r\n  |> keep(columns: [\"latitude\", \"longitude\", \"altitude\"])\r\n  |> yield(name: \"antenna\")\r\n  ",
+          "refId": "F"
         }
       ],
       "title": "Map",
       "type": "geomap"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 23,
+      "panels": [],
+      "title": "Connection",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 26
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"rx_signal\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Receive Signal Strength",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 1200000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "C"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "E"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "F"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 3,
+        "y": 26
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "alias": "RX Signal",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "rx_signal"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "RX Signal Antenna 0",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "rx_signal_a0"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "RX Signal Antenna 1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "rx_signal_a1"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "TX Signal",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tx_signal"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "TX Signal Antenna 0",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tx_signal_a0"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "TX Signal Antenna 1",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tx_signal_a1"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Signal Strength",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 26
+      },
+      "id": 28,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"rx_quality\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Receive Quality",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 1200000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 26
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "alias": "TX Quality",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "rx_quality"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "RX Quality",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tx_quality"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Quality",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple"
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 29
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"tx_signal\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Transmit Signal Strength",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple"
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 29
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"tx_quality\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Transmit Quality",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue"
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 32
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"rx_bytes\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Bytes Received",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 1200000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 3,
+        "y": 32
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "alias": "TX Bytes",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "rx_bytes"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "RX Bytes",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "tx_bytes"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Network Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow"
+              }
+            ]
+          },
+          "unit": "dB"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 32
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"noise\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Signal to Noise",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 1200000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "dB"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 32
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "wifi_stats",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "noise"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Signal to Noise",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple"
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 35
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"tx_bytes\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Bytes Sent",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "ee9irnuyg5hj4c"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 35
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bdrncsm4ktts0a"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "dm_magnet",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT mean(\"uptime\") FROM \"wifi_stats\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "temp"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Uptime",
+      "type": "stat"
     }
   ],
+  "preload": false,
   "refresh": "5s",
-  "schemaVersion": 39,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "47.586207",
-          "value": "47.586207"
+          "text": "47.559647",
+          "value": "47.559647"
         },
-        "hide": 0,
         "label": "Antenna Latitude",
         "name": "antenna_latitude",
         "options": [
           {
             "selected": true,
-            "text": "47.586207",
-            "value": "47.586207"
+            "text": "47.559647",
+            "value": "47.559647"
           }
         ],
-        "query": "47.586207",
-        "skipUrlSync": false,
+        "query": "47.559647",
         "type": "textbox"
       },
       {
         "current": {
-          "selected": false,
-          "text": "9.677720",
-          "value": "9.677720"
+          "text": "9.698356",
+          "value": "9.698356"
         },
-        "hide": 0,
         "label": "Antenna Longitude",
         "name": "antenna_longitude",
         "options": [
           {
             "selected": true,
-            "text": "9.677720",
-            "value": "9.677720"
+            "text": "9.698356",
+            "value": "9.698356"
           }
         ],
-        "query": "9.677720",
-        "skipUrlSync": false,
+        "query": "9.698356",
         "type": "textbox"
       },
       {
         "current": {
-          "selected": false,
-          "text": "462",
-          "value": "462"
+          "text": "406",
+          "value": "406"
         },
-        "hide": 0,
         "label": "Antenna Altitude",
         "name": "antenna_altitude",
         "options": [
           {
             "selected": true,
-            "text": "462",
-            "value": "462"
+            "text": "406",
+            "value": "406"
           }
         ],
-        "query": "462",
-        "skipUrlSync": false,
+        "query": "406",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "-19",
+          "value": "-19"
+        },
+        "label": "Antenna Offset",
+        "name": "antenna_offset",
+        "options": [
+          {
+            "selected": true,
+            "text": "-19",
+            "value": "-19"
+          }
+        ],
+        "query": "-19",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "3.83",
+          "value": "3.83"
+        },
+        "label": "Magnetic Declination",
+        "name": "declination",
+        "options": [
+          {
+            "selected": true,
+            "text": "3.83",
+            "value": "3.83"
+          }
+        ],
+        "query": "3.83",
         "type": "textbox"
       }
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-4h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "antenna",
   "uid": "antenna",
-  "version": 44,
+  "version": 7,
   "weekStart": ""
 }
