@@ -339,7 +339,6 @@ def services():
         services_active = [line.strip().split(" ")[0] for line in active.decode().splitlines() if line]
     except subprocess.CalledProcessError:
         services_active = []
-    services_active.append("balloon-spectral.service")
     try:
         activating = subprocess.check_output("systemctl list-units --type=service --state=activating | grep 'balloon-.*\.service'", stderr=subprocess.STDOUT, shell=True)
         services_activating = [line.strip().split(" ")[0] for line in activating.decode().splitlines() if line]

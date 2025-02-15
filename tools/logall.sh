@@ -21,7 +21,7 @@ read -r update
 echo
 
 # Show logs of the services
-for service in datamanager cammanager adc climate co2 gps magnet system thermal \
+for service in datamanager cammanager adc climate co2 gps magnet spectral system thermal \
         webcam0 webcam1 webcam2 webcam3 webcam4; do
     echo "Showing logs of $service service"
     if [ "$update" == "y" ]; then
