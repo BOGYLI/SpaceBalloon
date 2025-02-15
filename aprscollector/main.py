@@ -33,7 +33,7 @@ ORG = os.getenv('INFLUX_ORG') or "makerspace"
 BUCKET = os.getenv('INFLUX_BUCKET') or "balloon"
 INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
 
-INTERVAL = os.getenv('INTERVAL') or 60
+INTERVAL = int(os.getenv('INTERVAL')) or 60
 
 if API_TOKEN is None or INFLUX_TOKEN is None:
     print("Missing configuration via environment variables")
@@ -213,8 +213,8 @@ def main():
             print("Error fetching data from APRS")
             print(f"{response.status_code}: {response.text}")
 
-        print("Cycle done, waiting 60 seconds until next cycle")
-
+        print(f"Cycle done, waiting {INTERVAL} seconds until next cycle")
+        
         time.sleep(INTERVAL)
 
 

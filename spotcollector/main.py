@@ -16,6 +16,8 @@ if feed_password is None or influxdb_token is None:
     print("Missing configuration via environment variables")
     exit(1)
 
+INTERVAL = int(os.getenv('INTERVAL')) or 60
+
 
 while True:
 
@@ -64,6 +66,6 @@ while True:
     else:
         print("No messages found in feed")
 
-    print("Cycle done, waiting 60 seconds until next cycle")
+    print(f"Cycle done, waiting {INTERVAL} seconds until next cycle")
     
-    time.sleep(60)
+    time.sleep(INTERVAL)

@@ -19,10 +19,10 @@ ORG = os.getenv('INFLUX_ORG') or "makerspace"
 BUCKET = os.getenv('INFLUX_BUCKET') or "balloon"
 INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
 
-INTERVAL = os.getenv('INTERVAL') or 5
+INTERVAL = int(os.getenv('INTERVAL')) or 10
 
-TEMP_MIN = os.getenv('TEMP_MIN') or 5
-TEMP_MAX = os.getenv('TEMP_MAX') or 85
+TEMP_MIN = int(os.getenv('TEMP_MIN')) or 5
+TEMP_MAX = int(os.getenv('TEMP_MAX')) or 85
 
 if STORAGE_PASSWORD is None or INFLUX_TOKEN is None:
     print("Missing configuration via environment variables")

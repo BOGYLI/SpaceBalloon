@@ -70,8 +70,8 @@ def main():
                             data_list.append(-110)  # Error decoding
 
                 logger.info(f"Temp: {data['temp_c']:.2f}°C {data['temp_f']:.2f}°F {data['temp_k']:.2f}K, " +
-                            f"CO2: {data['co2_avg']}ppm {data['co2_raw']}ppm, CO2 NPC: {data['co2_avg_npc']}ppm {data['co2_raw_npc']}ppm, " +
-                            f"Pressure: {data['pressure_mbar']}mbar {data['pressure_psi']}psi")
+                            f"CO2: {int(data['co2_avg'])}ppm {int(data['co2_raw'])}ppm, CO2 NPC: {int(data['co2_avg_npc'])}ppm {int(data['co2_raw_npc'])}ppm, " +
+                            f"Pressure: {data['pressure_mbar']:.1f}mbar {data['pressure_psi']:.1f}psi")
                 utils.write_csv("co2", data_list)
                 utils.send_data("co2", data, logger)
 
