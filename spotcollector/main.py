@@ -16,7 +16,7 @@ if feed_password is None or influxdb_token is None:
     print("Missing configuration via environment variables")
     exit(1)
 
-INTERVAL = int(os.getenv('INTERVAL')) or 60
+INTERVAL = int(os.getenv('INTERVAL') or 60)
 
 
 while True:
