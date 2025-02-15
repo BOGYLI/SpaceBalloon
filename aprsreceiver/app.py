@@ -199,9 +199,9 @@ def decode_sensor_data(encoded_data):
     
     # Unpack the bytes into respective sensor values
     gps_altitude, adc_uv, adc_methane, climate_pressure, climate_temp, climate_humidity, climate_altitude, \
-        co2_co2, co2_voc, system_cpu, system_memory, system_temp, system_sent, system_received, \
+        co2_co2, co2_temp, co2_pressure, system_cpu, system_memory, system_temp, system_sent, system_received, \
         thermal_min, thermal_max, thermal_avg, thermal_median, live_cam, video_cam0, video_cam1, video_cam2, \
-        uptime, services = struct.unpack('=HHHHbBHHHBBbffbbbbbbbbIH', data_bytes)
+        uptime, services = struct.unpack('=HHHHbBHHbBBBbffbbbbbbbbIH', data_bytes)
 
     # Decode service state with bitwise operations
     active_services.clear()
@@ -229,7 +229,8 @@ def decode_sensor_data(encoded_data):
         },
         "aprs_co2": {
             "co2": co2_co2,
-            "voc": co2_voc
+            "temp": co2_temp,
+            "pressure": co2_pressure
         },
         "aprs_system": {
             "cpu": system_cpu,

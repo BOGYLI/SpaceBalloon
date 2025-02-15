@@ -30,7 +30,7 @@ If you already know what you are looking for, we have some shortcuts for you:
 - [adc](/adc/) responsible for the UV and methane sensors
 - [cammanager](/cammanager/) coordinating camera operation and system status
 - [climate](/climate/) sensor measuring temperature, humidity and pressure (+ estimated altitude)
-- [co2](/co2/) sensor for CO₂ and VOC
+- [co2](/co2/) sensor for CO₂
 - [datamanager](/datamanager/) collecting all sensor data and sending it via APRS and WiFi
 - [gps](/gps/) sensor tracking location and altitude
 - [magnet](/magnet/) sensor monitoring some magnetic activity

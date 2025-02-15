@@ -52,8 +52,15 @@ class Climate(BaseModel):
 
 
 class CO2(BaseModel):
-    co2: float
-    voc: float
+    temp_c: float
+    temp_f: float
+    temp_k: float
+    co2_avg: float
+    co2_raw: float
+    co2_avg_npc: float
+    co2_raw_npc: float
+    pressure_mbar: float
+    pressure_psi: float
 
 
 class GPS(BaseModel):
@@ -102,7 +109,7 @@ adc = ADC(uv=0, methane=0)
 adc_updated = 0
 climate = Climate(pressure=0, temp=0, humidity=0, altitude=0)
 climate_updated = 0
-co2 = CO2(co2=0, voc=0)
+co2 = CO2(temp_c=0, temp_f=0, temp_k=0, co2_avg=0, co2_raw=0, co2_avg_npc=0, co2_raw_npc=0, pressure_mbar=0, pressure_psi=0)
 co2_updated = 0
 gps = GPS(latitude=0, longitude=0, altitude=0)
 gps_updated = 0
@@ -240,8 +247,9 @@ def encode_aprs_comment():
     climate_temp = struct.pack('b', min(max(int(climate.temp), -128), 127))  # 1 byte, -128-127
     climate_humidity = struct.pack('B', min(max(int(climate.humidity), 0), 255))  # 1 byte, 0-255
     climate_altitude = struct.pack('H', min(max(int(climate.altitude), 0), 65535))  # 2 bytes, 0-65535
-    co2_co2 = struct.pack('H', min(max(int(co2.co2), 0), 65535))  # 2 bytes, 0-65535
-    co2_voc = struct.pack('H', min(max(int(co2.voc), 0), 65535))  # 2 bytes, 0-65535
+    co2_co2 = struct.pack('H', min(max(int(co2.co2_avg), 0), 65535))  # 2 bytes, 0-65535
+    co2_temp = struct.pack('b', min(max(int(co2.temp_c), -128), 127))  # 1 byte, -128-127
+    co2_pressure = struct.pack('B', min(max(int(co2.pressure_psi), 0), 255))  # 1 byte, 0-255
     system_cpu = struct.pack('B', min(max(int(system.cpu), 0), 255))  # 1 byte, 0-255
     system_memory = struct.pack('B', min(max(int(system.memory), 0), 255))  # 1 byte, 0-255
     system_temp = struct.pack('b', min(max(int(system.temp), -128), 127))  # 1 byte, -128-127
@@ -260,7 +268,7 @@ def encode_aprs_comment():
 
     # Concatenate all data
     data = gps_altitude + adc_uv + adc_methane + climate_pressure + climate_temp + climate_humidity + \
-        climate_altitude + co2_co2 + co2_voc + system_cpu + system_memory + system_temp + system_sent + system_received + \
+        climate_altitude + co2_co2 + co2_temp + co2_pressure + system_cpu + system_memory + system_temp + system_sent + system_received + \
         thermal_min + thermal_max + thermal_avg + thermal_median + live_cam + video_cam0 + video_cam1 + video_cam2 + \
         uptime + services
 
@@ -456,7 +464,10 @@ def influx():
                           .field("latitude", gps.latitude).field("longitude", gps.longitude))
         
         if co2_updated != 0:
-            points.append(influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("co2", co2.co2).field("voc", co2.voc))
+            points.append(influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("temp_c", co2.temp_c).field("temp_f", co2.temp_f)
+                          .field("temp_k", co2.temp_k).field("co2_avg", co2.co2_avg).field("co2_raw", co2.co2_raw)
+                          .field("co2_avg_npc", co2.co2_avg_npc).field("co2_raw_npc", co2.co2_raw_npc)
+                          .field("pressure_mbar", co2.pressure_mbar).field("pressure_psi", co2.pressure_psi))
         
         if gps_updated != 0:
             points.append(influxdb_client.Point("wifi_gps").time(int(gps_updated), "s").field("latitude", gps.latitude)
