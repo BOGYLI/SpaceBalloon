@@ -22,6 +22,8 @@ password_raspi = ""
 token_sm = ""
 realtime = True
 fail_count = 0
+gui_active = True
+running = True
     
 
 def strip_service_name(name):
@@ -65,6 +67,17 @@ def status():
     print("-" * len(title))
     print("")
 
+    live_cams_active = [False, False, False, False, False]
+    video_cams_active = [False, False, False, False, False]
+    phase_active = ""
+    title_active = ""
+    subtitle_active = ""
+    sensor_display = False
+    source_connection = ""
+    source_height = ""
+    countdown = 0
+    stream_countdown = 0
+
     try:
         if realtime:
             response = requests.get(url_raspi + "/status", timeout=4, auth=(username_raspi, password_raspi))
@@ -76,6 +89,10 @@ def status():
                 print("No raspi status via WiFi available (Fallback to APRS)")
                 aprs_fallback = True
             else:
+                live_cams_active[status['live']['webcam']] = True
+                video_cams_active[status['video']['webcam0']] = True
+                video_cams_active[status['video']['webcam1']] = True
+                video_cams_active[status['video']['webcam2']] = True
                 print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
                 print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
                         f"{convert_camera_name(status['video']['webcam1'])}, " +
@@ -114,6 +131,10 @@ def status():
                     print("No raspi status via APRS available")
                     aprs_fallback = True
                 else:
+                    live_cams_active[status['live']['webcam']] = True
+                    video_cams_active[status['video']['webcam0']] = True
+                    video_cams_active[status['video']['webcam1']] = True
+                    video_cams_active[status['video']['webcam2']] = True
                     print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
                     print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
                             f"{convert_camera_name(status['video']['webcam1'])}, " +
@@ -151,6 +172,14 @@ def status():
         response = requests.get(url_sm + "/status", timeout=2)
         if response.status_code == 200:
             status = response.json()
+            phase_active = PHASES[status["phase"]]
+            title_active = status["title"]
+            subtitle_active = status["subtitle"]
+            sensor_display = status["sensors"]
+            source_connection = status["source"]["connection"]
+            source_height = status["source"]["height"]
+            countdown = status["countdown"]
+            stream_countdown = status["streamcountdown"]
             print(f"Phase: {PHASES[status["phase"]]} ({status['phase']})")
             print(f"Title: {'off' if not status['title'] else status['title']}")
             print(f"Subtitle: {'off' if not status['subtitle'] else status['subtitle']}")
@@ -166,6 +195,8 @@ def status():
     except requests.exceptions.RequestException as e:
         print(f"Stream Manager status request failed: {e}")
     print("")
+
+    return live_cams_active, video_cams_active, phase_active, title_active, subtitle_active, sensor_display, source_connection, source_height, countdown, stream_countdown, realtime
 
 
 def help():
@@ -205,9 +236,378 @@ def help():
     print("")
 
 
+def run_command(command):
+
+    global url_raspi, url_aprs, url_sm, username_raspi, password_raspi, token_sm, realtime, fail_count, running
+
+    if command == "h":
+        help()
+
+    elif command == "q":
+        running = False
+
+    elif command == "rt":
+        realtime = not realtime
+        fail_count = 0
+        print(f"Realtime status updates are now {'on' if realtime else 'off'}")
+        print("")
+
+    elif command == "l":
+        try:
+            response = requests.post(url_raspi + "/live", json={"webcam": -1}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Stopped livestream camera")
+            else:
+                print(f"Failed to stop livestream camera: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to stop livestream camera: {e}")
+        print("")
+
+    elif command.startswith("l"):
+        try:
+            camera = int(command[1:])
+        except ValueError:
+            print("Invalid camera number")
+            print("")
+            return
+        try:
+            response = requests.post(url_raspi + "/live", json={"webcam": camera}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Changed to livestream camera {camera}")
+            else:
+                print(f"Failed to change livestream camera: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to change livestream camera: {e}")
+        print("")
+
+    elif command == "v":
+        try:
+            response = requests.post(url_raspi + "/video", json={"webcam0": -1, "webcam1": -1, "webcam2": -1}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Stopped saving video file")
+            else:
+                print(f"Failed to stop saving video file: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to stop saving video file: {e}")
+        print("")
+
+    elif command.startswith("v"):
+        try:
+            cameras = [int(n) for n in command[1:]]
+            camera0 = cameras[0] if len(cameras) > 0 else -1
+            camera1 = cameras[1] if len(cameras) > 1 else -1
+            camera2 = cameras[2] if len(cameras) > 2 else -1
+        except ValueError:
+            print("Invalid camera selection")
+            print("")
+            return
+        if camera0 == camera1 != -1 or camera0 == camera2 != -1 or camera1 == camera2 != -1:
+            print("Duplicate camera selection")
+            print("")
+            return
+        try:
+            response = requests.post(url_raspi + "/video", json={"webcam0": camera0, "webcam1": camera1, "webcam2": -1}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Changed to video cameras {camera0}, {camera1}")
+            else:
+                print(f"Failed to change video cameras: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to change video cameras: {e}")
+        print("")
+
+    elif command == "pb":
+        try:
+            response = requests.post(url_sm + "/phase/back", json={"token": token_sm}, timeout=2)
+            if response.status_code == 200:
+                print(f"Changed to previous phase")
+            else:
+                print(f"Failed to change phase: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to change phase: {e}")
+        print("")
+
+    elif command == "pn":
+        try:
+            response = requests.post(url_sm + "/phase/next", json={"token": token_sm}, timeout=2)
+            if response.status_code == 200:
+                print(f"Changed to next phase")
+            else:
+                print(f"Failed to change phase: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to change phase: {e}")
+        print("")
+
+    elif command == "s":
+        try:
+            response = requests.post(url_sm + "/sensors/toggle", json={"token": token_sm}, timeout=2)
+            if response.status_code == 200:
+                print(f"Toggled sensor display")
+            else:
+                print(f"Failed to toggle sensor display: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to toggle sensor display: {e}")
+        print("")
+
+    elif command.startswith("sc "):
+        mode = command[3:]
+        try:
+            response = requests.post(url_sm + "/source", json={"token": token_sm, "connection": mode, "height": ""}, timeout=2)
+            if response.status_code == 200:
+                print(f"Changed source connection to {mode}")
+            else:
+                print(f"Failed to change source connection: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to change source connection: {e}")
+        print("")
+
+    elif command.startswith("sh "):
+        mode = command[3:]
+        try:
+            response = requests.post(url_sm + "/source", json={"token": token_sm, "connection": "", "height": mode}, timeout=2)
+            if response.status_code == 200:
+                print(f"Changed source height to {mode}")
+            else:
+                print(f"Failed to change source height: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to change source connection: {e}")
+        print("")
+
+    elif command == "th":
+        try:
+            response = requests.post(url_sm + "/title", json={"token": token_sm, "title": "", "subtitle": ""}, timeout=2)
+            if response.status_code == 200:
+                print("Hide title and subtitle popup")
+            else:
+                print(f"Failed to hide title and subtitle popup: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to hide title and subtitle popup: {e}")
+        print("")
+
+    elif command == "ts":
+        print("")
+        with open("title.txt", "r", encoding="utf-8") as f:
+            lines = f.read().strip().splitlines()
+            titles = [line.split(";") for line in lines]
+        print("Select title and subtitle popup:")
+        for i, (title, subtitle) in enumerate(titles):
+            print(f"[{i + 1}]: {title} - {subtitle}")
+        print("Enter number or cancel with enter:")
+        selection = input("> ").strip()
+        if not selection:
+            print("")
+            return
+        try:
+            title, subtitle = titles[int(selection) - 1]
+        except (ValueError, IndexError):
+            print("Invalid selection")
+            print("")
+            return
+        try:
+            response = requests.post(url_sm + "/title", json={"token": token_sm, "title": title, "subtitle": subtitle}, timeout=2)
+            if response.status_code == 200:
+                print(f"Set title to {title} and subtitle to {subtitle}")
+            else:
+                print(f"Failed to set title and subtitle popup: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to set title and subtitle popup: {e}")
+        print("")
+
+    elif command.startswith("tc "):
+        title, subtitle = command[3:].split(";")
+        try:
+            response = requests.post(url_sm + "/title", json={"token": token_sm, "title": title, "subtitle": subtitle}, timeout=2)
+            if response.status_code == 200:
+                print(f"Set title to {title} and subtitle to {subtitle}")
+            else:
+                print(f"Failed to set title and subtitle popup: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to set title and subtitle popup: {e}")
+        print("")
+
+    elif command == "r reboot system":
+        print("")
+        print("ATTENTION: THIS ACTION WILL REBOOT THE FULL RASPBERRY PI SYSTEM!")
+        print("Only do this under direct command of the flight director.")
+        print("Please enter confirmation code or cancel with enter:")
+        code = getpass.getpass("> ").strip()
+        try:
+            response = requests.post(url_raspi + "/restart/system", json={"code": code}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print("Full raspberry pi system rebooting")
+            elif response.status_code == 403:
+                print("Wrong confirmation code")
+            else:
+                print(f"Failed to reboot system: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to reboot system: {e}")
+        print("")
+
+    elif command.startswith("r restart "):
+        service = command[10:]
+        print("")
+        print(f"ATTENTION: THIS ACTION WILL RESTART THE SERVICE {service}!")
+        print("Only do this under direct command of the flight director.")
+        print("Please enter confirmation code or cancel with enter:")
+        code = getpass.getpass("> ").strip()
+        try:
+            response = requests.post(url_raspi + "/restart/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Service {service} restarted")
+            elif response.status_code == 403:
+                print("Wrong confirmation code")
+            else:
+                print(f"Failed to restart service {service}: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to restart service {service}: {e}")
+        print("")
+
+    elif command.startswith("r start "):
+        service = command[8:]
+        print("")
+        print(f"ATTENTION: THIS ACTION WILL START THE SERVICE {service}!")
+        print("Only do this under direct command of the flight director.")
+        print("Please enter confirmation code or cancel with enter:")
+        code = getpass.getpass("> ").strip()
+        try:
+            response = requests.post(url_raspi + "/start/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Service {service} started")
+            elif response.status_code == 403:
+                print("Wrong confirmation code")
+            else:
+                print(f"Failed to start service {service}: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to start service {service}: {e}")
+        print("")
+
+    elif command.startswith("r stop "):
+        service = command[7:]
+        print("")
+        print(f"ATTENTION: THIS ACTION WILL STOP THE SERVICE {service}!")
+        print("Only do this under direct command of the flight director.")
+        print("Please enter confirmation code or cancel with enter:")
+        code = getpass.getpass("> ").strip()
+        try:
+            response = requests.post(url_raspi + "/stop/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
+            if response.status_code == 200:
+                print(f"Service {service} stopped")
+            elif response.status_code == 403:
+                print("Wrong confirmation code")
+            else:
+                print(f"Failed to stop service {service}: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to stop service {service}: {e}")
+        print("")
+
+    elif command.startswith("cs "):
+        try:
+            month, day, hour, minute, second = [int(n) for n in command[3:].split(";")]
+            countdown = datetime.datetime(2025, month, day, hour, minute, second).timestamp()
+        except ValueError:
+            print("Invalid date and time")
+            print("")
+            return
+        try:
+            response = requests.post(url_sm + "/stream/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
+            if response.status_code == 200:
+                print(f"Set stream countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+            else:
+                print(f"Failed to set stream countdown: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to set stream countdown: {e}")
+        print("")
+
+    elif command.startswith("cs"):
+        try:
+            countdown = float(time.time() + int(command[2:]))
+            month = datetime.datetime.fromtimestamp(countdown).month
+            day = datetime.datetime.fromtimestamp(countdown).day
+            hour = datetime.datetime.fromtimestamp(countdown).hour
+            minute = datetime.datetime.fromtimestamp(countdown).minute
+            second = datetime.datetime.fromtimestamp(countdown).second
+        except ValueError:
+            print("Invalid second count")
+            print("")
+            return
+        try:
+            response = requests.post(url_sm + "/stream/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
+            if response.status_code == 200:
+                print(f"Set stream countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+            else:
+                print(f"Failed to set stream countdown: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to set stream countdown: {e}")
+        print("")
+
+    elif command.startswith("c "):
+        try:
+            month, day, hour, minute, second = [int(n) for n in command[2:].split(";")]
+            countdown = datetime.datetime(2025, month, day, hour, minute, second).timestamp()
+        except ValueError:
+            print("Invalid date and time")
+            print("")
+            return
+        try:
+            response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
+            if response.status_code == 200:
+                print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+            else:
+                print(f"Failed to set countdown: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to set countdown: {e}")
+        print("")
+
+    elif command.startswith("c"):
+        try:
+            countdown = float(time.time() + int(command[1:]))
+            month = datetime.datetime.fromtimestamp(countdown).month
+            day = datetime.datetime.fromtimestamp(countdown).day
+            hour = datetime.datetime.fromtimestamp(countdown).hour
+            minute = datetime.datetime.fromtimestamp(countdown).minute
+            second = datetime.datetime.fromtimestamp(countdown).second
+        except ValueError:
+            print("Invalid second count")
+            print("")
+            return
+        try:
+            response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
+            if response.status_code == 200:
+                print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+            else:
+                print(f"Failed to set countdown: {response.status_code}")
+            status_message(response)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to set countdown: {e}")
+        print("")
+
+    else:
+        print("Unknown command: " + command)
+        print("Type 'h' for help")
+        print("")
+
+
 def main():
 
-    global url_raspi, url_aprs, url_sm, username_raspi, password_raspi, token_sm, realtime, fail_count
+    global url_raspi, url_aprs, url_sm, username_raspi, password_raspi, token_sm, realtime, fail_count, gui_active
 
     print("Space Balloon Mission Control Console")
     print("=====================================")
@@ -242,13 +642,30 @@ def main():
         return
     print("")
 
+    if "-g" in sys.argv or "--nogui" in sys.argv:
+        gui_active = False
+
     print("Configuration:")
     print(f"Raspi URL: {url_raspi} (username: {username_raspi}, password: {'*' * len(password_raspi)})")
     print(f"APRS URL: {url_aprs} (username: {username_raspi}, password: {'*' * len(password_raspi)})")
     print(f"Stream manager URL: {url_sm} (token: {'*' * len(token_sm)})")
+    print(f"GUI: {'on' if gui_active else 'off'}")
     print("")
 
-    running = True
+    if gui_active:
+
+        import gui
+
+        def run_command_with_print(command):
+            print(f"Execute command: {command}")
+            run_command(command)
+
+        gui.run_command = run_command_with_print
+        gui.status_update = status
+
+        gui.start()
+
+        return
 
     while running:
 
@@ -257,369 +674,7 @@ def main():
         print("Enter command (h for help):")
         command = input("> ").strip()
 
-        if command == "h":
-            help()
-
-        elif command == "q":
-            running = False
-
-        elif command == "rt":
-            realtime = not realtime
-            fail_count = 0
-            print(f"Realtime status updates are now {'on' if realtime else 'off'}")
-            print("")
-
-        elif command == "l":
-            try:
-                response = requests.post(url_raspi + "/live", json={"webcam": -1}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Stopped livestream camera")
-                else:
-                    print(f"Failed to stop livestream camera: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to stop livestream camera: {e}")
-            print("")
-
-        elif command.startswith("l"):
-            try:
-                camera = int(command[1:])
-            except ValueError:
-                print("Invalid camera number")
-                print("")
-                continue
-            try:
-                response = requests.post(url_raspi + "/live", json={"webcam": camera}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Changed to livestream camera {camera}")
-                else:
-                    print(f"Failed to change livestream camera: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to change livestream camera: {e}")
-            print("")
-
-        elif command == "v":
-            try:
-                response = requests.post(url_raspi + "/video", json={"webcam0": -1, "webcam1": -1, "webcam2": -1}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Stopped saving video file")
-                else:
-                    print(f"Failed to stop saving video file: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to stop saving video file: {e}")
-            print("")
-
-        elif command.startswith("v"):
-            try:
-                cameras = [int(n) for n in command[1:]]
-                camera0 = cameras[0] if len(cameras) > 0 else -1
-                camera1 = cameras[1] if len(cameras) > 1 else -1
-                camera2 = cameras[2] if len(cameras) > 2 else -1
-            except ValueError:
-                print("Invalid camera selection")
-                print("")
-                continue
-            if camera0 == camera1 != -1 or camera0 == camera2 != -1 or camera1 == camera2 != -1:
-                print("Duplicate camera selection")
-                print("")
-                continue
-            try:
-                response = requests.post(url_raspi + "/video", json={"webcam0": camera0, "webcam1": camera1, "webcam2": -1}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Changed to video cameras {camera0}, {camera1}")
-                else:
-                    print(f"Failed to change video cameras: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to change video cameras: {e}")
-            print("")
-
-        elif command == "pb":
-            try:
-                response = requests.post(url_sm + "/phase/back", json={"token": token_sm}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Changed to previous phase")
-                else:
-                    print(f"Failed to change phase: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to change phase: {e}")
-            print("")
-
-        elif command == "pn":
-            try:
-                response = requests.post(url_sm + "/phase/next", json={"token": token_sm}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Changed to next phase")
-                else:
-                    print(f"Failed to change phase: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to change phase: {e}")
-            print("")
-
-        elif command == "s":
-            try:
-                response = requests.post(url_sm + "/sensors/toggle", json={"token": token_sm}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Toggled sensor display")
-                else:
-                    print(f"Failed to toggle sensor display: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to toggle sensor display: {e}")
-            print("")
-
-        elif command.startswith("sc "):
-            mode = command[3:]
-            try:
-                response = requests.post(url_sm + "/source", json={"token": token_sm, "connection": mode, "height": ""}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Changed source connection to {mode}")
-                else:
-                    print(f"Failed to change source connection: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to change source connection: {e}")
-            print("")
-
-        elif command.startswith("sh "):
-            mode = command[3:]
-            try:
-                response = requests.post(url_sm + "/source", json={"token": token_sm, "connection": "", "height": mode}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Changed source height to {mode}")
-                else:
-                    print(f"Failed to change source height: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to change source connection: {e}")
-            print("")
-
-        elif command == "th":
-            try:
-                response = requests.post(url_sm + "/title", json={"token": token_sm, "title": "", "subtitle": ""}, timeout=2)
-                if response.status_code == 200:
-                    print("Hide title and subtitle popup")
-                else:
-                    print(f"Failed to hide title and subtitle popup: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to hide title and subtitle popup: {e}")
-            print("")
-
-        elif command == "ts":
-            print("")
-            with open("title.txt", "r", encoding="utf-8") as f:
-                lines = f.read().strip().splitlines()
-                titles = [line.split(";") for line in lines]
-            print("Select title and subtitle popup:")
-            for i, (title, subtitle) in enumerate(titles):
-                print(f"[{i + 1}]: {title} - {subtitle}")
-            print("Enter number or cancel with enter:")
-            selection = input("> ").strip()
-            if not selection:
-                print("")
-                continue
-            try:
-                title, subtitle = titles[int(selection) - 1]
-            except (ValueError, IndexError):
-                print("Invalid selection")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/title", json={"token": token_sm, "title": title, "subtitle": subtitle}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set title to {title} and subtitle to {subtitle}")
-                else:
-                    print(f"Failed to set title and subtitle popup: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set title and subtitle popup: {e}")
-            print("")
-
-        elif command.startswith("tc "):
-            title, subtitle = command[3:].split(";")
-            try:
-                response = requests.post(url_sm + "/title", json={"token": token_sm, "title": title, "subtitle": subtitle}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set title to {title} and subtitle to {subtitle}")
-                else:
-                    print(f"Failed to set title and subtitle popup: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set title and subtitle popup: {e}")
-            print("")
-
-        elif command == "r reboot system":
-            print("")
-            print("ATTENTION: THIS ACTION WILL REBOOT THE FULL RASPBERRY PI SYSTEM!")
-            print("Only do this under direct command of the flight director.")
-            print("Please enter confirmation code or cancel with enter:")
-            code = getpass.getpass("> ").strip()
-            try:
-                response = requests.post(url_raspi + "/restart/system", json={"code": code}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print("Full raspberry pi system rebooting")
-                elif response.status_code == 403:
-                    print("Wrong confirmation code")
-                else:
-                    print(f"Failed to reboot system: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to reboot system: {e}")
-            print("")
-
-        elif command.startswith("r restart "):
-            service = command[10:]
-            print("")
-            print(f"ATTENTION: THIS ACTION WILL RESTART THE SERVICE {service}!")
-            print("Only do this under direct command of the flight director.")
-            print("Please enter confirmation code or cancel with enter:")
-            code = getpass.getpass("> ").strip()
-            try:
-                response = requests.post(url_raspi + "/restart/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Service {service} restarted")
-                elif response.status_code == 403:
-                    print("Wrong confirmation code")
-                else:
-                    print(f"Failed to restart service {service}: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to restart service {service}: {e}")
-            print("")
-
-        elif command.startswith("r start "):
-            service = command[8:]
-            print("")
-            print(f"ATTENTION: THIS ACTION WILL START THE SERVICE {service}!")
-            print("Only do this under direct command of the flight director.")
-            print("Please enter confirmation code or cancel with enter:")
-            code = getpass.getpass("> ").strip()
-            try:
-                response = requests.post(url_raspi + "/start/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Service {service} started")
-                elif response.status_code == 403:
-                    print("Wrong confirmation code")
-                else:
-                    print(f"Failed to start service {service}: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to start service {service}: {e}")
-            print("")
-
-        elif command.startswith("r stop "):
-            service = command[7:]
-            print("")
-            print(f"ATTENTION: THIS ACTION WILL STOP THE SERVICE {service}!")
-            print("Only do this under direct command of the flight director.")
-            print("Please enter confirmation code or cancel with enter:")
-            code = getpass.getpass("> ").strip()
-            try:
-                response = requests.post(url_raspi + "/stop/service", json={"service": service, "code": code}, auth=(username_raspi, password_raspi), timeout=5)
-                if response.status_code == 200:
-                    print(f"Service {service} stopped")
-                elif response.status_code == 403:
-                    print("Wrong confirmation code")
-                else:
-                    print(f"Failed to stop service {service}: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to stop service {service}: {e}")
-            print("")
-
-        elif command.startswith("cs "):
-            try:
-                month, day, hour, minute, second = [int(n) for n in command[3:].split(";")]
-                countdown = datetime.datetime(2025, month, day, hour, minute, second).timestamp()
-            except ValueError:
-                print("Invalid date and time")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/stream/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set stream countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                else:
-                    print(f"Failed to set stream countdown: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set stream countdown: {e}")
-            print("")
-
-        elif command.startswith("cs"):
-            try:
-                countdown = float(time.time() + int(command[2:]))
-                month = datetime.datetime.fromtimestamp(countdown).month
-                day = datetime.datetime.fromtimestamp(countdown).day
-                hour = datetime.datetime.fromtimestamp(countdown).hour
-                minute = datetime.datetime.fromtimestamp(countdown).minute
-                second = datetime.datetime.fromtimestamp(countdown).second
-            except ValueError:
-                print("Invalid second count")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/stream/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set stream countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                else:
-                    print(f"Failed to set stream countdown: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set stream countdown: {e}")
-            print("")
-
-        elif command.startswith("c "):
-            try:
-                month, day, hour, minute, second = [int(n) for n in command[2:].split(";")]
-                countdown = datetime.datetime(2025, month, day, hour, minute, second).timestamp()
-            except ValueError:
-                print("Invalid date and time")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                else:
-                    print(f"Failed to set countdown: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set countdown: {e}")
-            print("")
-
-        elif command.startswith("c"):
-            try:
-                countdown = float(time.time() + int(command[1:]))
-                month = datetime.datetime.fromtimestamp(countdown).month
-                day = datetime.datetime.fromtimestamp(countdown).day
-                hour = datetime.datetime.fromtimestamp(countdown).hour
-                minute = datetime.datetime.fromtimestamp(countdown).minute
-                second = datetime.datetime.fromtimestamp(countdown).second
-            except ValueError:
-                print("Invalid second count")
-                print("")
-                continue
-            try:
-                response = requests.post(url_sm + "/countdown", json={"token": token_sm, "time": countdown}, timeout=2)
-                if response.status_code == 200:
-                    print(f"Set countdown to {month:02d}/{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                else:
-                    print(f"Failed to set countdown: {response.status_code}")
-                status_message(response)
-            except requests.exceptions.RequestException as e:
-                print(f"Failed to set countdown: {e}")
-            print("")
-
-        else:
-            print("Unknown command: " + command)
-            print("Type 'h' for help")
-            print("")
+        run_command(command)        
 
 
 if __name__ == "__main__":
