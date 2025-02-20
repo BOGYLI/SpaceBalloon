@@ -31,6 +31,13 @@ height_buttons = {}
 flight_phase_buttons = {}
 
 
+COLOR_BG = "#f0f0f0"
+COLOR_BUTTON = "#ffffff"
+COLOR_TEXT = "#000000"
+COLOR_ACCENT = "#e7931a"
+COLOR_HIGHLIGHT = "#cccccc"
+
+
 with open("title.txt", "r", encoding="utf-8") as f:
     lines = f.read().strip().splitlines()
     TITLES = ["  +++  ".join(line.split(";")) for line in lines]
@@ -161,22 +168,22 @@ def execute_raw_command():
 def update_live_camera_buttons():
     for i, active in enumerate(live_cams_active):
         if active:
-            live_camera_buttons[i].configure(bg="green")
+            live_camera_buttons[i].configure(bg=COLOR_ACCENT)
         else:
-            live_camera_buttons[i].configure(bg="white")
+            live_camera_buttons[i].configure(bg=COLOR_BUTTON)
 
 
 def update_video_camera_buttons():
     for i, active in enumerate(video_cams_active):
         if active:
-            video_camera_buttons[i].configure(bg="green")
+            video_camera_buttons[i].configure(bg=COLOR_ACCENT)
         else:
-            video_camera_buttons[i].configure(bg="white")
+            video_camera_buttons[i].configure(bg=COLOR_BUTTON)
 
 
 def update_sensor_button():
     if sensor_toggle_button is not None:
-        sensor_toggle_button.configure(bg="green" if sensor_display else "white")
+        sensor_toggle_button.configure(bg=COLOR_ACCENT if sensor_display else COLOR_BUTTON)
 
 
 def update_title():
@@ -262,29 +269,29 @@ def update_stream_countdown_labels():
 
 def update_connection_buttons():
     if "wifi" in connection_buttons:
-        connection_buttons["wifi"].configure(bg="green" if source_connection == "wifi" else "white")
+        connection_buttons["wifi"].configure(bg=COLOR_ACCENT if source_connection == "wifi" else COLOR_BUTTON)
     if "aprs" in connection_buttons:
-        connection_buttons["aprs"].configure(bg="green" if source_connection == "aprs" else "white")
+        connection_buttons["aprs"].configure(bg=COLOR_ACCENT if source_connection == "aprs" else COLOR_BUTTON)
 
 
 def update_height_buttons():
     if "gps" in height_buttons:
-        height_buttons["gps"].configure(bg="green" if source_height=="gps" else "white")
+        height_buttons["gps"].configure(bg=COLOR_ACCENT if source_height=="gps" else COLOR_BUTTON)
     if "climate" in height_buttons:
-        height_buttons["climate"].configure(bg="green" if source_height == "climate" else "white")
+        height_buttons["climate"].configure(bg=COLOR_ACCENT if source_height == "climate" else COLOR_BUTTON)
 
 
 def update_control_buttons():
-    realtime_button.configure(bg="green" if realtime else "white")
-    autoupdate_button.configure(bg="green" if autoupdate else "white")
+    realtime_button.configure(bg=COLOR_ACCENT if realtime else COLOR_BUTTON)
+    autoupdate_button.configure(bg=COLOR_ACCENT if autoupdate else COLOR_BUTTON)
 
 
 def update_phase_display():
     for lbl in phase_labels:
         if lbl.cget("text") == phase_active:
-            lbl.configure(bg="gray")
+            lbl.configure(bg=COLOR_HIGHLIGHT)
         else:
-            lbl.configure(bg="white")
+            lbl.configure(bg=COLOR_BUTTON)
 
 
 def update_ui():
@@ -340,7 +347,9 @@ def periodic_refresh():
 
 root = tk.Tk()
 root.geometry("800x800")
+root.configure(bg=COLOR_BG)
 root.title("Space Balloon Mission Control Console")
+
 
 # ------------------------------------------------------------
 # Bereich Steuerung
@@ -351,10 +360,10 @@ control_frame.columnconfigure(0, weight=1)
 control_frame.columnconfigure(1, weight=1)
 control_frame.columnconfigure(2, weight=1)
 
-realtime_button = tk.Button(control_frame, text="Realtime Modus (WiFi Verfügbar)", width=20, bg="white", relief="solid", bd=1, command=toggle_realtime)
+realtime_button = tk.Button(control_frame, text="Realtime Modus (WiFi Verfügbar)", width=20, bg=COLOR_BUTTON, fg=COLOR_TEXT, relief="solid", bd=1, command=toggle_realtime)
 realtime_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-autoupdate_button = tk.Button(control_frame, text="Auto Update (alle 20s)", width=20, bg="white", relief="solid", bd=1, command=toggle_autoupdate)
+autoupdate_button = tk.Button(control_frame, text="Auto Update (alle 20s)", width=20, bg=COLOR_BUTTON, fg=COLOR_TEXT, relief="solid", bd=1, command=toggle_autoupdate)
 autoupdate_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 refresh_button = ttk.Button(control_frame, text="Jetzt aktualisieren", width=20, command=refresh_status)
@@ -397,7 +406,8 @@ for col in range(1, 9):
 
 title_labels = ["", "Monat", "Tag", "Stunde", "Minute", "Sekunde", "", "Countdown (aktuell)", "Countdown (neu)"]
 for col, text in enumerate(title_labels):
-    ttk.Label(combined_countdown_frame, text=text).grid(row=0, column=col, padx=5, pady=5)
+    if text:
+        ttk.Label(combined_countdown_frame, text=text).grid(row=0, column=col, padx=5, pady=5)
 
 ttk.Label(combined_countdown_frame, text="Countdown").grid(row=1, column=0, padx=5, pady=5)
 countdown_month_entry = ttk.Entry(combined_countdown_frame, width=8)
@@ -456,7 +466,7 @@ for i in range(5):  # Kameras 0 bis 4
     btn = tk.Button(live_camera_frame,
                     text=f"Kamera {i}",
                     width=15,
-                    bg="white",
+                    bg=COLOR_BUTTON, fg=COLOR_TEXT,
                     relief="solid",
                     bd=1,
                     command=lambda idx=i: toggle_live_camera(idx))
@@ -474,7 +484,7 @@ for i in range(5):  # Kameras 0 bis 4
     btn = tk.Button(video_camera_frame,
                     text=f"Kamera {i}",
                     width=15,
-                    bg="white",
+                    bg=COLOR_BUTTON, fg=COLOR_TEXT,
                     relief="solid",
                     bd=1,
                     command=lambda idx=i: toggle_video_camera(idx))
@@ -490,7 +500,7 @@ sensor_frame.columnconfigure(0, weight=1)
 sensor_toggle_button = tk.Button(sensor_frame,
                                  text="Sensoren anzeigen",
                                  width=15,
-                                 bg="white",
+                                 bg=COLOR_BUTTON, fg=COLOR_TEXT,
                                  relief="solid",
                                  bd=1,
                                  command=toggle_sensors)
@@ -512,7 +522,7 @@ for col in range(2):
 btn_wifi = tk.Button(connection_frame,
                       text="WiFi",
                       width=15,
-                      bg="green",
+                      bg=COLOR_BUTTON, fg=COLOR_TEXT,
                       relief="solid",
                       bd=1,
                       command=lambda: select_connection_source("wifi"))
@@ -521,7 +531,7 @@ connection_buttons["wifi"] = btn_wifi
 btn_aprs = tk.Button(connection_frame,
                       text="APRS",
                       width=15,
-                      bg="white",
+                      bg=COLOR_BUTTON, fg=COLOR_TEXT,
                       relief="solid",
                       bd=1,
                       command=lambda: select_connection_source("aprs"))
@@ -535,7 +545,7 @@ height_frame.columnconfigure(2, weight=1)
 btn_gps = tk.Button(height_frame,
                     text="GPS",
                     width=15,
-                    bg="green",
+                    bg=COLOR_BUTTON, fg=COLOR_TEXT,
                     relief="solid",
                     bd=1,
                     command=lambda: select_height_source("gps"))
@@ -544,7 +554,7 @@ height_buttons["gps"] = btn_gps
 btn_climate = tk.Button(height_frame,
                         text="Climate",
                         width=15,
-                        bg="white",
+                        bg=COLOR_BUTTON, fg=COLOR_TEXT,
                         relief="solid",
                         bd=1,
                         command=lambda: select_height_source("climate"))
@@ -570,7 +580,7 @@ phase_display_frame.pack(side="left", expand=True, fill="x")
 phases = ["Countdown", "Troposphäre", "Stratosphäre", "Sinkflug", "Rescue"]
 phase_labels = []
 for phase in phases:
-    lbl = tk.Label(phase_display_frame, text=phase, relief="solid", bd=1, width=15)
+    lbl = tk.Label(phase_display_frame, text=phase, relief="solid", bg=COLOR_BUTTON, fg=COLOR_TEXT, bd=1, width=15)
     lbl.pack(side="left", fill="x", expand=True, padx=5)
     phase_labels.append(lbl)
 
@@ -597,10 +607,10 @@ execute_command_button.grid(row=0, column=2, padx=5, pady=5)
 footer_frame = ttk.Frame(root)
 footer_frame.pack(side="bottom", fill="x", padx=10, pady=5)
 
-left_footer = tk.Label(footer_frame, text="Space Balloon Mission Control Console (V3)", anchor="w")
+left_footer = tk.Label(footer_frame, text="Space Balloon Mission Control Console (V3)", anchor="w", bg=COLOR_BG, fg=COLOR_TEXT)
 left_footer.pack(side="left", fill="x", expand=True)
 
-right_footer = tk.Label(footer_frame, text="Design von Nikolas Beyer und Felix Berg", anchor="e")
+right_footer = tk.Label(footer_frame, text="Design von Nikolas Beyer und Felix Berg", anchor="e", bg=COLOR_BG, fg=COLOR_TEXT)
 right_footer.pack(side="right", fill="x", expand=True)
 
 
