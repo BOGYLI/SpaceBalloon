@@ -654,6 +654,8 @@ def main():
 
     if gui_active:
 
+        realtime = False
+
         import gui
 
         def run_command_with_print(command):
