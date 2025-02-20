@@ -466,7 +466,7 @@ def influx():
         if co2_updated != 0:
             points.append(influxdb_client.Point("wifi_co2").time(int(co2_updated), "s").field("temp_c", co2.temp_c).field("temp_f", co2.temp_f)
                           .field("temp_k", co2.temp_k).field("co2_avg", co2.co2_avg).field("co2_raw", co2.co2_raw)
-                          .field("co2_avg_npc", co2.co2_avg_npc).field("co2_raw_npc", co2.co2_raw_npc)
+                          .field("co2_avg_npc", co2.co2_avg_npc).field("co2_raw_npc", co2.co2_raw_npc).field("co2", co2.co2_avg)
                           .field("pressure_mbar", co2.pressure_mbar).field("pressure_psi", co2.pressure_psi))
         
         if gps_updated != 0:
