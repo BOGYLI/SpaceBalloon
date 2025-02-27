@@ -246,11 +246,13 @@ def update_countdown_labels():
 
 def update_stream_countdown_labels():
     delta = stream_countdown - time.time()
-    text = "T-" if delta > 0 else "T+"
-    delta = abs(delta)
-    hours, remainder = divmod(delta, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    stream_countdown_label_active.configure(text=f"{text}{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}")
+    if delta > 0:
+        delta = abs(delta)
+        hours, remainder = divmod(delta, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        stream_countdown_label_active.configure(text=f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}")
+    else:
+        stream_countdown_label_active.configure(text="00:00:00")
     try:
         month = int(stream_countdown_month_entry.get().strip())
         day = int(stream_countdown_day_entry.get().strip())
@@ -258,11 +260,13 @@ def update_stream_countdown_labels():
         minute = int(stream_countdown_minute_entry.get().strip())
         second = int(stream_countdown_second_entry.get().strip())
         delta = datetime.datetime(year=2025, month=month, day=day, hour=hour, minute=minute, second=second) - datetime.datetime.now()
-        text = "T-" if delta.total_seconds() > 0 else "T+"
-        delta = abs(delta.total_seconds())
-        hours, remainder = divmod(delta, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        stream_countdown_label_new.configure(text=f"{text}{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}")
+        if delta.total_seconds() > 0:
+            delta = abs(delta.total_seconds())
+            hours, remainder = divmod(delta, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            stream_countdown_label_new.configure(text=f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}")
+        else:
+            stream_countdown_label_new.configure(text="00:00:00")
     except ValueError:
         stream_countdown_label_new.configure(text="Ungültige Eingabe")
 
@@ -580,7 +584,7 @@ phase_display_frame.pack(side="left", expand=True, fill="x")
 phases = ["Countdown", "Troposphäre", "Stratosphäre", "Sinkflug", "Rescue"]
 phase_labels = []
 for phase in phases:
-    lbl = tk.Label(phase_display_frame, text=phase, relief="solid", bg=COLOR_BUTTON, fg=COLOR_TEXT, bd=1, width=15)
+    lbl = tk.Label(phase_display_frame, text=phase, relief="solid", bg=COLOR_BUTTON, fg=COLOR_TEXT, bd=1, width=12)
     lbl.pack(side="left", fill="x", expand=True, padx=5)
     phase_labels.append(lbl)
 

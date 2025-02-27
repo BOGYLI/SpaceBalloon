@@ -89,10 +89,10 @@ def status():
                 print("No raspi status via WiFi available (Fallback to APRS)")
                 aprs_fallback = True
             else:
-                live_cams_active[status['live']['webcam']] = True
-                video_cams_active[status['video']['webcam0']] = True
-                video_cams_active[status['video']['webcam1']] = True
-                video_cams_active[status['video']['webcam2']] = True
+                if status['live']['webcam'] != -1: live_cams_active[status['live']['webcam']] = True
+                if status['video']['webcam0'] != -1: video_cams_active[status['video']['webcam0']] = True
+                if status['video']['webcam1'] != -1: video_cams_active[status['video']['webcam1']] = True
+                if status['video']['webcam2'] != -1: video_cams_active[status['video']['webcam2']] = True
                 print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
                 print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
                         f"{convert_camera_name(status['video']['webcam1'])}, " +
@@ -131,10 +131,10 @@ def status():
                     print("No raspi status via APRS available")
                     aprs_fallback = True
                 else:
-                    live_cams_active[status['live']['webcam']] = True
-                    video_cams_active[status['video']['webcam0']] = True
-                    video_cams_active[status['video']['webcam1']] = True
-                    video_cams_active[status['video']['webcam2']] = True
+                    if status['live']['webcam'] != -1: live_cams_active[status['live']['webcam']] = True
+                    if status['video']['webcam0'] != -1: video_cams_active[status['video']['webcam0']] = True
+                    if status['video']['webcam1'] != -1: video_cams_active[status['video']['webcam1']] = True
+                    if status['video']['webcam2'] != -1: video_cams_active[status['video']['webcam2']] = True
                     print(f"Live camera: {convert_camera_name(status['live']['webcam'])}")
                     print(f"Video cameras: {convert_camera_name(status['video']['webcam0'])}, " +
                             f"{convert_camera_name(status['video']['webcam1'])}, " +
