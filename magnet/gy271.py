@@ -28,7 +28,7 @@ Y_axis_H = 0x04 # Address of Y-axis MSB data register
 TEMP_REG = 0x07 # Address of Temperature MSB data register
 
 # declination angle of location where measurement going to be done
-CURR_DECL = -0.00669 # determine by yourself
+CURR_DECL = 0 # determine by yourself
 pi = 3.14159265359 # define pi value
 
 class compass():
