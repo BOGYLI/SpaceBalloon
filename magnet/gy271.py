@@ -28,7 +28,7 @@ Y_axis_H = 0x04 # Address of Y-axis MSB data register
 TEMP_REG = 0x07 # Address of Temperature MSB data register
 
 # declination angle of location where measurement going to be done
-CURR_DECL = -0.00669 # determine by yourself
+CURR_DECL = 0 # determine by yourself
 pi = 3.14159265359 # define pi value
 
 class compass():
@@ -37,6 +37,7 @@ class compass():
         self.device_address = address # magnetometer device i2c address
         self._declination = d
         self.magnetometer_init(mode, odr, sens, osr)
+        self.offset = [-3281.5, -2423.5, -9762.0]
         self.x, self.y, self.z = 0, 0, 0
         sleep(2)
 
@@ -76,9 +77,9 @@ class compass():
 
     def get_bearing(self):
         # Read Accelerometer raw value
-        self.x = self.__read_raw_data(X_axis_H)
-        self.z = self.__read_raw_data(Z_axis_H)
-        self.y = self.__read_raw_data(Y_axis_H)
+        self.x = (self.__read_raw_data(X_axis_H) - self.offset[0]) / 3000
+        self.y = (self.__read_raw_data(Y_axis_H) - self.offset[1]) / 3000
+        self.z = (self.__read_raw_data(Z_axis_H) - self.offset[2]) / 3000
         
         heading = math.atan2(self.y, self.x) + self._declination
         

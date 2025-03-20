@@ -2,6 +2,10 @@ let isFetching = false;
 let phase = 0;
 let height = 0;
 let speed = 0;
+let steps_height = 0;
+let steps_speed = 0;
+let target_height = 0;
+let target_speed = 0;
 
 function fetchHeight() {
 
@@ -13,11 +17,12 @@ function fetchHeight() {
         .then(response => response.json())
         .then(data => {
             phase = data.phase;
-            height = data.height;
-            speed = data.speed;
+            steps_height = data.height == target_height ? steps_height : 240;
+            steps_speed = data.speed == target_speed ? steps_speed : 240;
+            target_height = data.height;
+            target_speed = data.speed;
             isFetching = false;
             console.log('Fetched height:', data);
-            renderHeight();
             setTimeout(fetchHeight, 2000);
         })
         .catch(error => {
@@ -29,6 +34,15 @@ function fetchHeight() {
 }
 
 function renderHeight() {
+
+    if (steps_height > 0) {
+        height = height + (target_height - height) / steps_height;
+        steps_height--;
+    }
+    if (steps_speed > 0) {
+        speed = speed + (target_speed - speed) / steps_speed;
+        steps_speed--;
+    }
 
     heightElement = document.getElementById('height-value');
     speedElement = document.getElementById('speed-value');
@@ -62,6 +76,8 @@ function renderHeight() {
     diagramHeight = (ratio * (height < 33000 ? height : 33000)).toFixed(0);
 
     posElement.style.top = 917 - 144 - 45 - diagramHeight + 'px';
+
+    setTimeout(renderHeight, 33);
 
 }
 
