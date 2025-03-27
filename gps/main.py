@@ -21,11 +21,19 @@ logger = utils.init_logger("gps")
 bus = smbus2.SMBus(I2C_BUS)
 
 
-def convert_to_degrees(raw_value):
-    """Convert NMEA raw latitude/longitude format to decimal degrees."""
+def convert_to_degrees_lat(raw_value):
+    """Convert NMEA raw latitude format to decimal degrees."""
 
-    degrees = int(raw_value[:2])
-    minutes = float(raw_value[2:])
+    degrees = int(raw_value[:2])  # These two numbers almost killed our project :/
+    minutes = float(raw_value[2:])  # These two numbers almost killed our project :/
+    return degrees + minutes / 60
+
+
+def convert_to_degrees_lon(raw_value):
+    """Convert NMEA raw longitude format to decimal degrees."""
+
+    degrees = int(raw_value[:3])  # These two numbers almost killed our project :/
+    minutes = float(raw_value[3:])  # These two numbers almost killed our project :/
     return degrees + minutes / 60
 
 
@@ -66,11 +74,11 @@ def extract_lat_lon_alt(nmea_sentence):
             parts = nmea_sentence.split(',')
             if len(parts) > 6 and parts[3] and parts[5]:
                 # Extract latitude and longitude
-                latitude = convert_to_degrees(parts[3])
+                latitude = convert_to_degrees_lat(parts[3])
                 if parts[4] == 'S':
                     latitude = -latitude
 
-                longitude = convert_to_degrees(parts[5])
+                longitude = convert_to_degrees_lon(parts[5])
                 if parts[6] == 'W':
                     longitude = -longitude
 
@@ -78,11 +86,11 @@ def extract_lat_lon_alt(nmea_sentence):
             parts = nmea_sentence.split(',')
             if len(parts) > 9 and parts[2] and parts[4] and parts[9]:
                 # Extract latitude and longitude
-                latitude = convert_to_degrees(parts[2])
+                latitude = convert_to_degrees_lat(parts[2])
                 if parts[3] == 'S':
                     latitude = -latitude
 
-                longitude = convert_to_degrees(parts[4])
+                longitude = convert_to_degrees_lon(parts[4])
                 if parts[5] == 'W':
                     longitude = -longitude
 
